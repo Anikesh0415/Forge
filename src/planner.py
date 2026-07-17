@@ -2,6 +2,45 @@ import json
 import re
 import requests
 
+
+# ---------------------------------------------------------------------------
+# RESILIENT JSON PARSING HELPERS
+# ---------------------------------------------------------------------------
+
+def clean_and_parse_json(raw_text: str):
+    """Strips markdown fences and whitespace before calling json.loads."""
+    raw_text = raw_text.strip()
+    # Strip opening fence (e.g. ```json or ```)
+    if raw_text.startswith("```"):
+        raw_text = raw_text.split("\n", 1)[-1]
+    # Strip closing fence
+    if raw_text.endswith("```"):
+        raw_text = raw_text.rsplit("\n", 1)[0]
+    return json.loads(raw_text.strip())
+
+
+def extract_steps(parsed_data) -> list:
+    """
+    Self-healing converter: accepts a list or a dict wrapper and always
+    returns a flat list of action steps.
+    """
+    if isinstance(parsed_data, list):
+        return parsed_data
+
+    if isinstance(parsed_data, dict):
+        # Heuristic 1: look for common wrapper keys
+        for key in ["steps", "plan", "actions", "task_steps", "sequence"]:
+            if key in parsed_data and isinstance(parsed_data[key], list):
+                print(f"[ARIA Parser] Extracted steps from dict key: '{key}'")
+                return parsed_data[key]
+
+        # Heuristic 2: single-step dict — wrap it in a list
+        if "action" in parsed_data or "type" in parsed_data or "description" in parsed_data:
+            print("[ARIA Parser] Wrapped single-action dict into list.")
+            return [parsed_data]
+
+    raise ValueError(f"Could not extract a valid steps list from: {type(parsed_data)}")
+
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
 
 # Phase 1: Downsized to 3B (2.2 GB RAM) so ARIA + VISTA fit simultaneously.
@@ -49,9 +88,10 @@ EXAMPLE — "search for python tutorials on youtube":
 def generate_plan(instruction: str) -> list:
     """
     Calls ARIA (qwen2.5:3b) to generate a structured action plan.
-    - keep_alive: -1  → model stays pinned in RAM permanently (Phase 1).
-    - format: json    → Ollama enforces valid JSON output (Phase 2).
+    - keep_alive: -1  → model pinned in RAM permanently.
+    - format: json    → Ollama enforces valid JSON at the token level.
     - temperature: 0  → Fully deterministic / no hallucinations.
+    Uses clean_and_parse_json + extract_steps for bulletproof parsing.
     """
     prompt = f"User Request: {instruction}\nOutput the JSON action plan now."
 
@@ -60,43 +100,41 @@ def generate_plan(instruction: str) -> list:
         "system": PLANNER_SYSTEM_PROMPT,
         "prompt": prompt,
         "stream": False,
-        "format": "json",       # Phase 2: enforces valid JSON at the token level
-        "keep_alive": -1,       # Phase 1: pin ARIA in RAM forever
+        "format": "json",
+        "keep_alive": -1,
         "options": {
             "temperature": 0.0,
             "num_predict": 512,
         }
     }
 
+    result_text = ""
     try:
         response = requests.post(OLLAMA_API_URL, json=payload, timeout=60)
         response.raise_for_status()
         result_text = response.json().get("response", "").strip()
 
-        # The model MUST return a JSON array. Try direct parse first.
-        parsed = json.loads(result_text)
+        # Step 1: Strip markdown fences and parse JSON
+        parsed = clean_and_parse_json(result_text)
 
-        # If the model wrapped the array in a dict (e.g. {"plan": [...]}) unwrap it.
-        if isinstance(parsed, dict):
-            for v in parsed.values():
-                if isinstance(v, list):
-                    parsed = v
-                    break
-
-        if not isinstance(parsed, list):
-            raise ValueError(f"Expected a JSON array, got: {type(parsed)}")
-
-        return parsed
+        # Step 2: Self-heal dict wrappers into a flat list
+        return extract_steps(parsed)
 
     except json.JSONDecodeError as e:
-        print(f"[ARIA Planner] JSON decode error: {e}\nRaw response: {result_text}")
-        # Last-resort: try to extract a JSON array with regex
-        match = re.search(r'\[.*\]', result_text, re.DOTALL)
-        if match:
-            try:
-                return json.loads(match.group(0))
-            except Exception:
-                pass
+        print(f"[ARIA Planner] JSON decode error: {e}")
+        print(f"[ARIA Planner] Raw response was: {result_text[:300]}")
+        # Last-resort regex fallback: find any [...] or {...} block
+        for pattern in [r'\[.*?\]', r'\{.*?\}']:
+            match = re.search(pattern, result_text, re.DOTALL)
+            if match:
+                try:
+                    parsed = json.loads(match.group(0))
+                    return extract_steps(parsed)
+                except Exception:
+                    pass
+        return []
+    except ValueError as e:
+        print(f"[ARIA Parser Error] {e}")
         return []
     except Exception as e:
         print(f"[ARIA Planner Error] {e}")
