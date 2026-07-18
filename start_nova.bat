@@ -10,4 +10,7 @@ start /B ollama serve
 timeout /t 3 /nobreak >nul
 
 echo Ollama ready with GPU. Starting NOVA...
+IF EXIST "venv\Scripts\activate.bat" (
+    call venv\Scripts\activate.bat
+)
 python server.py
