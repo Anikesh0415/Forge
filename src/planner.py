@@ -43,8 +43,8 @@ def extract_steps(parsed_data) -> list:
 
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
 
-# Phase 1: Upgraded to 7B because 3B model cannot plan complex multi-app workflows.
-PLANNER_MODEL = "qwen2.5:7b-instruct-q4_K_M"
+# Phase 1: Upgraded to Llama 3.1 8B for highly robust instruction following
+PLANNER_MODEL = "llama3.1:latest"
 
 # ---------------------------------------------------------------------------
 # ARIA SYSTEM PROMPT
@@ -59,15 +59,14 @@ CRITICAL RULES — NEVER VIOLATE:
 5. Each step must be a specific executable action, not a summary
 
 STEP TYPES AVAILABLE:
-  {"action": "open_app",        "app": "<name>"}
-  {"action": "navigate_browser","url": "<full_url>"}
-  {"action": "type",            "text": "<text>",  "anchor_check": "<what VISTA should see after this>"}
-  {"action": "key",             "key": "<key_name>","anchor_check": "<what VISTA should see after this>"}
-  {"action": "copy_all"}
-  {"action": "paste"}
-  {"action": "click",           "x": <int>, "y": <int>}
-  {"action": "scroll",          "amount": <int>}
-  {"action": "speak",           "text": "what to say to user"}
+- open_browser: {"action": "open_browser", "url": "https://..."}
+- click_element: {"action": "click_element", "target": "description of element"}
+- type_text: {"action": "type_text", "text": "exact text to type"}
+- key_shortcut: {"action": "key_shortcut", "keys": "ctrl+c"}
+- wait_until: {"action": "wait_until", "condition": "exact screen condition to wait for"}
+- open_app: {"action": "open_app", "name": "app name"}
+- scroll: {"action": "scroll", "direction": "down", "amount": 3}
+- speak: {"action": "speak", "text": "what to say to user"}
 
 OUTPUT FORMAT (strict JSON):
 [

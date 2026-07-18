@@ -63,19 +63,20 @@ def execute_react_loop(instruction: str, update_callback=None):
         # ── ACT ────────────────────────────────────────────────────────────
         try:
             if action_type == "open_app":
-                open_app(step.get("app", ""))
+                open_app(step.get("name", step.get("app", "")))
 
-            elif action_type == "navigate_browser":
+            elif action_type == "open_browser":
                 navigate_browser(step.get("url", ""))
 
-            elif action_type == "type":
+            elif action_type == "type_text":
                 type_action(step.get("text", ""))
 
-            elif action_type == "key":
-                key_action(step.get("key", ""))
+            elif action_type == "key_shortcut":
+                key_action(step.get("keys", step.get("key", "")))
 
-            elif action_type == "click":
-                click_action(step.get("x", 0), step.get("y", 0))
+            elif action_type == "click_element":
+                # For now just mock it until vision is fully hooked up
+                notify(f"Clicking element: {step.get('target', '')}")
 
             elif action_type == "scroll":
                 scroll_action(step.get("amount", 0))
@@ -124,7 +125,7 @@ def execute_react_loop(instruction: str, update_callback=None):
             continue
 
         # For page-loading actions: give the OS a head-start before asking VISTA
-        if action_type in {"open_app", "navigate_browser"}:
+        if action_type in {"open_app", "open_browser"}:
             notify(f"Waiting {APP_OPEN_WAIT}s for page/app to load...")
             time.sleep(APP_OPEN_WAIT)
             max_retries = OPEN_APP_MAX_RETRIES
@@ -152,15 +153,15 @@ def execute_react_loop(instruction: str, update_callback=None):
                     notify(f"Re-executing action: {action_type}")
                     try:
                         if action_type == "open_app":
-                            open_app(step.get("app", ""))
-                        elif action_type == "navigate_browser":
+                            open_app(step.get("name", step.get("app", "")))
+                        elif action_type == "open_browser":
                             navigate_browser(step.get("url", ""))
-                        elif action_type == "type":
+                        elif action_type == "type_text":
                             type_action(step.get("text", ""))
-                        elif action_type == "key":
-                            key_action(step.get("key", ""))
-                        elif action_type == "click":
-                            click_action(step.get("x", 0), step.get("y", 0))
+                        elif action_type == "key_shortcut":
+                            key_action(step.get("keys", step.get("key", "")))
+                        elif action_type == "click_element":
+                            notify(f"Clicking element: {step.get('target', '')}")
                         elif action_type == "scroll":
                             scroll_action(step.get("amount", 0))
                     except Exception as e:
