@@ -114,6 +114,8 @@ def execute_react_loop(instruction: str, update_callback=None):
 
         # Run anchor verification
         verified = False
+        
+        # New Retry Logic from Fix #2
         for attempt in range(max_retries):
             notify(f"VISTA anchor check (attempt {attempt+1}/{max_retries}): '{anchor_check}'")
             if verify_anchor(anchor_check):
@@ -124,9 +126,28 @@ def execute_react_loop(instruction: str, update_callback=None):
                 if attempt < max_retries - 1:
                     notify(f"Anchor not yet visible, retrying in {OPEN_APP_RETRY_DELAY}s...")
                     time.sleep(OPEN_APP_RETRY_DELAY)
+                    
+                    # Re-execute action on retry
+                    notify(f"Re-executing action: {action_type}")
+                    try:
+                        if action_type == "open_app":
+                            open_app(step.get("app", ""))
+                        elif action_type == "navigate_browser":
+                            navigate_browser(step.get("url", ""))
+                        elif action_type == "type":
+                            type_action(step.get("text", ""))
+                        elif action_type == "key":
+                            key_action(step.get("key", ""))
+                        elif action_type == "click":
+                            click_action(step.get("x", 0), step.get("y", 0))
+                        elif action_type == "scroll":
+                            scroll_action(step.get("amount", 0))
+                    except Exception as e:
+                        notify(f"Retry execution failed: {e}")
 
         if not verified:
-            notify(f"Warning: anchor could not be confirmed — proceeding anyway.")
+            notify(f"Step {idx+1} failed after {max_retries} retries. Task paused.")
+            return
 
     notify("Task complete.")
 

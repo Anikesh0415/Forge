@@ -43,8 +43,8 @@ def extract_steps(parsed_data) -> list:
 
 OLLAMA_API_URL = "http://localhost:11434/api/generate"
 
-# Phase 1: Downsized to 3B (2.2 GB RAM) so ARIA + VISTA fit simultaneously.
-PLANNER_MODEL = "qwen2.5:3b-instruct-q4_K_M"
+# Phase 1: Upgraded to 7B because 3B model cannot plan complex multi-app workflows.
+PLANNER_MODEL = "qwen2.5:7b-instruct-q4_K_M"
 
 # ---------------------------------------------------------------------------
 # ARIA SYSTEM PROMPT
