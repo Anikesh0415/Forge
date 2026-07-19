@@ -118,6 +118,45 @@ class MemoryManager:
         self.long_term_memory[category][key] = value
         self.save_long_term_memory()
 
+    def compile_learned_skill(self) -> str:
+        """
+        Self-Healing Memory: Compiles the currently successful task plan into a new reusable 
+        skill block and appends it to data/skills.json automatically!
+        """
+        goal = self.task_memory.get("current_goal")
+        steps = self.task_memory.get("plan_steps", [])
+        if not goal or not steps:
+            return "No valid goal or steps to compile."
+
+        skill_file = os.path.join(os.path.dirname(__file__), "..", "data", "skills.json")
+        try:
+            with open(skill_file, "r", encoding="utf-8") as f:
+                skills_db = json.load(f)
+        except Exception as e:
+            return f"Failed to load skills DB: {e}"
+
+        # Build example sequence
+        seq_lines = [f"When asked to {goal.lower()}, generate this exact sequence:"]
+        for idx, step in enumerate(steps, 1):
+            # Clean step of runtime IDs to make it a generic template
+            clean_step = {k: v for k, v in step.items() if k not in ["id", "confidence", "anchor_check", "description"]}
+            seq_lines.append(f"{idx}. {json.dumps(clean_step)}")
+        
+        new_skill = {
+            "keywords": [goal.split()[0].lower(), "auto-learned", goal.lower()],
+            "description": f"Auto-learned skill for: {goal}",
+            "example_sequence": "\n".join(seq_lines)
+        }
+        
+        skills_db.append(new_skill)
+        
+        try:
+            with open(skill_file, "w", encoding="utf-8") as f:
+                json.dump(skills_db, f, indent=4)
+            return f"Successfully learned and saved new skill for: '{goal}'"
+        except Exception as e:
+            return f"Error saving new skill: {e}"
+
 
 if __name__ == "__main__":
     mm = MemoryManager()

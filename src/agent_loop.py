@@ -181,5 +181,15 @@ def execute_react_loop(instruction: str, update_callback=None):
     execute_task_plan(plan, update_callback)
 
 
+def trigger_self_healing_learning() -> str:
+    """
+    Exposed hook for the UI's `/learn` slash command.
+    Tells the MemoryManager to compile the last successful task into a permanent skill.
+    """
+    result = memory_mgr.compile_learned_skill()
+    logger.info(f"Self-Healing Triggered: {result}")
+    return result
+
+
 if __name__ == "__main__":
     execute_react_loop("open browser to google.com")

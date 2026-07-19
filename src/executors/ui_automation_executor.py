@@ -39,8 +39,16 @@ class UIAutomationExecutor(BaseExecutor):
                 if not target_name:
                     return False, "No target provided for UIAutomation click"
 
-                # Attempt to find window or control by name
-                controls = desktop.windows(title_re=f".*{target_name}.*", visible_only=True)
+                # Attempt to find control recursively within the active window
+                active_win = desktop.active_window()
+                if not active_win:
+                    return False, "No active window found for UIAutomation click"
+                    
+                controls = active_win.descendants(title_re=f".*{target_name}.*", visible_only=True)
+                if not controls:
+                    # Fallback to searching top-level windows if active_win didn't have it
+                    controls = desktop.windows(title_re=f".*{target_name}.*", visible_only=True)
+                
                 if controls:
                     controls[0].set_focus()
                     controls[0].click_input()
