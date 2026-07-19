@@ -14,6 +14,7 @@ This framework is built with **accessibility** at its heart, providing physicall
 * **👁️ VISTA Visual Verification:** Automatically captures screenshots and queries a local **Moondream** vision model to verify whether a page loaded or a loading animation has finished before proceeding.
 * **📚 Skill Library (RAG):** Dynamically injects context-specific examples into the prompt to prevent hallucination without breaking context limits.
 * **🪄 Semantic Copy & OCR Clicking:** Uses PyTesseract for native OCR-based clicking and leverages Hermes to semantically extract and clean messy clipboard data in real-time.
+* **⚡ Native Accessibility & DOM Snapshotting:** Uses UIAutomation to instantaneously click desktop buttons and rips real-time DOM snapshots for perfect-context error recovery replanning.
 * **🔒 100% Local & Private:** No APIs, no cloud dependencies, no paywalls, and completely offline. Your data never leaves your machine.
 
 ---

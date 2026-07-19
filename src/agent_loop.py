@@ -136,7 +136,10 @@ def execute_task_plan(plan: list, update_callback=None) -> bool:
             error_reason = f"Anchor check '{anchor_check}' was not met."
             
             ctx_summary = context_mgr.get_summary_prompt_context()
-            recovery_plan = replan_failed_step(step, error_reason, ctx_summary)
+            ui_tree_snapshot = context_mgr.capture_ui_accessibility_tree()
+            
+            notify(f"UI Snapshot captured: {len(ui_tree_snapshot)} chars. Generating recovery plan...")
+            recovery_plan = replan_failed_step(step, error_reason, ctx_summary, ui_tree_snapshot)
             
             if recovery_plan:
                 notify(f"Executing {len(recovery_plan)} recovery step(s)...")

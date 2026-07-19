@@ -58,6 +58,35 @@ class ContextManager:
         except Exception:
             pass
 
+    def capture_ui_accessibility_tree(self) -> str:
+        """
+        Dynamic DOM Snapshotting: Dumps the active window's UI tree (buttons, inputs) 
+        into a structural text map to feed the Re-Planner for perfect context.
+        """
+        try:
+            import pywinauto
+            desktop = pywinauto.Desktop(backend="uia")
+            active_win = desktop.active_window()
+            if not active_win:
+                return "No active window detected."
+            
+            controls = active_win.descendants()
+            tree_elements = []
+            
+            for ctrl in controls[:50]: # Limit to prevent context bloat
+                name = ctrl.window_text()
+                ctrl_type = ctrl.element_info.control_type
+                if name and len(name.strip()) > 0:
+                    tree_elements.append(f"[{ctrl_type}] {name}")
+                    
+            if not tree_elements:
+                return f"Window '{active_win.window_text()}' has no readable UI controls."
+                
+            return "\n".join(tree_elements)
+            
+        except Exception as e:
+            return f"UI Accessibility capture failed: {e}"
+
     def set_task_progress(self, task_description: str, progress_ratio: float):
         """Updates current execution progress ratio (0.0 to 1.0)."""
         self.current_task_description = task_description

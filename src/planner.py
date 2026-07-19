@@ -129,9 +129,11 @@ class MultiStagePlanner:
         logger.info(f"Plan generated successfully with {len(plan)} steps.")
         return plan
 
-    def replan_failed_step(self, failed_step: dict, error_reason: str, context_summary: str = "") -> list:
+    def replan_failed_step(self, failed_step: dict, error_reason: str, context_summary: str = "", ui_tree_snapshot: str = "") -> list:
         """Stage 4: Active Replanning Engine when execution or visual verification fails."""
         logger.warning(f"Replanning for failed step {failed_step.get('id', '?')}: {failed_step.get('action')} ({error_reason})")
+        
+        ui_snapshot_block = f"Visual UI Snapshot (Buttons/Inputs on Screen):\n{ui_tree_snapshot}\n" if ui_tree_snapshot else ""
         
         prompt = (
             f"{PLANNER_SYSTEM_PROMPT}\n\n"
@@ -140,6 +142,7 @@ class MultiStagePlanner:
             f"Failed Step: {json.dumps(failed_step)}\n"
             f"Failure Reason: {error_reason}\n"
             f"Current OS Context: {context_summary}\n"
+            f"{ui_snapshot_block}"
             "Provide an alternative 1-3 step JSON action recovery sequence to bypass this error and resume the task:"
         )
         
@@ -182,9 +185,9 @@ def generate_plan(instruction: str, context_summary: str = "") -> list:
     """Backward compatible entry point for ARIA planner."""
     return planner_instance.generate_action_plan(instruction, context_summary)
 
-def replan_failed_step(failed_step: dict, error_reason: str, context_summary: str = "") -> list:
+def replan_failed_step(failed_step: dict, error_reason: str, context_summary: str = "", ui_tree_snapshot: str = "") -> list:
     """Backward compatible entry point for replanning."""
-    return planner_instance.replan_failed_step(failed_step, error_reason, context_summary)
+    return planner_instance.replan_failed_step(failed_step, error_reason, context_summary, ui_tree_snapshot)
 
 
 if __name__ == "__main__":
