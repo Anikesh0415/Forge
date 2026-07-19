@@ -41,9 +41,13 @@ def type_action(text: str) -> str:
 
 
 def key_action(key: str) -> str:
-    """Presses a single named key (e.g. 'enter', 'tab', 'esc', 'f5')."""
-    pyautogui.press(key)
-    time.sleep(0.05)
+    """Presses a single named key (e.g. 'enter', 'tab', 'esc', 'f5') or shortcut ('ctrl+c')."""
+    if '+' in key:
+        keys = [k.strip() for k in key.split('+')]
+        _hotkey(*keys)
+    else:
+        pyautogui.press(key)
+        time.sleep(0.05)
     return f"Pressed: '{key}'"
 
 
