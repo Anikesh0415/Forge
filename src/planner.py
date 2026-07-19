@@ -3,6 +3,7 @@ import re
 import requests
 from src.llm_core import LocalLLMCore
 from src.logger import logger
+from src.utils.skill_retriever import get_relevant_examples
 
 PLANNER_SYSTEM_PROMPT = """You are ARIA, an autonomous AI controlling a Windows 11 computer.
 
@@ -40,17 +41,6 @@ OUTPUT FORMAT (strict JSON object containing a 'steps' array):
     }
   ]
 }
-
-EXAMPLE WHATSAPP SEQUENCE:
-When asked to send a message to Balram on WhatsApp, you MUST generate this sequence:
-1. {"action": "open_app", "name": "WhatsApp"}
-2. {"action": "key_shortcut", "keys": "ctrl+f"}
-3. {"action": "type_text", "text": "Balram"}
-4. {"action": "wait_until", "condition": "search results load"}
-5. {"action": "key_shortcut", "keys": "tab"}
-6. {"action": "key_shortcut", "keys": "enter"}
-7. {"action": "key_shortcut", "keys": "ctrl+v"} (if pasting) OR {"action": "type_text", "text": "..."} (if typing)
-8. {"action": "key_shortcut", "keys": "enter"}
 """
 
 class MultiStagePlanner:
@@ -110,11 +100,14 @@ class MultiStagePlanner:
                 sub_goals_list.append(str(sg))
         sub_goals_str = ", ".join(sub_goals_list)
         
+        dynamic_examples = get_relevant_examples(instruction, max_examples=2)
+        
         full_prompt = (
             f"{PLANNER_SYSTEM_PROMPT}\n\n"
             f"Context: {context_summary}\n"
             f"Target Sub-Goals: {sub_goals_str}\n"
             f"User Command: {instruction}\n"
+            f"{dynamic_examples}\n"
             "CRITICAL: Translate the sub-goals into VALID actions. 'Paste Text' is NOT an action (use type_text or key_shortcut). Do NOT blindly copy the sub-goals. You MUST implement the BEHAVIORAL GUIDELINES exactly (e.g., use ctrl+f, tab, enter for WhatsApp).\n"
             "Output the JSON action plan array now:"
         )
