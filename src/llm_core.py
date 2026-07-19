@@ -56,9 +56,13 @@ class LocalLLMCore:
                 {"role": "user", "content": user_prompt}
             ],
             "temperature": 0.0,
-            "stream": False,
-            "response_format": {"type": "json_object"}
+            "stream": False
         }
+        
+        # Only enforce JSON grammar if the prompt asks for it
+        if "JSON" in system_prompt.upper() or "JSON" in user_prompt.upper():
+            data["response_format"] = {"type": "json_object"}
+            
         response = requests.post(self.lm_studio_url, headers=headers, json=data, timeout=120)
         response.raise_for_status()
         result_text = response.json()["choices"][0]["message"]["content"].strip()
@@ -70,11 +74,13 @@ class LocalLLMCore:
             "model": self.ollama_model,
             "prompt": user_prompt,
             "stream": False,
-            "format": "json",
             "options": {
                 "temperature": 0.0
             }
         }
+        if "JSON" in user_prompt.upper():
+            data["format"] = "json"
+            
         response = requests.post(self.ollama_url, json=data, timeout=15)
         response.raise_for_status()
         result_text = response.json().get("response", "").strip()
