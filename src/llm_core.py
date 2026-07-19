@@ -45,12 +45,9 @@ class LocalLLMCore:
         except Exception:
             pass
 
-        system_prompt = (
-            "You are the Action Intelligence Framework, a local OS agent.\n"
-            "Convert user commands into a valid JSON array of actions.\n"
-            "Possible actions: \"open_app\", \"open_browser\", \"type_text\", \"key_shortcut\", \"click_element\", \"scroll\", \"speak\", \"wait_until\", \"unknown\"."
-        )
-        user_prompt = prompt if prompt else f"Process user command: {payload.get('voice_command', '') if payload else ''}"
+        # Use the comprehensive prompt from MultiStagePlanner as the system prompt
+        system_prompt = prompt if prompt else "You are ARIA. Output valid JSON array of actions."
+        user_prompt = f"Process user command: {payload.get('voice_command', '') if payload else ''}"
 
         data = {
             "model": model_name,
