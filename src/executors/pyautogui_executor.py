@@ -4,6 +4,7 @@ from src.action_library import (
     type_action, key_action, click_action, scroll_action,
     open_app, navigate_browser, copy_all, paste_action
 )
+from src.vision import smart_wait_for_completion
 
 class PyAutoGUIExecutor(BaseExecutor):
     """
@@ -76,7 +77,12 @@ class PyAutoGUIExecutor(BaseExecutor):
                 return True, f"Spoke: '{text}'"
 
             elif action_type == "wait_until":
-                return True, f"Wait until condition checked: '{step_data.get('condition', '')}'"
+                condition = step_data.get("condition", "")
+                success = smart_wait_for_completion(condition)
+                if success:
+                    return True, f"Wait condition met: '{condition}'"
+                else:
+                    return False, f"Wait condition timed out: '{condition}'"
 
             return False, f"Unknown action: '{action_type}'"
 
