@@ -18,25 +18,19 @@ OPEN_APP_MAX_RETRIES = 3
 OPEN_APP_RETRY_DELAY = 2.0   # seconds between retries
 
 
-def execute_react_loop(instruction: str, update_callback=None):
+def plan_task(instruction: str, update_callback=None) -> list:
     """
-    Executes the full ReAct loop:
-      Plan (ARIA) → Act → Anchor-Verify (VISTA) → loop
-
-    Verification strategy (Phase 4):
-      - open_app / navigate_browser : VISTA checks the anchor up to 3×,
-                                      waits between retries (page may still load).
-      - type / key                  : VISTA checks anchor ONCE, then moves on.
-      - copy_all / paste / click … : skipped — these are instant & unambiguous.
+    Generates the ARIA plan for the instruction, checks for complex keywords,
+    and returns the plan list.
     """
     def notify(msg: str):
-        print(f"[Agent Loop] {msg}")
+        print(f"[Agent Planner] {msg}")
         if update_callback:
             update_callback(msg)
 
     notify(f"Thinking about: '{instruction}'...")
 
-    # ── 1. PLAN ────────────────────────────────────────────────────────────
+    # Generate plan
     plan = generate_plan(instruction)
 
     # CRITICAL CHECK: re-plan if too few steps
@@ -48,12 +42,28 @@ def execute_react_loop(instruction: str, update_callback=None):
         plan = generate_plan(instruction + " [IMPORTANT: This requires multiple apps/actions, list ALL steps]")
 
     if not plan:
-        notify("ARIA failed to generate a plan. Aborting.")
+        notify("ARIA failed to generate a plan.")
+        return []
+
+    notify(f"ARIA plan generated: {len(plan)} step(s).")
+    return plan
+
+
+def execute_task_plan(plan: list, update_callback=None):
+    """
+    Executes the generated ARIA plan and performs anchor verification.
+    """
+    def notify(msg: str):
+        print(f"[Agent Loop] {msg}")
+        if update_callback:
+            update_callback(msg)
+
+    if not plan:
+        notify("No plan to execute.")
         return
 
-    notify(f"ARIA plan: {len(plan)} step(s).")
+    notify(f"Starting execution of {len(plan)} step(s)...")
 
-    # ── 2. EXECUTE + VERIFY ────────────────────────────────────────────────
     for idx, step in enumerate(plan):
         action_type  = step.get("action", "").lower()
         anchor_check = step.get("anchor_check", "")   # Phase 4 anchor
@@ -137,7 +147,6 @@ def execute_react_loop(instruction: str, update_callback=None):
         # Run anchor verification
         verified = False
         
-        # New Retry Logic from Fix #2
         for attempt in range(max_retries):
             notify(f"VISTA anchor check (attempt {attempt+1}/{max_retries}): '{anchor_check}'")
             if verify_anchor(anchor_check):
@@ -168,8 +177,21 @@ def execute_react_loop(instruction: str, update_callback=None):
                         notify(f"Retry execution failed: {e}")
 
         if not verified:
-            notify(f"Step {idx+1} failed after {max_retries} retries. Task paused.")
-            return
+            notify(f"Step failed after {max_retries} retries. Task paused.")
+            return False
+
+    notify("Task complete.")
+    return True
+
+
+def execute_react_loop(instruction: str, update_callback=None):
+    """
+    Executes the full ReAct loop (sequential plan + execution) for backward compatibility.
+    """
+    plan = plan_task(instruction, update_callback)
+    if not plan:
+        return
+    execute_task_plan(plan, update_callback)
 
     notify("Task complete.")
 

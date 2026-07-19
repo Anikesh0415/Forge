@@ -158,6 +158,35 @@ function connectWebSocket() {
 
 function updateState(stateName) {
     sysState.textContent = stateName;
+    const confirmWrapper = document.getElementById('confirmation-wrapper');
+    const inputWrapper = document.getElementById('input-wrapper');
+    if (confirmWrapper && inputWrapper) {
+        if (stateName === 'AWAITING_CONFIRMATION') {
+            confirmWrapper.style.display = 'flex';
+            inputWrapper.style.display = 'none';
+        } else {
+            confirmWrapper.style.display = 'none';
+            inputWrapper.style.display = 'flex';
+        }
+    }
+}
+
+// Confirmation Button Logic
+const confirmBtn = document.getElementById('confirm-btn');
+const rejectBtn = document.getElementById('reject-btn');
+
+if (confirmBtn && rejectBtn) {
+    confirmBtn.addEventListener('click', () => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ command: "CONFIRM_PLAN" }));
+        }
+    });
+    
+    rejectBtn.addEventListener('click', () => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ command: "REJECT_PLAN" }));
+        }
+    });
 }
 
 // Text Input Logic

@@ -18,7 +18,7 @@ from src.cv_module import HandTracker
 from src.stt_module import SpeechRecognizer
 from src.fsm_module import AIF_StateMachine, SystemState
 from src.fusion_engine import FusionEngine
-from src.agent_loop import execute_react_loop
+from src.agent_loop import execute_react_loop, plan_task, execute_task_plan
 from src.action_library import type_action, key_action
 
 class AIF_Server:
@@ -57,26 +57,65 @@ class AIF_Server:
         self.stt_thread = threading.Thread(target=self._stt_worker, daemon=True)
         self.stt_thread.start()
 
+    def confirm_plan(self):
+        """Triggers execution of the planned steps."""
+        if self.fsm.state == SystemState.AWAITING_CONFIRMATION:
+            self.fsm.transition(SystemState.EXECUTING)
+            
+            def _exec_worker():
+                pending_plan = self.fsm.current_context.get("pending_plan", [])
+                
+                def update_ui(msg):
+                    self.fsm.current_context["reply_text"] = msg
+                    
+                try:
+                    execute_task_plan(pending_plan, update_callback=update_ui)
+                except Exception as e:
+                    update_ui(f"Error during execution: {e}")
+                    
+                time.sleep(1)
+                self.fsm.transition(SystemState.IDLE)
+                
+            threading.Thread(target=_exec_worker, daemon=True).start()
+
+    def reject_plan(self):
+        """Rejects the planned steps and goes back to IDLE."""
+        if self.fsm.state == SystemState.AWAITING_CONFIRMATION:
+            self.fsm.current_context["reply_text"] = "Plan rejected by user. Resetting to standby."
+            self.fsm.transition(SystemState.IDLE)
+
     def _stt_worker(self):
         while True:
             if self.is_meeting:
                 time.sleep(1)
                 continue
                 
-            if self.fsm.state == SystemState.IDLE and self.mode in ["BOTH", "VOICE_ONLY"]:
-                text = self.stt.listen()
-                if text and not self.is_meeting:
-                    if self.is_dictating:
-                        print(f"Dictating: {text}")
-                        # Immediately type what is spoken and press enter
-                        type_action(text)
-                        time.sleep(0.1)
-                        key_action('enter')
-                    else:
-                        self.fsm.current_context["voice_text"] = text
-                        if "servent" in text.lower() or "servant" in text.lower():
-                            print(f"Wake word detected! Intent: {text}")
-                            self.fsm.transition(SystemState.PROCESSING_INTENT)
+            if self.mode in ["BOTH", "VOICE_ONLY"] and not self.is_meeting:
+                if self.fsm.state == SystemState.IDLE:
+                    text = self.stt.listen()
+                    if text and not self.is_meeting:
+                        if self.is_dictating:
+                            print(f"Dictating: {text}")
+                            # Immediately type what is spoken and press enter
+                            type_action(text)
+                            time.sleep(0.1)
+                            key_action('enter')
+                        else:
+                            self.fsm.current_context["voice_text"] = text
+                            if "servent" in text.lower() or "servant" in text.lower():
+                                print(f"Wake word detected! Intent: {text}")
+                                self.fsm.transition(SystemState.PROCESSING_INTENT)
+                elif self.fsm.state == SystemState.AWAITING_CONFIRMATION:
+                    text = self.stt.listen()
+                    if text:
+                        text_lower = text.lower()
+                        print(f"[Confirmation Phase] Heard: '{text}'")
+                        if "yes" in text_lower or "confirm" in text_lower or "proceed" in text_lower or "go ahead" in text_lower:
+                            print("Voice confirmation received! Executing plan...")
+                            self.confirm_plan()
+                        elif "no" in text_lower or "cancel" in text_lower or "reject" in text_lower:
+                            print("Voice rejection received! Rejecting plan...")
+                            self.reject_plan()
             time.sleep(0.1)
 
     def _camera_worker(self):
@@ -211,20 +250,38 @@ class AIF_Server:
                         # Use reply_text for logs to the UI
                         self.fsm.current_context["reply_text"] = msg
                     
-                    self.fsm.transition(SystemState.EXECUTING)
                     try:
-                        execute_react_loop(instruction, update_callback=update_ui)
+                        plan = plan_task(instruction, update_callback=update_ui)
+                        if plan:
+                            self.fsm.current_context["pending_plan"] = plan
+                            steps_summary = "\n".join([f"- {s.get('action', '').replace('_', ' ').title()}: {s.get('name', s.get('url', s.get('text', s.get('keys', s.get('target', '')))))}" for s in plan])
+                            update_ui(f"PROPOSED PLAN:\n{steps_summary}\n\nSay 'YES' / click Confirm to execute, or 'NO' to cancel.")
+                            
+                            # Announce confirmation via TTS
+                            try:
+                                import pyttsx3
+                                engine = pyttsx3.init()
+                                engine.say("I have generated a plan. Please check the dashboard and confirm to proceed.")
+                                engine.runAndWait()
+                            except Exception:
+                                pass
+                                
+                            self.fsm.transition(SystemState.AWAITING_CONFIRMATION)
+                        else:
+                            update_ui("Failed to generate a plan.")
+                            self.fsm.transition(SystemState.IDLE)
                     except Exception as e:
                         update_ui(f"Error: {e}")
-                    
-                    time.sleep(1) # give ui time to show done
-                    self.fsm.transition(SystemState.IDLE)
+                        self.fsm.transition(SystemState.IDLE)
                     
                 self.intent_thread = threading.Thread(target=_react_worker, daemon=True)
                 self.intent_thread.start()
             
         elif self.fsm.state == SystemState.EXECUTING:
             # ReAct loop is running in thread, updates are sent via callback
+            pass
+
+        elif self.fsm.state == SystemState.AWAITING_CONFIRMATION:
             pass
 
     async def ws_handler(self, websocket):
@@ -246,6 +303,8 @@ class AIF_Server:
                         action_text = f"{first_cmd.get('action', '').upper()}: {first_cmd.get('target', '')}"
                 elif self.fsm.state == SystemState.PROCESSING_INTENT:
                     action_text = "Analyzing intent..."
+                elif self.fsm.state == SystemState.AWAITING_CONFIRMATION:
+                    action_text = "Awaiting confirmation..."
                 
                 data = {
                     "state": self.fsm.state.name,
@@ -292,6 +351,12 @@ class AIF_Server:
                             self.is_listening_mode = False
                             self.is_tracking_mode = False
                         print(f"Ecosystem mode changed to: {mode}")
+                    elif cmd == "CONFIRM_PLAN":
+                        print("UI confirmation received!")
+                        self.confirm_plan()
+                    elif cmd == "REJECT_PLAN":
+                        print("UI rejection received!")
+                        self.reject_plan()
                     elif cmd == "TEXT_INPUT":
                         if self.fsm.state != SystemState.IDLE:
                             print('Ignoring TEXT_INPUT: system is busy')

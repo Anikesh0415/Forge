@@ -91,7 +91,11 @@
                     <div class="action-status">
                         <i class="fa-solid fa-bolt"></i> <span id="action-text">Standby</span>
                     </div>
-                    <div class="input-wrapper">
+                    <div class="confirmation-wrapper" id="confirmation-wrapper" style="display: none; gap: 15px; width: 100%; margin-top: 5px;">
+                        <button class="confirm-btn glass-btn" id="confirm-btn" style="background: rgba(46, 204, 113, 0.25); border: 1px solid #2ecc71; color: #2ecc71; padding: 12px; border-radius: 8px; cursor: pointer; flex: 1; font-weight: 600; font-family: inherit; transition: 0.2s;"><i class="fa-solid fa-check"></i> Confirm Plan</button>
+                        <button class="reject-btn glass-btn" id="reject-btn" style="background: rgba(231, 76, 60, 0.25); border: 1px solid #e74c3c; color: #e74c3c; padding: 12px; border-radius: 8px; cursor: pointer; flex: 1; font-weight: 600; font-family: inherit; transition: 0.2s;"><i class="fa-solid fa-xmark"></i> Cancel Plan</button>
+                    </div>
+                    <div class="input-wrapper" id="input-wrapper">
                         <input type="text" id="text-command-input" placeholder="Type an automation command..." autocomplete="off">
                         <button id="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
                     </div>

@@ -8,6 +8,7 @@ class SystemState(Enum):
     EXECUTING = 4
     AUTONOMOUS_VISION = 5
     ERROR = 6
+    AWAITING_CONFIRMATION = 7
 
 class AIF_StateMachine:
     def __init__(self):
