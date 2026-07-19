@@ -93,10 +93,10 @@ def smart_wait_for_completion(
         ).upper()
 
         if "YES" in is_met:
-            print(f"[VISTA SmartWait] Condition met after {elapsed:.1f}s.")
+            print(f"[VISTA SmartWait] Condition met after {elapsed:.1f}s. Response: '{is_met}'")
             return True
 
-        print(f"[VISTA SmartWait] Still waiting for condition... ({elapsed:.1f}s elapsed)")
+        print(f"[VISTA SmartWait] Still waiting... ({elapsed:.1f}s elapsed). Moondream responded: '{is_met}'")
         time.sleep(poll_interval)
         elapsed += poll_interval
 
