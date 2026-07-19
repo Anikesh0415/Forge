@@ -39,6 +39,7 @@ class LocalLLMCore:
         user_prompt = prompt if prompt else f"Process user command: {payload.get('voice_command', '') if payload else ''}"
 
         data = {
+            "model": "lmstudio-community/gemma-4-E4B-it-GGUF",
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
@@ -46,7 +47,7 @@ class LocalLLMCore:
             "temperature": 0.0,
             "stream": False
         }
-        response = requests.post(self.lm_studio_url, headers=headers, json=data, timeout=10)
+        response = requests.post(self.lm_studio_url, headers=headers, json=data, timeout=120)
         response.raise_for_status()
         result_text = response.json()["choices"][0]["message"]["content"].strip()
         return self._clean_and_parse_json(result_text)
