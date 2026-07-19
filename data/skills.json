@@ -1,22 +1,225 @@
 [
     {
-        "keywords": ["whatsapp", "message", "chat", "send to"],
+        "keywords": [
+            "whatsapp",
+            "message",
+            "chat",
+            "send to"
+        ],
         "description": "Sending a message to a specific contact on WhatsApp",
         "example_sequence": "When asked to send a message on WhatsApp, you MUST generate this exact sequence:\n1. {\"action\": \"open_app\", \"name\": \"WhatsApp\"}\n2. {\"action\": \"key_shortcut\", \"keys\": \"ctrl+f\"}\n3. {\"action\": \"type_text\", \"text\": \"<Contact Name>\"}\n4. {\"action\": \"wait_until\", \"condition\": \"search results load\"}\n5. {\"action\": \"key_shortcut\", \"keys\": \"tab\"}\n6. {\"action\": \"key_shortcut\", \"keys\": \"enter\"}\n7. {\"action\": \"type_text\", \"text\": \"<The Message>\"}\n8. {\"action\": \"key_shortcut\", \"keys\": \"enter\"}"
     },
     {
-        "keywords": ["youtube", "play", "video", "watch"],
+        "keywords": [
+            "youtube",
+            "play",
+            "video",
+            "watch"
+        ],
         "description": "Searching and playing a video on YouTube",
         "example_sequence": "When asked to play a video on YouTube, generate this sequence:\n1. {\"action\": \"open_browser\", \"url\": \"https://youtube.com\"}\n2. {\"action\": \"wait_until\", \"condition\": \"YouTube homepage loads\"}\n3. {\"action\": \"key_shortcut\", \"keys\": \"/\"} (to focus search bar)\n4. {\"action\": \"type_text\", \"text\": \"<Video Name>\"}\n5. {\"action\": \"key_shortcut\", \"keys\": \"enter\"}\n6. {\"action\": \"wait_until\", \"condition\": \"search results appear\"}\n7. {\"action\": \"key_shortcut\", \"keys\": \"tab\"} (multiple times if needed to reach first video)\n8. {\"action\": \"key_shortcut\", \"keys\": \"enter\"}"
     },
     {
-        "keywords": ["email", "gmail", "mail"],
+        "keywords": [
+            "email",
+            "gmail",
+            "mail"
+        ],
         "description": "Composing and sending an email in Gmail",
         "example_sequence": "When asked to send an email via Gmail, generate this sequence:\n1. {\"action\": \"open_browser\", \"url\": \"https://mail.google.com\"}\n2. {\"action\": \"wait_until\", \"condition\": \"Gmail loads\"}\n3. {\"action\": \"key_shortcut\", \"keys\": \"c\"} (Gmail shortcut to compose)\n4. {\"action\": \"type_text\", \"text\": \"<Recipient Email>\"}\n5. {\"action\": \"key_shortcut\", \"keys\": \"enter\"}\n6. {\"action\": \"key_shortcut\", \"keys\": \"tab\"}\n7. {\"action\": \"type_text\", \"text\": \"<Subject Line>\"}\n8. {\"action\": \"key_shortcut\", \"keys\": \"tab\"}\n9. {\"action\": \"type_text\", \"text\": \"<Email Body>\"}\n10. {\"action\": \"key_shortcut\", \"keys\": \"ctrl+enter\"} (Gmail shortcut to send)"
     },
     {
-        "keywords": ["search", "google", "look up", "find"],
+        "keywords": [
+            "search",
+            "google",
+            "look up",
+            "find"
+        ],
         "description": "Performing a standard Google web search",
         "example_sequence": "When asked to search the web or look something up on Google, generate this sequence:\n1. {\"action\": \"open_browser\", \"url\": \"https://google.com\"}\n2. {\"action\": \"wait_until\", \"condition\": \"Google search bar is focused\"}\n3. {\"action\": \"type_text\", \"text\": \"<Search Query>\"}\n4. {\"action\": \"key_shortcut\", \"keys\": \"enter\"}\n5. {\"action\": \"wait_until\", \"condition\": \"search results page loads\"}"
+    },
+    {
+        "keywords": [
+            "spotify",
+            "music",
+            "play song",
+            "listen to"
+        ],
+        "description": "Playing a specific song or artist on Spotify",
+        "example_sequence": "1. {\"action\": \"open_app\", \"name\": \"Spotify\"}\n2. {\"action\": \"wait_until\", \"condition\": \"Spotify loads\"}\n3. {\"action\": \"key_shortcut\", \"keys\": \"ctrl+l\"} (Focus search)\n4. {\"action\": \"type_text\", \"text\": \"<Song or Artist Name>\"}\n5. {\"action\": \"wait_until\", \"condition\": \"search results appear\"}\n6. {\"action\": \"key_shortcut\", \"keys\": \"tab\"}\n7. {\"action\": \"key_shortcut\", \"keys\": \"enter\"}"
+    },
+    {
+        "keywords": [
+            "notepad",
+            "note",
+            "write down",
+            "text file"
+        ],
+        "description": "Opening Notepad and writing text",
+        "example_sequence": "1. {\"action\": \"open_app\", \"name\": \"Notepad\"}\n2. {\"action\": \"wait_until\", \"condition\": \"Notepad is open\"}\n3. {\"action\": \"type_text\", \"text\": \"<Text to write>\"}"
+    },
+    {
+        "keywords": [
+            "discord",
+            "message server",
+            "discord chat"
+        ],
+        "description": "Sending a message in Discord",
+        "example_sequence": "1. {\"action\": \"open_app\", \"name\": \"Discord\"}\n2. {\"action\": \"wait_until\", \"condition\": \"Discord loads\"}\n3. {\"action\": \"key_shortcut\", \"keys\": \"ctrl+k\"} (Quick switcher)\n4. {\"action\": \"type_text\", \"text\": \"<Server or Friend Name>\"}\n5. {\"action\": \"key_shortcut\", \"keys\": \"enter\"}\n6. {\"action\": \"type_text\", \"text\": \"<Message>\"}\n7. {\"action\": \"key_shortcut\", \"keys\": \"enter\"}"
+    },
+    {
+        "keywords": [
+            "vscode",
+            "code",
+            "vs code",
+            "visual studio"
+        ],
+        "description": "Opening Visual Studio Code",
+        "example_sequence": "1. {\"action\": \"open_app\", \"name\": \"VS Code\"}\n2. {\"action\": \"wait_until\", \"condition\": \"VS Code loads\"}"
+    },
+    {
+        "keywords": [
+            "volume up",
+            "increase volume",
+            "louder"
+        ],
+        "description": "Increasing the system volume",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"volumeup\"}\n2. {\"action\": \"key_shortcut\", \"keys\": \"volumeup\"}"
+    },
+    {
+        "keywords": [
+            "volume down",
+            "decrease volume",
+            "quieter"
+        ],
+        "description": "Decreasing the system volume",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"volumedown\"}\n2. {\"action\": \"key_shortcut\", \"keys\": \"volumedown\"}"
+    },
+    {
+        "keywords": [
+            "mute",
+            "silence"
+        ],
+        "description": "Muting the system volume",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"volumemute\"}"
+    },
+    {
+        "keywords": [
+            "weather",
+            "forecast",
+            "temperature"
+        ],
+        "description": "Checking the weather on Google",
+        "example_sequence": "1. {\"action\": \"open_browser\", \"url\": \"https://google.com\"}\n2. {\"action\": \"wait_until\", \"condition\": \"Google search bar is focused\"}\n3. {\"action\": \"type_text\", \"text\": \"weather in <City>\"}\n4. {\"action\": \"key_shortcut\", \"keys\": \"enter\"}"
+    },
+    {
+        "keywords": [
+            "calculator",
+            "calculate",
+            "math"
+        ],
+        "description": "Opening Calculator and doing math",
+        "example_sequence": "1. {\"action\": \"open_app\", \"name\": \"Calculator\"}\n2. {\"action\": \"wait_until\", \"condition\": \"Calculator is open\"}\n3. {\"action\": \"type_text\", \"text\": \"<Math Expression, e.g., 5+5>\"}\n4. {\"action\": \"key_shortcut\", \"keys\": \"enter\"}"
+    },
+    {
+        "keywords": [
+            "amazon",
+            "buy",
+            "shop for"
+        ],
+        "description": "Searching for a product on Amazon",
+        "example_sequence": "1. {\"action\": \"open_browser\", \"url\": \"https://amazon.com\"}\n2. {\"action\": \"wait_until\", \"condition\": \"Amazon homepage loads\"}\n3. {\"action\": \"type_text\", \"text\": \"<Product Name>\"}\n4. {\"action\": \"key_shortcut\", \"keys\": \"enter\"}"
+    },
+    {
+        "keywords": [
+            "netflix",
+            "watch movie",
+            "watch show"
+        ],
+        "description": "Opening Netflix to watch a show",
+        "example_sequence": "1. {\"action\": \"open_browser\", \"url\": \"https://netflix.com\"}\n2. {\"action\": \"wait_until\", \"condition\": \"Netflix homepage loads\"}"
+    },
+    {
+        "keywords": [
+            "close window",
+            "close app",
+            "quit"
+        ],
+        "description": "Closing the currently active window",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"alt+f4\"}"
+    },
+    {
+        "keywords": [
+            "copy",
+            "copy text",
+            "copy this"
+        ],
+        "description": "Copying text to the clipboard",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"ctrl+c\"}"
+    },
+    {
+        "keywords": [
+            "paste",
+            "paste text",
+            "put text"
+        ],
+        "description": "Pasting text from the clipboard",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"ctrl+v\"}"
+    },
+    {
+        "keywords": [
+            "select all",
+            "highlight all"
+        ],
+        "description": "Selecting all text or items",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"ctrl+a\"}"
+    },
+    {
+        "keywords": [
+            "undo",
+            "revert"
+        ],
+        "description": "Undoing the last action",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"ctrl+z\"}"
+    },
+    {
+        "keywords": [
+            "save",
+            "save file",
+            "save document"
+        ],
+        "description": "Saving the current document",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"ctrl+s\"}"
+    },
+    {
+        "keywords": [
+            "new tab",
+            "open tab"
+        ],
+        "description": "Opening a new tab in the browser",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"ctrl+t\"}"
+    },
+    {
+        "keywords": [
+            "close tab"
+        ],
+        "description": "Closing the current browser tab",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"ctrl+w\"}"
+    },
+    {
+        "keywords": [
+            "refresh",
+            "reload"
+        ],
+        "description": "Refreshing the current page",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"ctrl+r\"}"
+    },
+    {
+        "keywords": [
+            "switch app",
+            "next app"
+        ],
+        "description": "Switching to the next open application",
+        "example_sequence": "1. {\"action\": \"key_shortcut\", \"keys\": \"alt+tab\"}"
     }
 ]
