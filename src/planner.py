@@ -112,54 +112,39 @@ DO NOT output anything other than the JSON object."""
 
 def generate_plan(instruction: str) -> list:
     """
-    Calls ARIA (qwen2.5:3b) to generate a structured action plan.
-    - keep_alive: -1  → model pinned in RAM permanently.
-    - format: json    → Ollama enforces valid JSON at the token level.
-    - temperature: 0  → Fully deterministic / no hallucinations.
+    Calls LocalLLMCore to generate a structured action plan using the active local LLM backend.
     Uses clean_and_parse_json + extract_steps for bulletproof parsing.
     """
+    from src.llm_core import LocalLLMCore
+    core = LocalLLMCore(use_mock=False)
+    
     prompt = f"User Request: {instruction}\nOutput the JSON action plan now."
-
     payload = {
-        "model": PLANNER_MODEL,
-        "system": PLANNER_SYSTEM_PROMPT,
-        "prompt": prompt,
-        "stream": False,
-        "keep_alive": -1,
-        "options": {
-            "temperature": 0.0,
-            "num_predict": 4096,
-        }
+        "voice_command": instruction,
+        "gesture_context": {}
     }
 
     result_text = ""
     try:
-        response = requests.post(OLLAMA_API_URL, json=payload, timeout=300)
-        response.raise_for_status()
-        result_text = response.json().get("response", "").strip()
+        # Wrap system prompt if needed
+        # LocalLLMCore will check LM Studio, then fallback to Ollama
+        # We can construct the full instructions here
+        full_prompt = f"{PLANNER_SYSTEM_PROMPT}\n\n{prompt}"
+        
+        # We call the process_intent endpoint which handles endpoint fallback
+        results = core.process_intent(full_prompt, payload)
+        
+        # If results is already a parsed list, return it
+        if isinstance(results, list):
+            return results
+            
+        # Otherwise, clean and parse the returned text/object
+        if isinstance(results, str):
+            parsed = clean_and_parse_json(results)
+            return extract_steps(parsed)
+            
+        return extract_steps(results)
 
-        # Step 1: Strip markdown fences and parse JSON
-        parsed = clean_and_parse_json(result_text)
-
-        # Step 2: Self-heal dict wrappers into a flat list
-        return extract_steps(parsed)
-
-    except json.JSONDecodeError as e:
-        print(f"[ARIA Planner] JSON decode error: {e}")
-        print(f"[ARIA Planner] Raw response was: {result_text[:300]}")
-        # Last-resort regex fallback: find any [...] or {...} block
-        for pattern in [r'\[.*?\]', r'\{.*?\}']:
-            match = re.search(pattern, result_text, re.DOTALL)
-            if match:
-                try:
-                    parsed = json.loads(match.group(0))
-                    return extract_steps(parsed)
-                except Exception:
-                    pass
-        return []
-    except ValueError as e:
-        print(f"[ARIA Parser Error] {e}")
-        return []
     except Exception as e:
         print(f"[ARIA Planner Error] {e}")
         return []

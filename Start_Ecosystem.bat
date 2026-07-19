@@ -1,5 +1,11 @@
 @echo off
-echo Booting AI Core...
+echo Booting NOVA AI Core with Intel Arc GPU...
+
+:: Enable GPU Acceleration for Ollama
+set OLLAMA_GPU=1
+set OLLAMA_NUM_GPU=999
+set OLLAMA_MAX_VRAM=8192
+
 :: Start Ollama (Will open a minimized window, keeps it open so it doesn't instantly die)
 start /min "Ollama Server" cmd /k "ollama serve"
 
@@ -15,3 +21,4 @@ timeout /t 3 /nobreak > NUL
 :: Automatically launch the web dashboard
 start ui\index.html
 exit
+
