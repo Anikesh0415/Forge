@@ -1,4 +1,6 @@
 import time
+from typing import Dict, Any, Tuple, List
+
 from src.executors.pyautogui_executor import PyAutoGUIExecutor
 from src.executors.ui_automation_executor import UIAutomationExecutor
 from src.executors.dev_executor import DevExecutor
@@ -13,19 +15,25 @@ class ExecutionManager:
     Coordinates execution backends (UIAutomation -> PyAutoGUI fallback).
     Enforces security checks and structured action logging.
     """
-    def __init__(self):
-        self.executors = [
+    def __init__(self) -> None:
+        self.executors: List[Any] = [
             HeadlessExecutor(),
             StudentExecutor(), # Try student execution first
             DevExecutor(), # Then developer execution
             UIAutomationExecutor(),
             PyAutoGUIExecutor()
         ]
-        self.security = SecurityManager(safe_mode=True)
+        self.security: SecurityManager = SecurityManager(safe_mode=True)
 
-    def execute_step(self, step_data: dict) -> tuple[bool, str]:
+    def execute_step(self, step_data: Dict[str, Any]) -> Tuple[bool, str]:
         """
         Executes a single action step with backend fallback and risk logging.
+        
+        Args:
+            step_data (Dict[str, Any]): The JSON payload containing action details.
+            
+        Returns:
+            Tuple[bool, str]: A tuple containing execution success state and a descriptive message.
         """
         action_type = step_data.get("action", "").lower()
         target = step_data.get("target") or step_data.get("url") or step_data.get("name") or step_data.get("text") or ""
