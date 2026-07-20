@@ -233,6 +233,39 @@ body {
     color: #fff;
 }
 
+/* Persona Selection Modal */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.persona-card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Accessibility Persona Specific Styles */
+body.persona-accessibility {
+    font-size: 1.5em; /* Massive fonts */
+}
+body.persona-accessibility .dashboard {
+    padding: 10px;
+}
+body.persona-accessibility .quick-actions, 
+body.persona-accessibility .modes-panel {
+    display: none; /* Hide confusing sidebars for seniors */
+}
+body.persona-accessibility .chat-panel {
+    flex: 1; /* Make chat full width */
+}
+
 .chat-log { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; padding-right: 10px; }
 
 .message { display: flex; flex-direction: column; max-width: 80%; animation: fadeIn 0.3s ease; }

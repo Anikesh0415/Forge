@@ -369,6 +369,19 @@ class AIF_Server:
                     elif cmd == "REJECT_PLAN":
                         print("UI rejection received!")
                         self.reject_plan()
+                    elif cmd == "SET_PERSONA":
+                        persona = payload.get("persona")
+                        self.fsm.current_context["persona"] = persona
+                        print(f"Persona Set: {persona}")
+                        # Auto-configure mode based on persona
+                        if persona == 'accessibility':
+                            self.mode = "VOICE_ONLY"
+                            self.is_listening_mode = True
+                            self.is_tracking_mode = False
+                        elif persona == 'productivity' or persona == 'discovery':
+                            self.mode = "BOTH"
+                            self.is_listening_mode = True
+                            self.is_tracking_mode = True
                     elif cmd == "SELECT_FOLDER":
                         import tkinter as tk
                         from tkinter import filedialog
@@ -401,6 +414,10 @@ class AIF_Server:
                         else:
                             text_cmd = payload.get("text")
                             if text_cmd:
+                                persona = self.fsm.current_context.get("persona")
+                                if persona:
+                                    text_cmd = f"[PERSONA: {persona}] " + text_cmd
+                                    
                                 img_path = self.fsm.current_context.get("uploaded_image")
                                 if img_path:
                                     text_cmd = f"[IMAGE_ATTACHED: {img_path}] " + text_cmd

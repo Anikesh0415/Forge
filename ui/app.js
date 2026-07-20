@@ -288,6 +288,37 @@ function sendTextCommand() {
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    connectWebSocket();
+    fetchTheme();
+});
+
+// Persona Modal Logic
+const personaModal = document.getElementById('persona-modal');
+const personaCards = document.querySelectorAll('.persona-card');
+
+personaCards.forEach(card => {
+    card.addEventListener('click', () => {
+        const persona = card.getAttribute('data-persona');
+        personaModal.style.display = 'none';
+        
+        if (persona === 'accessibility') {
+            document.body.classList.add('persona-accessibility');
+        }
+        
+        // Wait for websocket to be ready if it isn't
+        const sendPersona = setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    command: "SET_PERSONA",
+                    persona: persona
+                }));
+                clearInterval(sendPersona);
+            }
+        }, 100);
+    });
+});
+
 sendBtn.addEventListener('click', (e) => {
     e.preventDefault();
     sendTextCommand();
