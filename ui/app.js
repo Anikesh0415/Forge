@@ -545,3 +545,84 @@ if (settingsToggle && settingsModal) {
         }
     });
 }
+
+// Workspace Selector Logic
+const workspaceDropdown = document.getElementById('workspace-dropdown');
+if (workspaceDropdown) {
+    const options = workspaceDropdown.querySelectorAll('.custom-dropdown-option');
+    const selectedText = document.getElementById('workspace-text');
+    options.forEach(opt => {
+        opt.addEventListener('click', (e) => {
+            selectedText.textContent = e.target.textContent;
+            appendMessage('SYSTEM', `Switched workspace to: ${e.target.textContent}`);
+        });
+    });
+}
+
+// Terminal Toggle
+const terminalToggleBtn = document.getElementById('terminal-toggle');
+const terminalPanel = document.getElementById('terminal-panel');
+if (terminalToggleBtn && terminalPanel) {
+    terminalToggleBtn.addEventListener('click', () => {
+        terminalPanel.classList.toggle('open');
+    });
+}
+
+function logToTerminal(msg, type='info') {
+    if (!terminalPanel) return;
+    const output = document.getElementById('terminal-output');
+    const div = document.createElement('div');
+    div.className = `term-line ${type}`;
+    div.textContent = `> ${msg}`;
+    output.appendChild(div);
+    output.scrollTop = output.scrollHeight;
+}
+
+// Mock System Metrics
+setInterval(() => {
+    const cpuVal = document.getElementById('cpu-val');
+    const cpuBar = document.getElementById('cpu-bar');
+    const ramVal = document.getElementById('ram-val');
+    const ramBar = document.getElementById('ram-bar');
+    
+    if (cpuVal && cpuBar) {
+        const cpu = Math.floor(Math.random() * 30) + 5;
+        cpuVal.textContent = `${cpu}%`;
+        cpuBar.style.width = `${cpu}%`;
+    }
+    if (ramVal && ramBar) {
+        const ram = (Math.random() * 1.5 + 7.5).toFixed(1);
+        ramVal.textContent = `${ram}GB`;
+        ramBar.style.width = `${(ram / 32) * 100}%`;
+    }
+}, 2500);
+
+// Macro Buttons Logic
+const macroBtns = document.querySelectorAll('.macro-btn');
+const macroProgress = document.getElementById('macro-progress');
+const macroProgressText = document.getElementById('macro-progress-text');
+
+macroBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const cmd = btn.getAttribute('data-cmd');
+        if (macroProgress) {
+            macroProgress.classList.add('active');
+            let steps = ["Initializing automation...", "Executing tasks...", "Finalizing..."];
+            let stepIdx = 0;
+            macroProgressText.textContent = steps[stepIdx];
+            
+            const interval = setInterval(() => {
+                stepIdx++;
+                if (stepIdx < steps.length) {
+                    macroProgressText.textContent = steps[stepIdx];
+                } else {
+                    clearInterval(interval);
+                    macroProgress.classList.remove('active');
+                    appendMessage('SYSTEM', `Automation Complete: ${cmd}`);
+                    logToTerminal(`Execution finished with exit code 0`, 'info');
+                }
+            }, 1000);
+        }
+        logToTerminal(`Running macro: ${cmd}`, 'info');
+    });
+});

@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style_v11.css">
+    <link rel="stylesheet" href="style_v12.css">
 </head>
 <body>
 
@@ -53,6 +53,16 @@
             
             <!-- Right: Connection Status and Modes Toggle -->
             <div style="display: flex; gap: 20px; align-items: center;">
+                <div class="system-metrics">
+                    <div class="metric cpu">
+                        <span class="metric-label">CPU <span id="cpu-val">14%</span></span>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill" id="cpu-bar" style="width: 14%;"></div></div>
+                    </div>
+                    <div class="metric ram">
+                        <span class="metric-label">RAM <span id="ram-val">8GB</span></span>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill" id="ram-bar" style="width: 25%;"></div></div>
+                    </div>
+                </div>
                 <div class="connection-status">
                     <div class="status-dot" id="status-dot"></div>
                     <span id="ws-status">Connecting</span>
@@ -64,17 +74,49 @@
 
         <!-- Main Content Area -->
         <main class="main-content">
-            <!-- Developer Automation Dock -->
+            <!-- Left Quick Actions Sidebar -->
             <aside id="quick-actions-panel" class="quick-actions glass">
-                <h3>Code Assistant</h3>
+                <div class="workspace-selector">
+                    <div class="custom-dropdown glass" id="workspace-dropdown" style="width: 100%;">
+                        <div class="custom-dropdown-selected"><span id="workspace-text">Frontend App</span> <i class="fa-solid fa-chevron-down" style="font-size: 0.8em; opacity: 0.7;"></i></div>
+                        <div class="custom-dropdown-options glass">
+                            <div class="custom-dropdown-option" data-value="frontend">Frontend App</div>
+                            <div class="custom-dropdown-option" data-value="backend">Backend API</div>
+                            <div class="custom-dropdown-option" data-value="mobile">Mobile App</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="group-header">Macro Automations</div>
+                <button class="action-btn macro-btn" data-cmd="Clean and format the entire project according to linter rules."><i class="fa-solid fa-broom"></i> Format Project</button>
+                <button class="action-btn macro-btn" data-cmd="Start the development server and open localhost in the browser."><i class="fa-solid fa-rocket"></i> Start Dev Server</button>
+                <button class="action-btn macro-btn" data-cmd="Run the full unit test suite and report any failures."><i class="fa-solid fa-vial"></i> Run Test Suite</button>
+                <button class="action-btn macro-btn" data-cmd="Compile and build the project for production deployment."><i class="fa-solid fa-box-open"></i> Build Production</button>
+
+                <div class="group-header" style="margin-top: 16px;">Code Assistant</div>
                 <button class="action-btn" data-cmd="Switch to VS Code, read the code currently on my screen, and check it for any bugs or optimizations."><i class="fa-solid fa-file-code"></i> Review VS Code</button>
                 <button class="action-btn" data-cmd="Switch to Notepad, read the text currently open, and explain what it does or fix any errors."><i class="fa-solid fa-clipboard-list"></i> Check Notepad</button>
-                <button class="action-btn" data-cmd="Read the code on my screen and generate unit tests for it."><i class="fa-solid fa-flask"></i> Write Unit Tests</button>
                 <button class="action-btn" data-cmd="Look at the error message visible on my screen, search for a fix, and explain it to me."><i class="fa-solid fa-bug"></i> Debug Screen Error</button>
             </aside>
 
             <!-- Center Chat Interface -->
             <section class="chat-container glass">
+                <div class="macro-progress" id="macro-progress">
+                    <div class="progress-spinner"></div>
+                    <span class="progress-text" id="macro-progress-text">Executing automation...</span>
+                </div>
+
+                <div class="terminal-panel" id="terminal-panel">
+                    <div class="terminal-header">
+                        <span>Background Logs</span>
+                        <i class="fa-solid fa-terminal"></i>
+                    </div>
+                    <div class="terminal-output" id="terminal-output">
+                        <div class="term-line">Initializing shell environment...</div>
+                        <div class="term-line">System ready.</div>
+                    </div>
+                </div>
+
                 <div class="chat-header" style="justify-content: flex-end;">
                     <div class="audio-dropdown-container">
                         <button class="icon-btn" id="tts-toggle" title="Audio Options"><i class="fa-solid fa-volume-high"></i></button>
@@ -89,22 +131,22 @@
                 
                 <div class="input-area">
                     <div class="action-status">
-                        <i class="fa-solid fa-bolt"></i> <span id="action-text">Standby</span>
+                        <i class="fa-solid fa-bolt" style="color: #ffd60a;"></i>
+                        <span id="action-text">STANDBY</span>
                     </div>
                     <div class="confirmation-wrapper" id="confirmation-wrapper" style="display: none; gap: 15px; width: 100%; margin-top: 5px;">
                         <button class="confirm-btn glass-btn" id="confirm-btn" style="background: rgba(46, 204, 113, 0.25); border: 1px solid #2ecc71; color: #2ecc71; padding: 12px; border-radius: 8px; cursor: pointer; flex: 1; font-weight: 600; font-family: inherit; transition: 0.2s;"><i class="fa-solid fa-check"></i> Confirm Plan</button>
                         <button class="reject-btn glass-btn" id="reject-btn" style="background: rgba(231, 76, 60, 0.25); border: 1px solid #e74c3c; color: #e74c3c; padding: 12px; border-radius: 8px; cursor: pointer; flex: 1; font-weight: 600; font-family: inherit; transition: 0.2s;"><i class="fa-solid fa-xmark"></i> Cancel Plan</button>
                     </div>
                     <div class="input-wrapper" id="input-wrapper">
+                        <button class="icon-btn" id="upload-image-btn" title="Attach Image"><i class="fa-solid fa-paperclip"></i></button>
                         <input type="file" id="image-upload-input" accept="image/*" style="display: none;">
-                        <button id="upload-image-btn" title="Attach Image" class="icon-btn" style="color: var(--text-color); margin-right: 5px;"><i class="fa-solid fa-paperclip"></i></button>
-                        
                         <div id="image-preview-container" style="display: none; align-items: center; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 4px; margin-right: 10px;">
                             <img id="image-preview" src="" alt="preview" style="max-height: 24px; border-radius: 4px; margin-right: 5px;">
                             <button id="remove-image-btn" style="background: none; border: none; color: #ff3b30; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-xmark"></i></button>
                         </div>
-                        
                         <input type="text" id="text-command-input" placeholder="Type an automation command..." autocomplete="off">
+                        <button class="icon-btn" id="terminal-toggle" title="Toggle Terminal" style="margin-right: 10px;"><i class="fa-solid fa-code"></i></button>
                         <button id="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
                     </div>
                 </div>
@@ -156,7 +198,7 @@
                 <button class="close-modal-btn" id="close-settings-btn"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <div class="setting-group">
+            <div class="setting-group" style="flex-direction: column; align-items: flex-start;">
                 <label>Text-To-Speech Voice</label>
                 <div class="custom-dropdown glass" id="voice-dropdown-ui" style="width: 100%;">
                     <div class="custom-dropdown-selected"><span id="voice-selected-text">Loading voices...</span> <i class="fa-solid fa-chevron-down" style="font-size: 0.8em; opacity: 0.7;"></i></div>
@@ -164,6 +206,28 @@
                         <div class="custom-dropdown-option" data-value="">Loading voices...</div>
                     </div>
                 </div>
+            </div>
+            
+            <div class="setting-group">
+                <label>Auto-Confirm Actions</label>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-group">
+                <label>Silent Mode</label>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-group">
+                <label>Debug Logging</label>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
             </div>
         </div>
     </div>
