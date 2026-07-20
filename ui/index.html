@@ -29,19 +29,24 @@
         <header class="top-bar glass">
             <!-- Left: Sidebar Toggle and Sys Info -->
             <div class="sys-info">
-                <button class="icon-btn" id="sidebar-toggle" style="margin-right: 15px;"><i class="fa-solid fa-bars"></i></button>
-                <i class="fa-solid fa-code-branch"></i>
-                <span id="sys-state">Initializing Core...</span>
+                <button class="icon-btn" id="sidebar-toggle" style="margin-right: 24px;"><i class="fa-solid fa-bars"></i></button>
+                <div class="sys-state-wrapper">
+                    <i class="fa-solid fa-code-branch"></i>
+                    <span id="sys-state">Initializing Core...</span>
+                </div>
             </div>
             
             <!-- Center: Time and Theme -->
             <div style="display: flex; gap: 20px; align-items: center;">
-                <select id="bg-select" class="voice-select glass">
-                    <option value="image|https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2048&auto=format&fit=crop">Space Nebula</option>
-                    <option value="video|assets/mountain.mp4">Mountain Scenery</option>
-                    <option value="video|assets/ocean.mp4">Ocean</option>
-                    <option value="video|assets/city.mp4">City Street</option>
-                </select>
+                <div class="custom-dropdown glass" id="bg-dropdown">
+                    <div class="custom-dropdown-selected"><span id="bg-selected-text">Space Nebula</span> <i class="fa-solid fa-chevron-down" style="font-size: 0.8em; opacity: 0.7;"></i></div>
+                    <div class="custom-dropdown-options glass" id="bg-options-container">
+                        <div class="custom-dropdown-option" data-value="image|https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2048&auto=format&fit=crop">Space Nebula</div>
+                        <div class="custom-dropdown-option" data-value="video|assets/mountain.mp4">Mountain Scenery</div>
+                        <div class="custom-dropdown-option" data-value="video|assets/ocean.mp4">Ocean</div>
+                        <div class="custom-dropdown-option" data-value="video|assets/city.mp4">City Street</div>
+                    </div>
+                </div>
                 <div class="time-widget" id="time-widget">
                     00:00 AM
                 </div>
@@ -75,9 +80,12 @@
                         <button class="icon-btn" id="tts-toggle" title="Audio Options"><i class="fa-solid fa-volume-high"></i></button>
                         <div id="voice-dropdown" class="voice-dropdown-content glass">
                             <label>Select Voice</label>
-                            <select id="voice-select" class="voice-select glass">
-                                <option value="">Loading voices...</option>
-                            </select>
+                            <div class="custom-dropdown glass" id="voice-dropdown-ui">
+                                <div class="custom-dropdown-selected"><span id="voice-selected-text">Loading voices...</span> <i class="fa-solid fa-chevron-down" style="font-size: 0.8em; opacity: 0.7;"></i></div>
+                                <div class="custom-dropdown-options glass" id="voice-options-container">
+                                    <div class="custom-dropdown-option" data-value="">Loading voices...</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

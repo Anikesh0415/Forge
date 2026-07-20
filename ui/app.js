@@ -45,16 +45,31 @@ ttsToggle.addEventListener('click', () => {
 // Load Voices
 function loadVoices() {
     voices = window.speechSynthesis.getVoices();
-    voiceSelect.innerHTML = '';
+    const voiceOptionsContainer = document.getElementById('voice-options-container');
+    const voiceSelectedText = document.getElementById('voice-selected-text');
+    if (!voiceOptionsContainer) return;
+    
+    voiceOptionsContainer.innerHTML = '';
+    
+    if (voices.length > 0 && voiceSelectedText.textContent === 'Loading voices...') {
+        voiceSelectedText.textContent = voices[0].name;
+    }
     
     voices.forEach((voice, i) => {
-        const option = document.createElement('option');
-        option.value = voice.name;
+        const option = document.createElement('div');
+        option.className = 'custom-dropdown-option';
+        option.dataset.value = voice.name;
         // Prioritize female or beautiful natural voices if possible in the label
         let label = voice.name;
         if (voice.default) label += ' (Default)';
         option.textContent = label;
-        voiceSelect.appendChild(option);
+        
+        option.addEventListener('click', () => {
+            voiceSelectedText.textContent = option.textContent;
+            voiceSelectedText.dataset.value = voice.name;
+        });
+        
+        voiceOptionsContainer.appendChild(option);
     });
 }
 
@@ -70,7 +85,8 @@ function speakText(text) {
     const utterance = new SpeechSynthesisUtterance(text);
     
     // Set selected voice
-    const selectedVoiceName = voiceSelect.selectedOptions[0]?.value;
+    const voiceSelectedText = document.getElementById('voice-selected-text');
+    const selectedVoiceName = voiceSelectedText ? (voiceSelectedText.dataset.value || voiceSelectedText.textContent) : null;
     if (selectedVoiceName) {
         const voice = voices.find(v => v.name === selectedVoiceName);
         if (voice) utterance.voice = voice;
@@ -415,32 +431,49 @@ actionBtns.forEach(btn => {
 });
 
 // Background Selection
-const bgSelect = document.getElementById('bg-select');
+const bgDropdown = document.getElementById('bg-dropdown');
+const bgSelectedText = document.getElementById('bg-selected-text');
 const bgImage = document.getElementById('bg-image');
 const bgVideo = document.getElementById('bg-video');
 
-if (bgSelect && bgImage && bgVideo) {
-    bgSelect.addEventListener('change', (e) => {
-        const value = e.target.value;
-        const [type, url] = value.split('|');
-        
-        if (type === 'image') {
-            bgVideo.style.display = 'none';
-            bgImage.style.display = 'block';
-            bgImage.style.backgroundImage = `url('${url}')`;
-            bgVideo.pause();
-        } else if (type === 'video') {
-            bgImage.style.display = 'none';
-            bgVideo.style.display = 'block';
-            const source = bgVideo.querySelector('source');
-            if (source) {
-                source.src = url;
-                bgVideo.load();
-                bgVideo.play();
+if (bgDropdown && bgImage && bgVideo) {
+    const options = bgDropdown.querySelectorAll('.custom-dropdown-option');
+    options.forEach(opt => {
+        opt.addEventListener('click', () => {
+            bgSelectedText.textContent = opt.textContent;
+            const value = opt.dataset.value;
+            const [type, url] = value.split('|');
+            
+            if (type === 'image') {
+                bgVideo.style.display = 'none';
+                bgImage.style.display = 'block';
+                bgImage.style.backgroundImage = `url('${url}')`;
+                bgVideo.pause();
+            } else if (type === 'video') {
+                bgImage.style.display = 'none';
+                bgVideo.style.display = 'block';
+                const source = bgVideo.querySelector('source');
+                if (source) {
+                    source.src = url;
+                    bgVideo.load();
+                    bgVideo.play();
+                }
             }
-        }
+        });
     });
 }
+
+// Global Custom Dropdown Logic
+document.addEventListener('click', (e) => {
+    const isDropdownClick = e.target.closest('.custom-dropdown');
+    document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+        if (dropdown === isDropdownClick) {
+            dropdown.classList.toggle('open');
+        } else {
+            dropdown.classList.remove('open');
+        }
+    });
+});
 
 // Start connection
 connectWebSocket();

@@ -188,7 +188,64 @@ body {
     background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); color: var(--text-main);
     padding: 10px 16px; border-radius: 12px; font-size: 0.9rem; font-family: inherit; outline: none; cursor: pointer; min-width: 180px;
 }
-.voice-select option { background: #111; color: #fff; }
+/* Custom Dropdown Styling */
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    min-width: 180px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: inherit;
+    user-select: none;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.custom-dropdown:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px rgba(255,255,255,0.05);
+}
+.custom-dropdown-selected {
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-main);
+}
+.custom-dropdown-options {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    z-index: 200;
+    flex-direction: column;
+    padding: 8px;
+    border-radius: 12px;
+    background: rgba(20, 20, 25, 0.7);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    max-height: 250px;
+    overflow-y: auto;
+}
+.custom-dropdown.open .custom-dropdown-options {
+    display: flex;
+}
+.custom-dropdown-option {
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--text-main);
+    transition: all 0.15s;
+    white-space: normal; /* Allow long names to wrap slightly */
+}
+.custom-dropdown-option:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.sys-state-wrapper {
+    display: flex; align-items: center; background: rgba(0,0,0,0.2); padding: 8px 16px; border-radius: 20px; border: 1px solid var(--glass-border);
+}
+.sys-state-wrapper i { margin-right: 12px; opacity: 0.8; font-size: 1.1rem; }
 
 /* Dev/Student Inputs */
 #dev-folder-input, #student-url-input {
