@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2.1">
 </head>
 <body>
 
@@ -98,7 +98,7 @@
                     </div>
                     <div class="input-wrapper" id="input-wrapper">
                         <input type="file" id="image-upload-input" accept="image/*" style="display: none;">
-                        <button id="upload-image-btn" title="Attach Image" class="icon-btn" style="color: var(--text-color); margin-right: 5px;"><i class="fa-solid fa-paperclip"></i></button>
+                        <button id="upload-image-btn" title="Attach Image" class="icon-btn"><i class="fa-solid fa-paperclip"></i></button>
                         
                         <div id="image-preview-container" style="display: none; align-items: center; background: rgba(0,0,0,0.5); padding: 2px 5px; border-radius: 4px; margin-right: 10px;">
                             <img id="image-preview" src="" alt="preview" style="max-height: 24px; border-radius: 4px; margin-right: 5px;">
@@ -115,16 +115,16 @@
             <aside id="modes-panel" class="modes-panel glass">
                 <h3>Access Modes</h3>
                 <button class="toggle-btn" id="dev-mode-toggle" title="Developer Mode (Coding Assistant)"><i class="fa-solid fa-code"></i> Developer Mode</button>
-                <div id="dev-mode-config" style="display: none; flex-direction: column; gap: 5px; margin-top: 5px; margin-bottom: 15px;">
-                    <div style="display: flex; gap: 5px;">
-                        <input type="text" id="dev-folder-input" placeholder="e.g. C:\MyProject" class="glass" style="padding: 8px; border-radius: 4px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.1); color: #fff; font-family: inherit; font-size: 0.9em; flex: 1;">
-                        <button id="select-folder-btn" class="glass" title="Select Folder" style="padding: 8px; border-radius: 4px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.1); color: #fff; cursor: pointer;"><i class="fa-solid fa-folder-open"></i></button>
+                <div id="dev-mode-config" style="display: none; flex-direction: column; gap: 8px; margin-top: 8px; margin-bottom: 20px;">
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="dev-folder-input" placeholder="e.g. C:\MyProject" class="dev-input" style="flex: 1;">
+                        <button id="select-folder-btn" class="icon-btn" title="Select Folder" style="width: auto; padding: 0 14px; border-radius: 12px;"><i class="fa-solid fa-folder-open"></i></button>
                     </div>
                 </div>
                 
                 <button class="toggle-btn" id="student-mode-toggle" title="Student Mode (AI Tutor)"><i class="fa-solid fa-graduation-cap"></i> Student Mode</button>
-                <div id="student-mode-config" style="display: none; flex-direction: column; gap: 5px; margin-top: 5px; margin-bottom: 15px;">
-                    <input type="text" id="student-url-input" placeholder="YouTube URL or File Path" class="glass" style="padding: 8px; border-radius: 4px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.1); color: #fff; font-family: inherit; font-size: 0.9em; flex: 1;">
+                <div id="student-mode-config" style="display: none; flex-direction: column; gap: 8px; margin-top: 8px; margin-bottom: 20px;">
+                    <input type="text" id="student-url-input" placeholder="YouTube URL or File Path" class="dev-input">
                 </div>
 
                 <button class="toggle-btn" id="dictate-toggle" title="Dictation Mode (Type with voice)"><i class="fa-solid fa-microphone-lines"></i> Dictate</button>
