@@ -8,10 +8,36 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style_v14.css">
+    <link rel="stylesheet" href="style_v15.css">
 </head>
 <body>
 
+    <!-- Chat History Drawer -->
+    <div class="history-drawer" id="chat-history-drawer">
+        <div class="history-header">
+            <h3>History</h3>
+            <button class="history-close-btn" id="history-close-btn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div style="padding: 0 16px;">
+            <button class="new-chat-btn"><i class="fa-solid fa-pen-to-square"></i> New Chat</button>
+        </div>
+        <div class="history-content">
+            <div class="history-group">
+                <div class="history-group-title">Today</div>
+                <div class="history-item active"><i class="fa-regular fa-message"></i> Vectors in Physics</div>
+                <div class="history-item"><i class="fa-regular fa-message"></i> YouTube Summarization</div>
+            </div>
+            <div class="history-group">
+                <div class="history-group-title">Yesterday</div>
+                <div class="history-item"><i class="fa-regular fa-message"></i> React UI Debugging</div>
+                <div class="history-item"><i class="fa-regular fa-message"></i> Email Draft to Professor</div>
+            </div>
+            <div class="history-group">
+                <div class="history-group-title">Previous 7 Days</div>
+                <div class="history-item"><i class="fa-regular fa-message"></i> Exam Prep Flashcards</div>
+            </div>
+        </div>
+    </div>
     <!-- Guaranteed Reliable Backgrounds -->
     <div class="video-container">
         <!-- Space uses the CSS animated image -->

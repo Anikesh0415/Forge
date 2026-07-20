@@ -490,9 +490,21 @@ const quickActionsPanel = document.getElementById('quick-actions-panel');
 const modesSidebarToggle = document.getElementById('modes-sidebar-toggle');
 const modesPanel = document.getElementById('modes-panel');
 
-if (sidebarToggle && quickActionsPanel) {
+if (sidebarToggle) {
+    const historyDrawer = document.getElementById('chat-history-drawer');
     sidebarToggle.addEventListener('click', () => {
-        quickActionsPanel.classList.toggle('collapsed');
+        if (historyDrawer) {
+            historyDrawer.classList.toggle('open');
+        }
+    });
+}
+const historyCloseBtn = document.getElementById('history-close-btn');
+if (historyCloseBtn) {
+    const historyDrawer = document.getElementById('chat-history-drawer');
+    historyCloseBtn.addEventListener('click', () => {
+        if (historyDrawer) {
+            historyDrawer.classList.remove('open');
+        }
     });
 }
 
@@ -682,12 +694,12 @@ macroBtns.forEach(btn => {
                 <div class="flashcard" onclick="this.classList.toggle('flipped')">
                     <div class="flashcard-front">
                         <div class="flashcard-title">Front</div>
-                        <div class="flashcard-content">What is the powerhouse of the cell?</div>
+                        <div class="flashcard-content">What is a vector in physics?</div>
                         <div class="flashcard-hint">Click to flip</div>
                     </div>
                     <div class="flashcard-back">
                         <div class="flashcard-title">Back</div>
-                        <div class="flashcard-content">Mitochondria</div>
+                        <div class="flashcard-content">A quantity having direction as well as magnitude.</div>
                         <div class="flashcard-hint">Click to flip back</div>
                     </div>
                 </div>
