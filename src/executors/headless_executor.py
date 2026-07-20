@@ -34,7 +34,20 @@ class HeadlessExecutor:
                         return False, "Invalid YouTube URL format."
                         
                     logger.info(f"Fetching transcript for YouTube ID: {video_id}")
-                    transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
+                    
+                    api = YouTubeTranscriptApi()
+                    transcript_list_obj = api.list(video_id)
+                    
+                    # Get the first available transcript in any language
+                    transcript_obj = None
+                    for t in transcript_list_obj:
+                        transcript_obj = t
+                        break
+                        
+                    if not transcript_obj:
+                        return False, "No transcript available for this video."
+                        
+                    transcript_list = transcript_obj.fetch()
                     full_text = " ".join([t['text'] for t in transcript_list])
                     
                     if len(full_text) > 12000:
