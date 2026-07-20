@@ -360,9 +360,9 @@ modeBtns.forEach(btn => {
 
 const dictateToggle = document.getElementById('dictate-toggle');
 const meetingToggle = document.getElementById('meeting-toggle');
-const devModeToggle = document.getElementById('dev-mode-toggle');
+const devModeToggle = document.getElementById('dev-mode-btn');
 const devModeConfig = document.getElementById('dev-mode-config');
-const studentModeToggle = document.getElementById('student-mode-toggle');
+const studentModeToggle = document.getElementById('student-mode-btn');
 const studentModeConfig = document.getElementById('student-mode-config');
 
 if (devModeToggle && devModeConfig) {
