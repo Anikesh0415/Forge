@@ -286,6 +286,22 @@ class AIF_Server:
                     def update_ui(msg):
                         # Use reply_text for logs to the UI
                         self.fsm.current_context["reply_text"] = msg
+
+                    # --- Conversational Bypass ---
+                    clean_text = instruction.strip().lower()
+                    conversational_phrases = ["hi", "hello", "hey", "sup", "what's up", "how are you", "who are you", "thanks", "thank you"]
+                    if clean_text in conversational_phrases:
+                        update_ui(f"Hello! I am your AI assistant. How can I help you today?")
+                        try:
+                            import pyttsx3
+                            engine = pyttsx3.init()
+                            engine.say("Hello! I am your AI assistant.")
+                            engine.runAndWait()
+                        except Exception:
+                            pass
+                        self.fsm.transition(SystemState.IDLE)
+                        return
+                    # -----------------------------
                     
                     try:
                         plan = plan_task(instruction, update_callback=update_ui)

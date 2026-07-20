@@ -220,6 +220,7 @@ function updateState(stateName) {
 // Confirmation Button Logic
 const confirmBtn = document.getElementById('confirm-btn');
 const rejectBtn = document.getElementById('reject-btn');
+const replanBtn = document.getElementById('replan-btn');
 
 if (confirmBtn && rejectBtn) {
     confirmBtn.addEventListener('click', () => {
@@ -230,6 +231,15 @@ if (confirmBtn && rejectBtn) {
     
     rejectBtn.addEventListener('click', () => {
         if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ command: "REJECT_PLAN" }));
+        }
+    });
+}
+if (replanBtn) {
+    replanBtn.addEventListener('click', () => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            appendMessage('SYSTEM', 'Requesting new plan...');
+            // In a real system, you might prompt for feedback here. For now we just mock a reject and re-prompt.
             ws.send(JSON.stringify({ command: "REJECT_PLAN" }));
         }
     });
