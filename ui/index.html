@@ -11,31 +11,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Persona Selection Modal -->
-    <div id="persona-modal" class="modal-overlay">
-        <div class="persona-modal-content glass" style="text-align: center; max-width: 800px; padding: 40px; z-index: 1000; position: relative;">
-            <h2 style="font-size: 2em; margin-bottom: 10px;">Select Your Ecosystem Persona</h2>
-            <p style="color: var(--text-dim); margin-bottom: 30px;">Servent-AI will dynamically reconfigure its UI and capabilities based on your selection.</p>
-            
-            <div class="persona-cards" style="display: flex; gap: 20px; justify-content: center;">
-                <div class="persona-card glass" data-persona="accessibility" style="flex: 1; padding: 30px 20px; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 15px;">
-                    <i class="fa-solid fa-universal-access fa-3x" style="color: #3498db;"></i>
-                    <h3>Accessibility Mode</h3>
-                    <p style="font-size: 0.9em; color: var(--text-dim);">For Seniors & Low Vision. Voice control only. AI navigates for you.</p>
-                </div>
-                <div class="persona-card glass" data-persona="productivity" style="flex: 1; padding: 30px 20px; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 15px;">
-                    <i class="fa-solid fa-briefcase fa-3x" style="color: #e67e22;"></i>
-                    <h3>Productivity Mode</h3>
-                    <p style="font-size: 0.9em; color: var(--text-dim);">For Professionals. Unlocks deep workflow automation and dev macros.</p>
-                </div>
-                <div class="persona-card glass" data-persona="discovery" style="flex: 1; padding: 30px 20px; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 15px;">
-                    <i class="fa-solid fa-graduation-cap fa-3x" style="color: #2ecc71;"></i>
-                    <h3>Discovery Mode</h3>
-                    <p style="font-size: 0.9em; color: var(--text-dim);">For Students & Kids. Interactive tutoring and safe multimodal chat.</p>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Guaranteed Reliable Backgrounds -->
     <div class="video-container">
@@ -61,7 +36,6 @@
             
             <!-- Center: Time and Theme -->
             <div style="display: flex; gap: 20px; align-items: center;">
-                <button id="switch-persona-btn" class="glass" style="padding: 8px 15px; border-radius: 8px; color: #fff; cursor: pointer; font-family: inherit; font-weight: 500;"><i class="fa-solid fa-users" style="margin-right: 8px;"></i> Switch Persona</button>
                 <select id="bg-select" class="voice-select glass">
                     <option value="image|https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2048&auto=format&fit=crop">Space Nebula</option>
                     <option value="video|assets/mountain.mp4">Mountain Scenery</option>

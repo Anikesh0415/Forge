@@ -122,30 +122,6 @@ class MultiStagePlanner:
         
         system_prompt = PLANNER_SYSTEM_PROMPT
         
-        # Persona injection
-        import re
-        persona_match = re.search(r"\[PERSONA: (.*?)\]", instruction)
-        if persona_match:
-            persona = persona_match.group(1)
-            if persona == "accessibility":
-                system_prompt += """
-### ACCESSIBILITY PERSONA ACTIVE ###
-You are assisting a Senior or Low-Vision user. Keep things EXTREMELY SIMPLE.
-Prioritize UI Automation and Voice Feedback (`speak` action). Do NOT assume they have technical knowledge. If they ask to navigate a complex site like Medicare or a Bank, USE `open_browser` and `click_element` to do it FOR THEM completely autonomously.
-"""
-            elif persona == "productivity":
-                system_prompt += """
-### PRODUCTIVITY PERSONA ACTIVE ###
-You are assisting a Professional. Focus on SPEED, EFFICIENCY, and DEEP WORKFLOW AUTOMATION.
-Assume technical competence. Use Developer Mode actions frequently to write scripts, automate emails, and orchestrate massive 80+ step macros.
-"""
-            elif persona == "discovery":
-                system_prompt += """
-### DISCOVERY PERSONA ACTIVE ###
-You are assisting a Student/Child. Act as an AI Tutor.
-Focus on safety, strict content filtering, and interactive learning. Use Student Mode actions to generate quizzes and diagrams. If asked to do homework, GUIDE the user, do not just give the answer directly.
-"""
-
         if "[DEV_MODE:" in instruction:
             system_prompt += """
 ### DEVELOPER MODE UNLOCKED ###

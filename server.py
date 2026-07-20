@@ -71,26 +71,6 @@ class AIF_Server:
         
         self.chat_history_file = os.path.join(os.path.dirname(__file__), "chat_history.json")
         self.chat_history = self._load_history()
-        
-        self.config_file = os.path.join(os.path.dirname(__file__), "config.json")
-        self.config = self._load_config()
-        self.fsm.current_context["persona"] = self.config.get("persona")
-
-    def _load_config(self):
-        if os.path.exists(self.config_file):
-            try:
-                with open(self.config_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
-            except Exception:
-                return {}
-        return {}
-
-    def _save_config(self):
-        try:
-            with open(self.config_file, 'w', encoding='utf-8') as f:
-                json.dump(self.config, f)
-        except Exception as e:
-            print(f"Failed to save config: {e}")
 
     def _load_history(self):
         if os.path.exists(self.chat_history_file):
@@ -416,22 +396,6 @@ class AIF_Server:
                     elif cmd == "REJECT_PLAN":
                         print("UI rejection received!")
                         self.reject_plan()
-                    elif cmd == "SET_PERSONA":
-                        persona = payload.get("persona")
-                        self.fsm.current_context["persona"] = persona
-                        self.config["persona"] = persona
-                        self._save_config()
-                        
-                        print(f"Persona Set: {persona}")
-                        # Auto-configure mode based on persona
-                        if persona == 'accessibility':
-                            self.mode = "VOICE_ONLY"
-                            self.is_listening_mode = True
-                            self.is_tracking_mode = False
-                        elif persona == 'productivity' or persona == 'discovery':
-                            self.mode = "BOTH"
-                            self.is_listening_mode = True
-                            self.is_tracking_mode = True
                     elif cmd == "SELECT_FOLDER":
                         import tkinter as tk
                         from tkinter import filedialog
@@ -464,10 +428,6 @@ class AIF_Server:
                         else:
                             text_cmd = payload.get("text")
                             if text_cmd:
-                                persona = self.fsm.current_context.get("persona")
-                                if persona:
-                                    text_cmd = f"[PERSONA: {persona}] " + text_cmd
-                                    
                                 img_path = self.fsm.current_context.get("uploaded_image")
                                 if img_path:
                                     text_cmd = f"[IMAGE_ATTACHED: {img_path}] " + text_cmd
@@ -484,8 +444,7 @@ class AIF_Server:
                     elif cmd == "GET_HISTORY":
                         await websocket.send(json.dumps({
                             "type": "CHAT_HISTORY",
-                            "history": self.chat_history,
-                            "persona": self.config.get("persona")
+                            "history": self.chat_history
                         }))
                 except asyncio.TimeoutError:
                     pass
@@ -501,8 +460,8 @@ class AIF_Server:
                 self.fsm.transition(SystemState.IDLE)
 
     async def main_server(self):
-        print("Starting WebSocket Server on ws://localhost:8765")
-        async with websockets.serve(self.ws_handler, "localhost", 8765):
+        print("Starting WebSocket Server on ws://0.0.0.0:8765 (Available on Local Network)")
+        async with websockets.serve(self.ws_handler, "0.0.0.0", 8765):
             await asyncio.Future()
 
     def start_server(self):

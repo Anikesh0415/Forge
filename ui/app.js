@@ -125,18 +125,6 @@ function connectWebSocket() {
         if (data.type === "CHAT_HISTORY") {
             chatLog.innerHTML = ""; // Clear existing log
             
-            // Handle Persona from backend (overrides local storage)
-            if (data.persona) {
-                const personaModal = document.getElementById('persona-modal');
-                if (personaModal) personaModal.style.display = 'none';
-                localStorage.setItem('servent_persona', data.persona);
-                if (data.persona === 'accessibility') {
-                    document.body.classList.add('persona-accessibility');
-                } else {
-                    document.body.classList.remove('persona-accessibility');
-                }
-            }
-
             if (data.history.length === 0) {
                 appendMessage('SYSTEM', 'Connection established. Servent is online.');
             } else {
@@ -320,55 +308,6 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchTheme();
 });
 
-// Persona Modal Logic
-const personaModal = document.getElementById('persona-modal');
-const personaCards = document.querySelectorAll('.persona-card');
-
-const switchPersonaBtn = document.getElementById('switch-persona-btn');
-
-// Load saved persona
-const savedPersona = localStorage.getItem('servent_persona');
-if (savedPersona) {
-    personaModal.style.display = 'none';
-    if (savedPersona === 'accessibility') {
-        document.body.classList.add('persona-accessibility');
-    }
-}
-
-// Switch Persona button
-if (switchPersonaBtn) {
-    switchPersonaBtn.addEventListener('click', () => {
-        personaModal.style.display = 'flex';
-    });
-}
-
-personaCards.forEach(card => {
-    card.addEventListener('click', () => {
-        const persona = card.getAttribute('data-persona');
-        personaModal.style.display = 'none';
-        
-        // Save to local storage
-        localStorage.setItem('servent_persona', persona);
-        
-        // Handle CSS
-        if (persona === 'accessibility') {
-            document.body.classList.add('persona-accessibility');
-        } else {
-            document.body.classList.remove('persona-accessibility');
-        }
-        
-        // Wait for websocket to be ready if it isn't
-        const sendPersona = setInterval(() => {
-            if (ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    command: "SET_PERSONA",
-                    persona: persona
-                }));
-                clearInterval(sendPersona);
-            }
-        }, 100);
-    });
-});
 
 sendBtn.addEventListener('click', (e) => {
     e.preventDefault();
