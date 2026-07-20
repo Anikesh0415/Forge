@@ -154,6 +154,7 @@ You may use the following exclusive Developer Actions:
 - read_file: {"action": "read_file", "path": "absolute path to file"}
 - write_file: {"action": "write_file", "path": "absolute path to file", "content": "exact code to write"}
 - run_terminal: {"action": "run_terminal", "command": "bash/cmd string", "cwd": "absolute directory path"}
+- search_knowledge_base: {"action": "search_knowledge_base", "query": "semantic query", "path": "absolute path to folder to scan"}
 When asked to code, debug, or write scripts, USE THESE ACTIONS INSTEAD of opening VS Code via UI clicks.
 """
         elif "[STUDENT_MODE:" in instruction:
@@ -168,6 +169,7 @@ You may use the following exclusive Student Actions:
 - generate_study_html: {{"action": "generate_study_html", "path": "absolute path to save html", "html_content": "Full HTML/JS code for an interactive quiz or 3D diagram"}}
 - read_file: {{"action": "read_file", "path": "absolute path to document file"}}
 - write_file: {{"action": "write_file", "path": "absolute path to save notes", "content": "notes content"}}
+- search_knowledge_base: {{"action": "search_knowledge_base", "query": "semantic query", "path": "absolute path to folder to scan"}}
 For 3D diagrams or quizzes, use `generate_study_html` to output a fully self-contained HTML document (e.g. using Three.js for 3D, or vanilla JS for a quiz).
 """
 

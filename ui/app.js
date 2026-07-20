@@ -107,7 +107,9 @@ function connectWebSocket() {
         wsStatus.textContent = 'CONNECTED';
         wsStatus.style.color = '#34c759';
         statusDot.classList.add('active');
-        appendMessage('SYSTEM', 'Connection established. Servent is online.');
+        
+        // Request history on connect
+        ws.send(JSON.stringify({ command: "GET_HISTORY" }));
     };
 
     ws.onmessage = (event) => {
@@ -116,6 +118,18 @@ function connectWebSocket() {
             const folderInput = document.getElementById('dev-folder-input');
             if (folderInput) {
                 folderInput.value = data.path;
+            }
+            return;
+        }
+        
+        if (data.type === "CHAT_HISTORY") {
+            chatLog.innerHTML = ""; // Clear existing log
+            if (data.history.length === 0) {
+                appendMessage('SYSTEM', 'Connection established. Servent is online.');
+            } else {
+                data.history.forEach(msg => {
+                    appendMessage(msg.sender, msg.text);
+                });
             }
             return;
         }
@@ -297,13 +311,37 @@ document.addEventListener('DOMContentLoaded', () => {
 const personaModal = document.getElementById('persona-modal');
 const personaCards = document.querySelectorAll('.persona-card');
 
+const switchPersonaBtn = document.getElementById('switch-persona-btn');
+
+// Load saved persona
+const savedPersona = localStorage.getItem('servent_persona');
+if (savedPersona) {
+    personaModal.style.display = 'none';
+    if (savedPersona === 'accessibility') {
+        document.body.classList.add('persona-accessibility');
+    }
+}
+
+// Switch Persona button
+if (switchPersonaBtn) {
+    switchPersonaBtn.addEventListener('click', () => {
+        personaModal.style.display = 'flex';
+    });
+}
+
 personaCards.forEach(card => {
     card.addEventListener('click', () => {
         const persona = card.getAttribute('data-persona');
         personaModal.style.display = 'none';
         
+        // Save to local storage
+        localStorage.setItem('servent_persona', persona);
+        
+        // Handle CSS
         if (persona === 'accessibility') {
             document.body.classList.add('persona-accessibility');
+        } else {
+            document.body.classList.remove('persona-accessibility');
         }
         
         // Wait for websocket to be ready if it isn't

@@ -68,6 +68,31 @@ class AIF_Server:
         # Start continuous STT worker
         self.stt_thread = threading.Thread(target=self._stt_worker, daemon=True)
         self.stt_thread.start()
+        
+        self.chat_history_file = os.path.join(os.path.dirname(__file__), "chat_history.json")
+        self.chat_history = self._load_history()
+
+    def _load_history(self):
+        if os.path.exists(self.chat_history_file):
+            try:
+                with open(self.chat_history_file, 'r', encoding='utf-8') as f:
+                    return json.load(f)
+            except Exception:
+                return []
+        return []
+
+    def append_to_history(self, sender, text):
+        if not text:
+            return
+        self.chat_history.append({"sender": sender, "text": text})
+        # Keep only last 100 messages to prevent massive bloat
+        if len(self.chat_history) > 100:
+            self.chat_history = self.chat_history[-100:]
+        try:
+            with open(self.chat_history_file, 'w', encoding='utf-8') as f:
+                json.dump(self.chat_history, f)
+        except Exception as e:
+            print(f"Failed to save history: {e}")
 
     def confirm_plan(self):
         """Triggers execution of the planned steps."""
@@ -318,17 +343,19 @@ class AIF_Server:
                 elif self.fsm.state == SystemState.AWAITING_CONFIRMATION:
                     action_text = "Awaiting confirmation..."
                 
+                reply_text = context.get("reply_text", "")
                 data = {
                     "state": self.fsm.state.name,
                     "hand": [{"id": p[0], "x": p[1], "y": p[2], "z": p[3]} for p in self.hand_data_for_ui],
                     "voice_text": context.get("voice_text", ""),
-                    "reply_text": context.get("reply_text", ""),
+                    "reply_text": reply_text,
                     "action_text": action_text
                 }
                 await websocket.send(json.dumps(data))
                 
                 # Clear reply text after sending to prevent loops
-                if context.get("reply_text"):
+                if reply_text:
+                    self.append_to_history("SYSTEM", reply_text)
                     self.fsm.current_context["reply_text"] = ""
                     
                 # Check for commands from UI
@@ -421,10 +448,21 @@ class AIF_Server:
                                 img_path = self.fsm.current_context.get("uploaded_image")
                                 if img_path:
                                     text_cmd = f"[IMAGE_ATTACHED: {img_path}] " + text_cmd
-                                    self.fsm.current_context["uploaded_image"] = None # clear after use
-                                    
-                                self.fsm.update_context(voice_text=text_cmd, gesture_coords=self.latest_gesture_coords)
+                                
+                                # Log user input to history
+                                display_text = payload.get("text") # Log clean text
+                                self.append_to_history("USER", display_text)
+
+                                self.fsm.current_context["voice_text"] = text_cmd
+                                self.fsm.current_context["reply_text"] = ""
                                 self.fsm.transition(SystemState.PROCESSING_INTENT)
+                                self.process_state()
+                                
+                    elif cmd == "GET_HISTORY":
+                        await websocket.send(json.dumps({
+                            "type": "CHAT_HISTORY",
+                            "history": self.chat_history
+                        }))
                 except asyncio.TimeoutError:
                     pass
                     
