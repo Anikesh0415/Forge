@@ -16,6 +16,8 @@ This framework is built with **accessibility** at its heart, providing physicall
 * **📚 Skill Library (RAG):** Dynamically injects context-specific examples into the prompt to prevent hallucination without breaking context limits.
 * **🪄 Semantic Copy & OCR Clicking:** Uses PyTesseract for native OCR-based clicking and leveraging Hermes to semantically extract and clean messy clipboard data in real-time.
 * **⚡ Native Accessibility & DOM Snapshotting:** Uses UIAutomation to instantaneously click desktop buttons and rips real-time DOM snapshots for perfect-context error recovery replanning.
+* **📱 Hybrid Remote Architecture:** Use your Android/iOS phone as a remote control. The Python brain broadcasts to your local Wi-Fi, allowing you to trigger complex Windows desktop automations from your couch using the mobile web app.
+* **🧠 Knowledge Vault & Chat History:** Local persistent chat history combined with NotebookLM-style folder grepping. Point the AI to a folder and it can semantically answer questions based on thousands of local documents.
 * **🛡️ Security Guardrails:** Intercepts vague intentions and actively blacklists destructive terminal commands before they can be executed.
 * **🔒 100% Local & Private:** No APIs, no cloud dependencies, no paywalls, and completely offline. Your data never leaves your machine.
 
@@ -79,6 +81,7 @@ For the visual `click_text` capabilities to work, you must install Tesseract:
 
 ## Usage
 
+### Option 1: Desktop Master Interface
 1. Start your local model servers (LM Studio on port `1234` and Ollama on port `11434`).
 2. Run the bootstrapper script:
    ```bash
@@ -86,6 +89,13 @@ For the visual `click_text` capabilities to work, you must install Tesseract:
    ```
 3. Open the locally served dashboard at `ui/index.html`.
 4. Speak a command (e.g., *"open Gemini, ask for a letter, and copy it..."*) or use hand gestures to control the cursor!
+
+### Option 2: Mobile Remote Control
+1. Ensure your PC and phone are on the same Wi-Fi network.
+2. Find your PC's IP Address (`ipconfig`).
+3. Run the Python backend (`python server.py`) which broadcasts on `0.0.0.0`.
+4. Host the `ui` folder on your PC (e.g., `python -m http.server 8000`).
+5. On your phone, visit `http://<YOUR_PC_IP>:8000/android.html` and connect to the brain to control your PC remotely!
 
 ---
 
