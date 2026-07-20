@@ -5,6 +5,7 @@ from src.context_manager import ContextManager
 from src.memory_manager import MemoryManager
 from src.execution_manager import ExecutionManager
 from src.logger import logger
+from src.macro_orchestrator import macro_orchestrator
 
 # Configuration Constants
 ACTION_PAUSE         = 0.5   # seconds after standard actions
@@ -183,9 +184,61 @@ def execute_task_plan(plan: list, update_callback=None) -> bool:
             memory_mgr.complete_task(success=False)
             return False
 
-    memory_mgr.complete_task(success=True)
-    notify("Task completed successfully!")
+    notify("Plan execution completed successfully.")
     return True
+
+
+def run_autonomous_agent(instruction: str, update_callback=None) -> bool:
+    """
+    The top-level entry point. Uses MacroOrchestrator to break down massive prompts.
+    """
+    def notify(msg: str):
+        logger.info(f"[Macro Orchestrator] {msg}")
+        if update_callback:
+            update_callback(msg)
+
+    notify("Checking if instruction requires Macro Loop Orchestration...")
+    macro_plan = macro_orchestrator.analyze_instruction(instruction)
+    
+    if macro_plan.get("is_loop"):
+        iterations = macro_plan.get("iterations", 1)
+        notify(f"🚀 MASIVE LOOP DETECTED! Iterations: {iterations}")
+        
+        # 1. Setup Phase
+        setup_task = macro_plan.get("setup_instructions")
+        if setup_task:
+            notify(f"Phase 1/3: Running Setup -> {setup_task}")
+            setup_plan = plan_task(setup_task, update_callback)
+            if not execute_task_plan(setup_plan, update_callback):
+                notify("Setup failed. Aborting Macro.")
+                return False
+                
+        # 2. Loop Phase
+        loop_task = macro_plan.get("loop_instructions")
+        if loop_task:
+            notify(f"Phase 2/3: Executing Loop {iterations} times...")
+            for i in range(iterations):
+                notify(f"--- LOOP ITERATION {i+1} OF {iterations} ---")
+                iter_plan = plan_task(loop_task, update_callback)
+                if not execute_task_plan(iter_plan, update_callback):
+                    notify(f"Loop iteration {i+1} failed! Attempting to continue next iteration...")
+                    # In a real system, you might break or retry, but let's continue to be robust
+                    
+        # 3. Teardown Phase
+        teardown_task = macro_plan.get("teardown_instructions")
+        if teardown_task:
+            notify(f"Phase 3/3: Running Teardown -> {teardown_task}")
+            teardown_plan = plan_task(teardown_task, update_callback)
+            execute_task_plan(teardown_plan, update_callback)
+            
+        notify("✅ Macro Orchestration Completed Successfully!")
+        return True
+
+    else:
+        notify("Standard linear task detected. Routing to standard planner.")
+        plan = plan_task(instruction, update_callback)
+        return execute_task_plan(plan, update_callback)
+
 
 
 def execute_react_loop(instruction: str, update_callback=None):

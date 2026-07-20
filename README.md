@@ -11,10 +11,12 @@ This framework is built with **accessibility** at its heart, providing physicall
 * **🎤 Hands-Free Voice Control:** Uses local OpenAI Whisper models to transcribe voice commands (e.g. *"open Gemini, write a letter, and send it to my friend on WhatsApp"*).
 * **🖐️ Real-Time Gesture Tracking:** Tracks hand coordinates and finger curls using MediaPipe to control mouse cursor movement, clicks, and page scrolling.
 * **🧠 Aria Planning Brain:** Uses **Hermes 2 Pro 8B** (via LM Studio) to convert abstract voice instructions into structured, step-by-step JSON plan arrays.
+* **🏗️ Hierarchical Macro-Orchestrator:** Intercepts massive 80+ action macro loops and acts as a Software Architect, dynamically orchestrating the LLM through setup, loop, and teardown logic without blowing the context window.
 * **👁️ VISTA Visual Verification:** Automatically captures screenshots and queries a local **Moondream** vision model to verify whether a page loaded or a loading animation has finished before proceeding.
 * **📚 Skill Library (RAG):** Dynamically injects context-specific examples into the prompt to prevent hallucination without breaking context limits.
-* **🪄 Semantic Copy & OCR Clicking:** Uses PyTesseract for native OCR-based clicking and leverages Hermes to semantically extract and clean messy clipboard data in real-time.
+* **🪄 Semantic Copy & OCR Clicking:** Uses PyTesseract for native OCR-based clicking and leveraging Hermes to semantically extract and clean messy clipboard data in real-time.
 * **⚡ Native Accessibility & DOM Snapshotting:** Uses UIAutomation to instantaneously click desktop buttons and rips real-time DOM snapshots for perfect-context error recovery replanning.
+* **🛡️ Security Guardrails:** Intercepts vague intentions and actively blacklists destructive terminal commands before they can be executed.
 * **🔒 100% Local & Private:** No APIs, no cloud dependencies, no paywalls, and completely offline. Your data never leaves your machine.
 
 ---
@@ -24,7 +26,8 @@ This framework is built with **accessibility** at its heart, providing physicall
 ```mermaid
 graph TD
     User(("🗣️ User Request")) --> UI["💻 Ecosystem Control Center"]
-    UI --> Planner{"🧠 ARIA Planner\n(Hermes 8B)"}
+    UI --> Macro["🏗️ Macro Orchestrator\n(Logic & Loops)"]
+    Macro -->|Dynamic Sub-Tasks| Planner{"🧠 ARIA Planner\n(Hermes 8B)"}
     SkillDB[("📚 Skill Library\n(RAG / skills.json)")] -.->|Injects Examples| Planner
     
     Planner -->|JSON Action Plan| AgentLoop(("⚙️ Central Agent Loop"))
