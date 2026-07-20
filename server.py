@@ -309,8 +309,12 @@ class AIF_Server:
                         is_headless = settings.get("headlessMode", True) # Default to true for safety
                         
                         if is_headless and ("youtube" in instruction.lower() or "youtu.be" in instruction.lower()):
+                            import re
+                            url_match = re.search(r'(https?://[^\s]+)', instruction)
+                            extracted_url = url_match.group(0) if url_match else ""
+                            
                             plan = [
-                                {"action": "background_api_call", "target": "YouTube Transcript API"},
+                                {"action": "background_api_call", "target": "YouTube Transcript API", "url": extracted_url},
                                 {"action": "background_llm_summarize", "target": "Hermes 8B Local"}
                             ]
                         else:
