@@ -1,4 +1,4 @@
-# Servent-AI API Documentation
+# Forge API Documentation
 
 ## WebSocket API (`server.py`)
 

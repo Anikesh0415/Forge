@@ -3,7 +3,7 @@ from src.logger import logger
 
 class UIAutomationExecutor(BaseExecutor):
     """
-    Windows UI Automation / Accessibility API Executor for Servent-AI.
+    Windows UI Automation / Accessibility API Executor for Forge.
     Interacts with native Windows controls using pywinauto or win32gui.
     Falls back gracefully if the control is not accessible or library is missing.
     """

@@ -5,7 +5,7 @@ from src.logger import logger
 class DevExecutor:
     """
     Execution backend for Developer Mode (Coding Assistant Capabilities).
-    Allows Servent-AI to read/write code files and execute terminal commands.
+    Allows Forge to read/write code files and execute terminal commands.
     """
     def __init__(self):
         self.name = "DevExecutor"

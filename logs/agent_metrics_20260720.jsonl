@@ -1,0 +1,53 @@
+{"timestamp": "2026-07-20 21:58:40", "level": "INFO", "message": "[LocalLLMCore] Connecting to LM Studio..."}
+{"timestamp": "2026-07-20 22:06:51", "level": "INFO", "message": "pywinauto not installed \u2014 UIAutomation will act as fallback check."}
+{"timestamp": "2026-07-20 22:06:57", "level": "INFO", "message": "pywinauto not installed \u2014 UIAutomation will act as fallback check."}
+{"timestamp": "2026-07-20 22:06:57", "level": "INFO", "message": "AIF Server initialized with Context, Memory, Execution, and Security Managers."}
+{"timestamp": "2026-07-20 22:07:09", "level": "INFO", "message": "pywinauto not installed \u2014 UIAutomation will act as fallback check."}
+{"timestamp": "2026-07-20 22:07:12", "level": "INFO", "message": "pywinauto not installed \u2014 UIAutomation will act as fallback check."}
+{"timestamp": "2026-07-20 22:07:12", "level": "INFO", "message": "AIF Server initialized with Context, Memory, Execution, and Security Managers."}
+{"timestamp": "2026-07-20 22:09:41", "level": "INFO", "message": "[Agent Loop] Starting execution of 2 step(s)..."}
+{"timestamp": "2026-07-20 22:09:41", "level": "INFO", "message": "[Agent Loop] Step 1/2: background_api_call (YouTube Transcript API)"}
+{"timestamp": "2026-07-20 22:09:59", "level": "ERROR", "message": "VISTA Error during vision analysis: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=15)"}
+{"timestamp": "2026-07-20 22:09:59", "level": "INFO", "message": "Executing Step [0] background_api_call (Risk: MODERATE) | Target: 'YouTube Transcript API'"}
+{"timestamp": "2026-07-20 22:09:59", "level": "WARNING", "message": "HeadlessExecutor failed step [0]: Invalid YouTube URL format.. Trying fallback..."}
+{"timestamp": "2026-07-20 22:09:59", "level": "WARNING", "message": "Action [0] background_api_call -> FAILED", "context": {"step_id": 0, "action": "background_api_call", "target": "YouTube Transcript API", "success": false, "duration_sec": 0.037, "msg": "Invalid YouTube URL format."}}
+{"timestamp": "2026-07-20 22:09:59", "level": "INFO", "message": "[Agent Loop] Action execution warning: Invalid YouTube URL format."}
+{"timestamp": "2026-07-20 22:09:59", "level": "INFO", "message": "[Agent Loop] Step 2/2: background_llm_summarize (Hermes 8B Local)"}
+{"timestamp": "2026-07-20 22:10:10", "level": "INFO", "message": "VISTA Moondream Response: ''"}
+{"timestamp": "2026-07-20 22:10:10", "level": "INFO", "message": "Executing Step [0] background_llm_summarize (Risk: MODERATE) | Target: 'Hermes 8B Local'"}
+{"timestamp": "2026-07-20 22:10:10", "level": "WARNING", "message": "HeadlessExecutor failed step [0]: No transcript available to summarize.. Trying fallback..."}
+{"timestamp": "2026-07-20 22:10:10", "level": "WARNING", "message": "Action [0] background_llm_summarize -> FAILED", "context": {"step_id": 0, "action": "background_llm_summarize", "target": "Hermes 8B Local", "success": false, "duration_sec": 0.0, "msg": "No transcript available to summarize."}}
+{"timestamp": "2026-07-20 22:10:10", "level": "INFO", "message": "[Agent Loop] Action execution warning: No transcript available to summarize."}
+{"timestamp": "2026-07-20 22:10:11", "level": "INFO", "message": "[Agent Loop] Plan execution completed successfully."}
+{"timestamp": "2026-07-20 22:15:17", "level": "INFO", "message": "[Agent Loop] Starting execution of 2 step(s)..."}
+{"timestamp": "2026-07-20 22:15:17", "level": "INFO", "message": "[Agent Loop] Step 1/2: background_api_call (YouTube Transcript API)"}
+{"timestamp": "2026-07-20 22:15:34", "level": "ERROR", "message": "VISTA Error during vision analysis: HTTPConnectionPool(host='localhost', port=11434): Read timed out. (read timeout=15)"}
+{"timestamp": "2026-07-20 22:15:34", "level": "INFO", "message": "Executing Step [0] background_api_call (Risk: MODERATE) | Target: 'YouTube Transcript API'"}
+{"timestamp": "2026-07-20 22:15:34", "level": "WARNING", "message": "HeadlessExecutor failed step [0]: Invalid YouTube URL format.. Trying fallback..."}
+{"timestamp": "2026-07-20 22:15:34", "level": "WARNING", "message": "Action [0] background_api_call -> FAILED", "context": {"step_id": 0, "action": "background_api_call", "target": "YouTube Transcript API", "success": false, "duration_sec": 0.0, "msg": "Invalid YouTube URL format."}}
+{"timestamp": "2026-07-20 22:15:34", "level": "INFO", "message": "[Agent Loop] Action execution warning: Invalid YouTube URL format."}
+{"timestamp": "2026-07-20 22:15:35", "level": "INFO", "message": "[Agent Loop] Step 2/2: background_llm_summarize (Hermes 8B Local)"}
+{"timestamp": "2026-07-20 22:15:48", "level": "INFO", "message": "VISTA Moondream Response: ''"}
+{"timestamp": "2026-07-20 22:15:48", "level": "INFO", "message": "Executing Step [0] background_llm_summarize (Risk: MODERATE) | Target: 'Hermes 8B Local'"}
+{"timestamp": "2026-07-20 22:15:48", "level": "WARNING", "message": "HeadlessExecutor failed step [0]: No transcript available to summarize.. Trying fallback..."}
+{"timestamp": "2026-07-20 22:15:48", "level": "WARNING", "message": "Action [0] background_llm_summarize -> FAILED", "context": {"step_id": 0, "action": "background_llm_summarize", "target": "Hermes 8B Local", "success": false, "duration_sec": 0.0, "msg": "No transcript available to summarize."}}
+{"timestamp": "2026-07-20 22:15:48", "level": "INFO", "message": "[Agent Loop] Action execution warning: No transcript available to summarize."}
+{"timestamp": "2026-07-20 22:15:48", "level": "INFO", "message": "[Agent Loop] Plan execution completed successfully."}
+{"timestamp": "2026-07-20 22:20:25", "level": "INFO", "message": "pywinauto not installed \u2014 UIAutomation will act as fallback check."}
+{"timestamp": "2026-07-20 22:20:33", "level": "INFO", "message": "pywinauto not installed \u2014 UIAutomation will act as fallback check."}
+{"timestamp": "2026-07-20 22:20:33", "level": "INFO", "message": "AIF Server initialized with Context, Memory, Execution, and Security Managers."}
+{"timestamp": "2026-07-20 22:21:38", "level": "INFO", "message": "[Agent Loop] Starting execution of 2 step(s)..."}
+{"timestamp": "2026-07-20 22:21:38", "level": "INFO", "message": "[Agent Loop] Step 1/2: background_api_call (YouTube Transcript API)"}
+{"timestamp": "2026-07-20 22:21:55", "level": "INFO", "message": "VISTA Moondream Response: ''"}
+{"timestamp": "2026-07-20 22:21:55", "level": "INFO", "message": "Executing Step [0] background_api_call (Risk: MODERATE) | Target: 'YouTube Transcript API'"}
+{"timestamp": "2026-07-20 22:21:55", "level": "INFO", "message": "Fetching transcript for YouTube ID: FoJ42bUedYM"}
+{"timestamp": "2026-07-20 22:21:55", "level": "WARNING", "message": "HeadlessExecutor failed step [0]: Failed to fetch transcript: type object 'YouTubeTranscriptApi' has no attribute 'get_transcript'. Trying fallback..."}
+{"timestamp": "2026-07-20 22:21:55", "level": "WARNING", "message": "Action [0] background_api_call -> FAILED", "context": {"step_id": 0, "action": "background_api_call", "target": "YouTube Transcript API", "success": false, "duration_sec": 0.082, "msg": "Failed to fetch transcript: type object 'YouTubeTranscriptApi' has no attribute 'get_transcript'"}}
+{"timestamp": "2026-07-20 22:21:55", "level": "INFO", "message": "[Agent Loop] Action execution warning: Failed to fetch transcript: type object 'YouTubeTranscriptApi' has no attribute 'get_transcript'"}
+{"timestamp": "2026-07-20 22:21:56", "level": "INFO", "message": "[Agent Loop] Step 2/2: background_llm_summarize (Hermes 8B Local)"}
+{"timestamp": "2026-07-20 22:22:09", "level": "INFO", "message": "VISTA Moondream Response: ''"}
+{"timestamp": "2026-07-20 22:22:09", "level": "INFO", "message": "Executing Step [0] background_llm_summarize (Risk: MODERATE) | Target: 'Hermes 8B Local'"}
+{"timestamp": "2026-07-20 22:22:09", "level": "WARNING", "message": "HeadlessExecutor failed step [0]: No transcript available to summarize.. Trying fallback..."}
+{"timestamp": "2026-07-20 22:22:09", "level": "WARNING", "message": "Action [0] background_llm_summarize -> FAILED", "context": {"step_id": 0, "action": "background_llm_summarize", "target": "Hermes 8B Local", "success": false, "duration_sec": 0.0, "msg": "No transcript available to summarize."}}
+{"timestamp": "2026-07-20 22:22:09", "level": "INFO", "message": "[Agent Loop] Action execution warning: No transcript available to summarize."}
+{"timestamp": "2026-07-20 22:22:09", "level": "INFO", "message": "[Agent Loop] Plan execution completed successfully."}

@@ -48,7 +48,7 @@ OUTPUT FORMAT (strict JSON object containing a 'steps' array):
 
 class MultiStagePlanner:
     """
-    Production Multi-Stage Planner for Servent-AI.
+    Production Multi-Stage Planner for Forge.
     Pipeline: Intent Decomposition -> Sub-goal Mapping -> Task Plan Generation -> Action Plan JSON -> Replanning Engine.
     """
     def __init__(self):

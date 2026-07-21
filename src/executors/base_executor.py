@@ -1,6 +1,6 @@
 class BaseExecutor:
     """
-    Abstract Base Class for all Execution Backends in Servent-AI.
+    Abstract Base Class for all Execution Backends in Forge.
     """
     def __init__(self, name: str = "BaseExecutor"):
         self.name = name

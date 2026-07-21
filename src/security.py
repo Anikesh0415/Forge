@@ -7,7 +7,7 @@ class RiskLevel(Enum):
 
 class SecurityManager:
     """
-    Security & Permission Policy Manager for Servent-AI.
+    Security & Permission Policy Manager for Forge.
     Protects user data, flags destructive actions, and handles permission levels.
     """
     def __init__(self, safe_mode: bool = True):

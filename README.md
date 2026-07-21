@@ -1,6 +1,6 @@
-# Servent-AI: Action Intelligence Framework (AIF)
+# Forge: Action Intelligence Framework (AIF)
 
-Servent-AI is a 100% local, privacy-first Windows OS automation agent. It enables users to control their operating systems entirely hands-free using natural voice commands and real-time hand gestures. By utilizing local reasoning models (Hermes 2 Pro) and vision models (Moondream), Servent-AI autonomously plans and executes complex, multi-step actions on your computer, verifying the visual state of the screen at every step.
+Forge is a 100% local, privacy-first Windows OS automation agent. It enables users to control their operating systems entirely hands-free using natural voice commands and real-time hand gestures. By utilizing local reasoning models (Hermes 2 Pro) and vision models (Moondream), Forge autonomously plans and executes complex, multi-step actions on your computer, verifying the visual state of the screen at every step.
 
 This framework is built with **accessibility** at its heart, providing physically challenged or motor-impaired individuals a way to fully operate their computers, write code, and build digital careers independently.
 
@@ -88,8 +88,8 @@ For the visual `click_text` capabilities to work, you must install Tesseract:
 ### 3. Install Project Dependencies
 1. Clone the repository:
    ```bash
-   git clone https://github.com/Anikesh0415/Servent-AI.git
-   cd Servent-AI
+   git clone https://github.com/Anikesh0415/Forge.git
+   cd Forge
    ```
 2. Activate your virtual environment and install dependencies:
    ```bash

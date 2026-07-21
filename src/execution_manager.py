@@ -11,7 +11,7 @@ from src.security import SecurityManager
 
 class ExecutionManager:
     """
-    Central Execution Manager for Servent-AI.
+    Central Execution Manager for Forge.
     Coordinates execution backends (UIAutomation -> PyAutoGUI fallback).
     Enforces security checks and structured action logging.
     """

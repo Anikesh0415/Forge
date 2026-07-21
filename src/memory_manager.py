@@ -6,7 +6,7 @@ MEMORY_FILE_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "long_t
 
 class MemoryManager:
     """
-    Unified Memory System for Servent-AI.
+    Unified Memory System for Forge.
     Manages Working Memory, Task Memory, Action History, and Long-Term Persistent Memory.
     """
     def __init__(self, max_history_size: int = 50):

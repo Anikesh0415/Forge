@@ -13,7 +13,7 @@ from src.execution_manager import ExecutionManager
 from src.planner import MultiStagePlanner
 
 def run_tests():
-    print("=== Testing Servent-AI Architecture Modules ===")
+    print("=== Testing Forge Architecture Modules ===")
     
     # 1. Context Manager
     cm = ContextManager()

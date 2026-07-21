@@ -8,7 +8,7 @@ from src.vision import smart_wait_for_completion
 
 class PyAutoGUIExecutor(BaseExecutor):
     """
-    PyAutoGUI / Keyboard-first fallback executor for Servent-AI.
+    PyAutoGUI / Keyboard-first fallback executor for Forge.
     Executes keyboard shortcuts, typing, run commands, and coordinate clicks.
     """
     def __init__(self):

@@ -6,7 +6,7 @@ from src.llm_core import LocalLLMCore
 class StudentExecutor:
     """
     Execution backend for Student Mode (AI Tutor Capabilities).
-    Allows Servent-AI to read YouTube transcripts, generate quizzes, and diagram HTML.
+    Allows Forge to read YouTube transcripts, generate quizzes, and diagram HTML.
     """
     def __init__(self):
         self.name = "StudentExecutor"

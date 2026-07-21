@@ -5,7 +5,7 @@ import pyautogui
 
 class ContextManager:
     """
-    Centralized Context Manager for Servent-AI.
+    Centralized Context Manager for Forge.
     Tracks active window, focused app, clipboard snapshot, resolution, and active task state.
     """
     def __init__(self):

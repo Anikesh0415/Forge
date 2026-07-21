@@ -8,10 +8,10 @@ LOGS_DIR = os.path.join(os.path.dirname(__file__), "..", "logs")
 
 class StructuredLogger:
     """
-    Structured Logger for Servent-AI.
+    Structured Logger for Forge.
     Writes Human-Readable console logs and JSON file logs for failure analysis.
     """
-    def __init__(self, name: str = "ServentAI"):
+    def __init__(self, name: str = "Forge"):
         os.makedirs(LOGS_DIR, exist_ok=True)
         self.logger = logging.getLogger(name)
         self.logger.setLevel(logging.DEBUG)
