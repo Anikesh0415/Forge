@@ -468,7 +468,7 @@ class AIF_Server:
                                 target = s.get('target', s.get('name', s.get('url', s.get('text', s.get('keys', '')))))
                                 desc = f"- {action}: {target}"
                                 if s.get('action') == "send_whatsapp":
-                                    desc += f"\n   (Macro: Opens Native WhatsApp Desktop -> Wait 2s -> Ctrl+F '{s.get('contact', '')}' -> Type '{s.get('message', '')}' -> Enter)"
+                                    desc += f"\n   (Macro: Opens Native WhatsApp Desktop -> Wait 2s -> Ctrl+F '{s.get('contact', '')}' -> Down Arrow -> Enter -> Type '{s.get('message', '')}' -> Enter)"
                                 steps_strs.append(desc)
                             steps_summary = "\n".join(steps_strs)
                             update_ui(f"PROPOSED PLAN:\n{steps_summary}\n\nSay 'YES' / click Confirm to execute, or 'NO' to cancel.")
