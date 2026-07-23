@@ -116,9 +116,10 @@ class AIF_Server:
             msg = json.dumps({"type": "CHAT_HISTORY", "history": self.chat_history})
             for client in list(self.connected_clients):
                 try:
-                    asyncio.create_task(client.send(msg))
-                except Exception:
-                    pass
+                    if hasattr(self, 'loop') and self.loop:
+                        asyncio.run_coroutine_threadsafe(client.send(msg), self.loop)
+                except Exception as e:
+                    print(f"WS push error: {e}")
 
     def confirm_plan(self):
         """Triggers execution of the planned steps."""
@@ -594,7 +595,6 @@ class AIF_Server:
                             msg = json.dumps({"type": "CHAT_HISTORY", "history": self.chat_history})
                             for client in list(self.connected_clients):
                                 try:
-                                    import asyncio
                                     asyncio.create_task(client.send(msg))
                                 except Exception:
                                     pass
@@ -673,6 +673,8 @@ class AIF_Server:
                 self.fsm.transition(SystemState.IDLE)
 
     async def main_server(self):
+        import asyncio
+        self.loop = asyncio.get_running_loop()
         print("Starting WebSocket Server on ws://0.0.0.0:8765 (Available on Local Network)")
         async with websockets.serve(self.ws_handler, "0.0.0.0", 8765):
             await asyncio.Future()
