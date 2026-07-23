@@ -17,6 +17,7 @@ CRITICAL RULES — NEVER VIOLATE:
 BEHAVIORAL GUIDELINES:
 - To submit web forms or chat prompts (like Gemini/ChatGPT), prefer using `key_shortcut` with "enter" instead of `click_element` on the submit button.
 - For actions that have a dedicated plugin macro (like sending a WhatsApp message, playing YouTube, setting alarms, or searching Google), you MUST use the dedicated macro instead of manually stringing together UI steps.
+- If the user asks for a task that involves an application or website that does NOT have a dedicated macro, use the `dynamic_task` action so the smart agent can generate and execute the code dynamically.
 
 STEP TYPES AVAILABLE:
 {DYNAMIC_STEP_TYPES}
@@ -559,10 +560,10 @@ For 3D diagrams or quizzes, use `generate_study_html` to output a fully self-con
                             return parsed[key]
                     return [parsed]
 
-        logger.error(
-            f"[Planner] Failed to extract action plan from LLM output. Returning unknown step."
+        logger.info(
+            f"[Planner] Unknown action parsed, routing to dynamic_task."
         )
-        return [{"action": "unknown", "target": str(raw_data)}]
+        return [{"action": "dynamic_task", "target": str(raw_data)}]
 
 
 # Global Singleton & Backward Compatibility Function

@@ -469,6 +469,8 @@ class AIF_Server:
                                 desc = f"- {action}: {target}"
                                 if s.get('action') == "send_whatsapp":
                                     desc += f"\n   (Macro: Opens Native WhatsApp Desktop -> Wait 2s -> Ctrl+F '{s.get('contact', '')}' -> Down Arrow -> Enter -> Type '{s.get('message', '')}' -> Enter)"
+                                elif s.get('action') == "dynamic_task":
+                                    desc += f"\n   (Smart Agent: Will dynamically analyze and execute this novel task on the fly)"
                                 steps_strs.append(desc)
                             steps_summary = "\n".join(steps_strs)
                             update_ui(f"PROPOSED PLAN:\n{steps_summary}\n\nSay 'YES' / click Confirm to execute, or 'NO' to cancel.")

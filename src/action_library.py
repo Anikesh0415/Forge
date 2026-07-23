@@ -376,7 +376,14 @@ action_registry.register(
     "scroll", '{"action": "scroll", "direction": "down", "amount": 3}', scroll_action
 )
 action_registry.register(
-    "semantic_copy", '{"action": "semantic_copy", "goal": "what data"}', semantic_copy
+    "semantic_copy",
+    '{"action": "semantic_copy", "query": "what to extract"}',
+    semantic_copy,
+)
+action_registry.register(
+    "dynamic_task",
+    '{"action": "dynamic_task", "target": "describe the novel task in detail that needs custom execution"}',
+    lambda target: f"Dynamic task requested: {target}"
 )
 action_registry.register(
     "click_text",
