@@ -112,6 +112,64 @@ class MultiStagePlanner:
 
         return {"intent": instruction, "apps": [], "sub_goals": [instruction]}
 
+    def _extract_whatsapp_plan(self, clean_inst: str) -> list:
+        if not any(w in clean_inst for w in ["whatsapp", "whatsaap", "watsapp", "watsap"]):
+            return None
+        
+        words = clean_inst.split()
+        if len(words) <= 3 and not any(w in clean_inst for w in ["message", "send", "msg", "text", "say", "hi", "hello", "to"]):
+            return [{"action": "open_app", "target": "WhatsApp", "name": "WhatsApp"}]
+
+        quote_match = re.search(r'["\'](.*?)["\']', clean_inst)
+        msg_text = quote_match.group(1).strip() if quote_match else ""
+
+        work_str = re.sub(r'["\'].*?["\']', '', clean_inst)
+
+        contact = ""
+        if " to " in work_str:
+            parts = work_str.split(" to ", 1)
+            target_part = parts[1].strip()
+            c_words = [w for w in target_part.split() if w not in ["whatsapp", "whatsaap", "watsapp", "watsap", "on", "in", "app"]]
+            if c_words:
+                contact = c_words[0]
+            if not msg_text:
+                left_words = [w for w in parts[0].split() if w not in ["open", "launch", "start", "whatsapp", "whatsaap", "watsapp", "and", "send", "message", "msg", "text", "say", "a", "the", "on", "in"]]
+                if left_words:
+                    msg_text = " ".join(left_words)
+        
+        if not contact:
+            for kw in ["message ", "msg ", "text ", "send "]:
+                if kw in work_str:
+                    after_kw = work_str.split(kw, 1)[1].strip()
+                    ak_words = [w for w in after_kw.split() if w not in ["whatsapp", "whatsaap", "watsapp", "watsap", "on", "in", "app", "a", "the"]]
+                    if ak_words:
+                        contact = ak_words[0]
+                        if not msg_text and len(ak_words) > 1:
+                            msg_text = " ".join(ak_words[1:])
+                    break
+
+        if not contact:
+            stop_words = ["open", "launch", "start", "whatsapp", "whatsaap", "watsapp", "watsap", "and", "to", "send", "message", "msg", "text", "saying", "say", "on", "in", "a", "the", "with"]
+            rem_words = [w for w in work_str.split() if w not in stop_words]
+            if rem_words:
+                contact = rem_words[0]
+                if not msg_text and len(rem_words) > 1:
+                    msg_text = " ".join(rem_words[1:])
+
+        if not contact:
+            contact = "contact"
+        if not msg_text:
+            msg_text = "Hello"
+
+        logger.info(f"[Planner Fast-Path] Dedicated WhatsApp: Contact='{contact}', Msg='{msg_text}'")
+        return [{
+            "action": "send_whatsapp",
+            "contact": contact,
+            "message": msg_text,
+            "target": f"WhatsApp {contact}: '{msg_text}'",
+            "name": f"WhatsApp {contact}"
+        }]
+
     async def generate_action_plan(
         self, instruction: str, context_summary: str = ""
     ) -> list:
@@ -128,6 +186,11 @@ class MultiStagePlanner:
                         all_steps.extend(part_steps)
             if all_steps:
                 return all_steps
+
+        # Dedicated WhatsApp Fast-Path Router
+        wa_plan = self._extract_whatsapp_plan(clean_inst)
+        if wa_plan:
+            return wa_plan
 
         # Comprehensive Fast-Path Router for 1-Action Commands (Instant 0ms Execution)
         words = clean_inst.split()

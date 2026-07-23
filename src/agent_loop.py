@@ -34,17 +34,6 @@ async def plan_task(instruction: str, update_callback=None) -> list:
     ctx_summary = context_mgr.get_summary_prompt_context()
     plan = await planner_instance.generate_action_plan(instruction, ctx_summary)
 
-    # Re-plan if too few steps for complex requests
-    complex_kw = ["and", "then", "copy", "send", "paste"]
-    is_complex = any(kw in instruction.lower() for kw in complex_kw)
-    
-    if plan and is_complex and len(plan) < 4:
-        notify(f"[TRACE] ⚠️ Only {len(plan)} steps generated for complex task — re-planning stricter...")
-        plan = await planner_instance.generate_action_plan(
-            instruction + " [IMPORTANT: This requires multiple apps/actions, list ALL steps]",
-            ctx_summary
-        )
-
     if not plan:
         notify("[TRACE] ARIA failed to generate a plan.")
         return []
