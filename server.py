@@ -110,6 +110,15 @@ class AIF_Server:
                 json.dump(self.chat_history, f)
         except Exception as e:
             print(f"Failed to save history: {e}")
+            
+        import asyncio
+        if hasattr(self, 'connected_clients') and self.connected_clients:
+            msg = json.dumps({"type": "CHAT_HISTORY", "history": self.chat_history})
+            for client in list(self.connected_clients):
+                try:
+                    asyncio.create_task(client.send(msg))
+                except Exception:
+                    pass
 
     def confirm_plan(self):
         """Triggers execution of the planned steps."""
@@ -580,7 +589,15 @@ class AIF_Server:
                                 json.dump([], f)
                         except Exception as e:
                             print(f"Failed to clear history file: {e}")
-                        await websocket.send(json.dumps({"type": "CHAT_HISTORY", "history": self.chat_history}))
+                            
+                        if hasattr(self, 'connected_clients') and self.connected_clients:
+                            msg = json.dumps({"type": "CHAT_HISTORY", "history": self.chat_history})
+                            for client in list(self.connected_clients):
+                                try:
+                                    import asyncio
+                                    asyncio.create_task(client.send(msg))
+                                except Exception:
+                                    pass
                         print("Chat history cleared by UI.")
                     elif cmd == "ABORT_EXECUTION":
                         print("KILL-SWITCH ACTIVATED via UI!")
@@ -628,7 +645,6 @@ class AIF_Server:
                             # Log user input to history
                             display_text = payload.get("text")
                             self.append_to_history("USER", display_text)
-                            await websocket.send(json.dumps({"type": "CHAT_HISTORY", "history": self.chat_history}))
 
                             self.fsm.current_context["voice_text"] = text_cmd
                             self.fsm.current_context["reply_text"] = ""

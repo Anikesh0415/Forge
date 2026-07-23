@@ -234,11 +234,6 @@ class MultiStagePlanner:
             minutes = nums[0] if nums else "10"
             return [{"action": "set_timer", "minutes": minutes}]
 
-        # 6. Web Search
-        if (clean_inst.startswith("search ") or clean_inst.startswith("google ")) and len(words) >= 2 and "youtube" not in clean_inst and "yt" not in clean_inst and "spotify" not in clean_inst:
-            query = clean_inst.replace("search", "").replace("google", "").strip()
-            return [{"action": "search_web", "target": query, "query": query, "name": query}]
-
         # =========================================================================
         # =========================================================================
         # UNIVERSAL DOUBLE-ACTION SYNTHESIZER (Works for ANY Service / App / Action)
@@ -347,6 +342,48 @@ class MultiStagePlanner:
                     {"action": "type_text", "text": action_text, "target": f"Input: '{action_text}'", "name": f"Input: '{action_text}'"},
                     {"action": "key_shortcut", "keys": "enter", "target": "Submit"}
                 ]
+
+        # 3. UNIVERSAL PATTERN: "<action> <service> [about/for/to] <query>"
+        # Examples: "ask chatgpt about quantum physics", "search youtube for cats"
+        if words[0] in ["ask", "prompt", "query", "search", "tell", "check"]:
+            if len(words) >= 2:
+                target_service = words[1].replace("'", "").replace('"', '').strip()
+                # Special alias handling
+                if target_service == "yt":
+                    target_service = "youtube"
+                
+                if target_service in BROWSER_APP_MAP:
+                    action_text = " ".join(words[2:])
+                    if action_text.startswith(("about ", "for ", "to ", "abt ", "on ")):
+                        action_text = action_text.split(" ", 1)[1]
+                    
+                    service_url = BROWSER_APP_MAP.get(target_service)
+                    if not service_url or not service_url.startswith("http"):
+                        if target_service in ["antigravity", "gemini"]:
+                            service_url = f"https://{target_service}.google.com"
+                        elif target_service in ["claude", "perplexity"]:
+                            service_url = f"https://{target_service}.ai"
+                        else:
+                            service_url = f"https://{target_service}.com"
+
+                    logger.info(f"[Planner Fast-Path] Universal Double Action (Direct): {target_service} -> '{action_text}'")
+                    
+                    if target_service == "youtube":
+                        encoded_q = urllib.parse.quote_plus(action_text)
+                        return [{"action": "open_browser", "url": f"https://www.youtube.com/results?search_query={encoded_q}", "target": f"YouTube: {action_text}", "name": f"YouTube: {action_text}"}]
+                    elif target_service == "spotify":
+                        return [{"action": "play_spotify", "query": action_text, "target": f"Play on Spotify: {action_text}", "name": f"Spotify: {action_text}"}]
+                    
+                    return [
+                        {"action": "open_browser", "url": service_url, "target": f"Open {target_service.title()}", "name": f"Open {target_service.title()}"},
+                        {"action": "type_text", "text": action_text, "target": f"Input: '{action_text}'", "name": f"Input: '{action_text}'"},
+                        {"action": "key_shortcut", "keys": "enter", "target": "Submit"}
+                    ]
+
+        # 4. Web Search (Fallback)
+        if (clean_inst.startswith("search ") or clean_inst.startswith("google ")) and len(words) >= 2:
+            query = clean_inst.replace("search", "").replace("google", "").strip()
+            return [{"action": "search_web", "target": query, "query": query, "name": query}]
 
         # First decompose
         decomp = await self.decompose_intent(instruction, context_summary)
