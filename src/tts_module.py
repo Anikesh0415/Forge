@@ -18,12 +18,26 @@ class TTSManager:
 
                 # Force English voice selection
                 voices = engine.getProperty("voices")
+                english_voice = None
                 for voice in voices:
-                    v_name = voice.name.lower()
-                    v_id = voice.id.lower()
-                    if "en" in v_id or "english" in v_name or "david" in v_name or "zira" in v_name:
-                        engine.setProperty("voice", voice.id)
+                    v_name = (voice.name or "").lower()
+                    v_id = (voice.id or "").lower()
+                    v_langs = [str(l).lower() for l in getattr(voice, 'languages', [])]
+                    if any(tag in v_id or tag in v_name for tag in ["en-us", "en_us", "en-gb", "en_gb", "david", "zira", "mark", "hazel", "george", "english"]):
+                        english_voice = voice.id
                         break
+                    if any("en" in l for l in v_langs):
+                        english_voice = voice.id
+                        break
+
+                if english_voice:
+                    engine.setProperty("voice", english_voice)
+                elif voices:
+                    for voice in voices:
+                        v_str = ((voice.id or "") + " " + (voice.name or "")).lower()
+                        if "en" in v_str or "us" in v_str:
+                            engine.setProperty("voice", voice.id)
+                            break
 
                 engine.say(text)
                 engine.runAndWait()

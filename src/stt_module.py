@@ -1,4 +1,5 @@
 import os
+import re
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -140,7 +141,13 @@ class SpeechRecognizer:
             text += segment.text + " "
 
         final_text = text.strip()
-        hallucinations = ["Thank you.", "Thank you", "Thanks for watching.", "Thanks for watching", "You", "Subscribe"]
+
+        # Reject any output containing Cyrillic / Russian characters (\u0400-\u04FF)
+        if re.search(r'[\u0400-\u04FF]', final_text):
+            print(f"[STT Filter] Ignored Russian/Cyrillic transcription: '{final_text}'")
+            return ""
+
+        hallucinations = ["Thank you.", "Thank you", "Thanks for watching.", "Thanks for watching", "You", "Subscribe", "Subtitles by", "Subtitles"]
         if final_text in hallucinations:
             return ""
             

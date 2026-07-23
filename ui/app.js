@@ -103,8 +103,12 @@ function loadVoices() {
     
     voiceOptionsContainer.innerHTML = '';
     
-    if (voices.length > 0 && voiceSelectedText.textContent === 'Loading voices...') {
-        voiceSelectedText.textContent = voices[0].name;
+    if (voices.length > 0 && (voiceSelectedText.textContent === 'Loading voices...' || !voiceSelectedText.dataset.value)) {
+        const defaultEnVoice = voices.find(v => v.lang && (v.lang.toLowerCase().startsWith('en') || v.lang.toLowerCase().includes('en'))) || voices[0];
+        if (defaultEnVoice) {
+            voiceSelectedText.textContent = defaultEnVoice.name;
+            voiceSelectedText.dataset.value = defaultEnVoice.name;
+        }
     }
     
     voices.forEach((voice, i) => {
@@ -142,10 +146,14 @@ function speakText(text) {
     const selectedVoiceName = voiceSelectedText ? (voiceSelectedText.dataset.value || voiceSelectedText.textContent) : null;
     let chosenVoice = null;
     if (selectedVoiceName && voices.length > 0) {
-        chosenVoice = voices.find(v => v.name === selectedVoiceName);
+        let candidate = voices.find(v => v.name === selectedVoiceName);
+        if (candidate && candidate.lang && (candidate.lang.toLowerCase().startsWith('en') || candidate.lang.toLowerCase().includes('en'))) {
+            chosenVoice = candidate;
+        }
     }
     if (!chosenVoice && voices.length > 0) {
-        chosenVoice = voices.find(v => v.lang && v.lang.startsWith('en'));
+        chosenVoice = voices.find(v => v.lang && (v.lang.toLowerCase().startsWith('en') || v.lang.toLowerCase().includes('en'))) ||
+                      voices.find(v => v.name && v.name.toLowerCase().includes('english'));
     }
     if (chosenVoice) {
         utterance.voice = chosenVoice;
