@@ -285,12 +285,16 @@ def send_whatsapp(contact: str, message: str) -> str:
         time.sleep(2.5)
 
     time.sleep(1.0)
-    _hotkey("ctrl", "f")
+    _hotkey("escape")
+    time.sleep(0.2)
+    _hotkey("escape")
+    time.sleep(0.2)
+
+    # Ctrl+N opens 'New Chat' search in WhatsApp Desktop
+    _hotkey("ctrl", "n")
     time.sleep(0.5)
     type_action(contact)
-    time.sleep(1.2)
-    _hotkey("down")
-    time.sleep(0.4)
+    time.sleep(1.0)
     _hotkey("enter")
     time.sleep(1.0)
     
