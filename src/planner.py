@@ -191,19 +191,6 @@ class MultiStagePlanner:
         self, instruction: str, context_summary: str = ""
     ) -> list:
         clean_inst = instruction.strip().lower()
-        
-        # 0. Smart Agent Fallback for Complex Multi-App Instructions
-        word_count = len(clean_inst.split())
-        threshold = 15
-        if self.use_bio_engine and self.bio_weights:
-            # Scale threshold based on organoid activation threshold
-            bio_thresh = self.bio_weights.get("spike_activation_threshold_uv", 230)
-            threshold = max(5, int(bio_thresh / 15.0)) # Neuromorphic mapping
-            logger.info(f"[Bio-Engine] Using dynamic instruction threshold: {threshold} (derived from spike_threshold)")
-            
-        if word_count > threshold or clean_inst.count(" and ") >= 2:
-            logger.info("[Planner Fast-Path] Complex instruction detected, routing to Smart Agent (dynamic_task).")
-            return [{"action": "dynamic_task", "target": instruction, "name": "Dynamic Task"}]
 
         # Handle comma-separated multi-tasks (e.g. "open notepad, open calculator")
         if "," in clean_inst:
