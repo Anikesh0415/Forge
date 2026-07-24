@@ -146,6 +146,12 @@ class LocalLLMCore:
         """
         Generic text generation endpoint for summaries, translations, etc.
         """
+        if isinstance(prompt, list):
+            user_msg = next((m.get("content") for m in prompt if isinstance(m, dict) and m.get("role") == "user"), str(prompt))
+            prompt = str(user_msg)
+        elif not isinstance(prompt, str):
+            prompt = str(prompt)
+
         headers = {"Content-Type": "application/json"}
         model_name = DEFAULT_LM_STUDIO_MODEL
 

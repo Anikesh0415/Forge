@@ -329,7 +329,7 @@ async def semantic_copy(extraction_goal: str) -> str:
     prompt = f"Here is raw, messy text copied from a webpage/screen:\n\n---\n{raw_text[:8000]}\n---\n\nExtract exactly the information that matches this goal: '{extraction_goal}'. Output ONLY the extracted text and absolutely nothing else."
 
     llm = LocalLLMCore()
-    extracted_text = await llm.query_llm([{"role": "user", "content": prompt}])
+    extracted_text = await llm.query_llm(prompt)
 
     pyperclip.copy(extracted_text)
     return f"Semantically extracted data and placed into clipboard."
