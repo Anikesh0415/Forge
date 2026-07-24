@@ -694,20 +694,33 @@ class AIF_Server:
         ws_thread = threading.Thread(target=lambda: asyncio.run(self.main_server()), daemon=True)
         ws_thread.start()
         
-        # Launch HUD in the main thread if available
+        # Check if HUD is enabled in config.json
+        enable_hud = False
         try:
-            from src.hud import launch_hud
-            from src.fsm_module import SystemState
-            
-            def kill_callback():
-                self.memory_mgr.abort_flag = True
-                self.fsm.current_context["reply_text"] = "🛑 TASK ABORTED BY KILL-SWITCH!"
-                if self.fsm.state == SystemState.EXECUTING:
-                    self.fsm.transition(SystemState.IDLE)
-                    
-            launch_hud(killswitch_cb=kill_callback)
-        except Exception as e:
-            print(f"[HUD] HUD GUI closed or not supported ({e}). Running in background mode.")
+            config_path = os.path.join(os.path.dirname(__file__), "config.json")
+            if os.path.exists(config_path):
+                with open(config_path, "r", encoding="utf-8") as f:
+                    config = json.load(f)
+                    enable_hud = config.get("ENABLE_HUD", False)
+        except Exception:
+            pass
+
+        if enable_hud:
+            try:
+                from src.hud import launch_hud
+                from src.fsm_module import SystemState
+                
+                def kill_callback():
+                    self.memory_mgr.abort_flag = True
+                    self.fsm.current_context["reply_text"] = "🛑 TASK ABORTED BY KILL-SWITCH!"
+                    if self.fsm.state == SystemState.EXECUTING:
+                        self.fsm.transition(SystemState.IDLE)
+                        
+                launch_hud(killswitch_cb=kill_callback)
+            except Exception as e:
+                print(f"[HUD] HUD GUI closed or not supported ({e}). Running in background mode.")
+        else:
+            print("[HUD] HUD GUI disabled via config.json. Running in headless background mode.")
 
         # CRITICAL: Keep main thread alive so closing HUD window NEVER terminates the backend!
         print("[AIF Server] Backend active & listening on ws://0.0.0.0:8765. Press Ctrl+C to stop.")

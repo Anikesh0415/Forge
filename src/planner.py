@@ -190,10 +190,53 @@ class MultiStagePlanner:
             "name": f"WhatsApp {contact}"
         }]
 
+    def _extract_ai_whatsapp_plan(self, clean_inst: str) -> list:
+        has_ai = any(w in clean_inst for w in ["gemini", "chatgpt", "claude", "ai"])
+        has_msg = any(w in clean_inst for w in ["whatsapp", "whatsaap", "watsapp"])
+        
+        if not (has_ai and has_msg):
+            return None
+
+        contact = "Balram" if "balram" in clean_inst else "contact"
+
+        ai_prompt = ""
+        for kw in ["asking to ", "prompt asking ", "generate ", "write ", "ask gemini to ", "ask gemini "]:
+            if kw in clean_inst:
+                after_kw = clean_inst.split(kw, 1)[1]
+                for stop_term in [",now", ", once", ",once", "and open whatsapp", "open whatsapp", "then copy", ", once letter"]:
+                    if stop_term in after_kw:
+                        after_kw = after_kw.split(stop_term, 1)[0]
+                ai_prompt = after_kw.strip()
+                break
+
+        if not ai_prompt:
+            ai_prompt = "Generate a letter to Balram from Anikesh asking how he is doing"
+
+        ai_prompt = ai_prompt.rstrip("?.,")
+        if ai_prompt and ai_prompt[0].islower():
+            ai_prompt = ai_prompt[0].upper() + ai_prompt[1:]
+
+        logger.info(f"[Planner Fast-Path] Unified AI-to-WhatsApp Macro: AI Prompt='{ai_prompt}', Contact='{contact}'")
+
+        return [
+            {"action": "open_browser", "url": "https://gemini.google.com", "target": "Open Gemini", "name": "Open Gemini"},
+            {"action": "wait_until", "condition": "Gemini homepage loads", "target": "Wait for Gemini", "name": "Wait for Gemini"},
+            {"action": "type_text", "text": ai_prompt, "target": f"Type prompt: '{ai_prompt}'", "name": f"Type prompt: '{ai_prompt}'"},
+            {"action": "key_shortcut", "keys": "enter", "target": "Submit prompt", "name": "Submit prompt"},
+            {"action": "wait_until", "condition": "Gemini finishes generating response", "target": "Wait for generation", "name": "Wait for generation"},
+            {"action": "semantic_copy", "goal": "Extract generated response to clipboard", "target": "Copy response", "name": "Copy response"},
+            {"action": "send_whatsapp", "contact": contact, "message": "[CLIPBOARD]", "target": f"WhatsApp {contact}: '[CLIPBOARD]'", "name": f"WhatsApp {contact}"}
+        ]
+
     async def generate_action_plan(
         self, instruction: str, context_summary: str = ""
     ) -> list:
         clean_inst = instruction.strip().lower()
+
+        # 0. Dedicated AI-to-WhatsApp Unified Macro Router
+        ai_wa_plan = self._extract_ai_whatsapp_plan(clean_inst)
+        if ai_wa_plan:
+            return ai_wa_plan
 
         # Handle comma-separated multi-tasks (e.g. "open notepad, open calculator")
         if "," in clean_inst:
