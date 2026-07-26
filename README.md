@@ -1,8 +1,8 @@
-# Forge: Local, Multi-Modal Automation Agent
+# Forge: Local AI OS Built on Unified Vision-Language Reasoning
 
-Forge is a local, privacy-first Windows OS automation agent designed to help individuals control their computers using voice commands and text instructions. 
+Forge is an ultra-efficient, highly optimized Local AI OS automation agent designed to help individuals control their Windows computers using voice commands and text instructions.
 
-By utilizing our unified, fine-tuned **Forge-VLM (Qwen2-VL-2B) GGUF** model running entirely locally on Intel Arc iGPU (via SYCL), Forge takes a desktop screenshot and generates a precise JSON action plan in one seamless step.
+Powered by a single, fine-tuned **Qwen2.5-VL-2B (GGUF)** model, Forge operates natively on an **Intel Core Ultra 5 226V (Arc iGPU)** via the `llama.cpp` SYCL backend. This architecture enables low-power (sub-20W), high-efficiency execution while processing desktop screenshots and outputting precise JSON action plans in a single, autonomous step.
 
 ---
 
@@ -14,12 +14,12 @@ graph TD
     
     %% VLM Pipeline
     UI --> Screenshot["📸 Take Desktop Screenshot"]
-    Screenshot --> Inference["⚡ Forge VLM Pipeline\n(llama-mtmd-cli via SYCL)"]
+    Screenshot --> Inference["⚡ Forge VLM Pipeline\n(llama-cli via SYCL)"]
     
-    Inference -->|Unified Vision + Text Processing| Qwen["🧠 Forge-VLM-v1\n(Qwen2-VL-2B GGUF)"]
+    Inference -->|Unified Vision + Text Processing| Qwen["🧠 Forge-VLM\n(Qwen2.5-VL-2B GGUF)"]
     
     %% Execution
-    Qwen -->|Outputs Structured JSON Action Plan| Executor["⚙️ Direct Action Executor"]
+    Qwen -->|Outputs Structured JSON Action Plan| Executor["⚙️ Autonomous Action Executor"]
     
     %% Global Safeguard
     Killswitch["🛑 Global Killswitch\n(ESC / Ctrl+E)"] -.->|Instantly Halts| Executor
@@ -30,24 +30,23 @@ graph TD
 
 ---
 
-## Features (Unified VLM Architecture)
+## ✨ Features
 
-* **🧠 End-to-End Multimodal Reasoning**: Replaced separate LLM and Vision models with a single **Qwen2-VL-2B** fine-tune that directly ingests a desktop screenshot and instruction to output a JSON action plan.
-* **⚡ Intel Arc SYCL Acceleration**: Custom `llama.cpp` wrapper explicitly optimized for local Intel iGPU environments (`llama-mtmd-cli`).
-* **🛑 Global Safety Killswitch**: Press `ESC` or `Ctrl+E` at any time to instantly trigger a PyAutoGUI Failsafe and halt execution.
-* **🎯 Coordinate & Semantic Actions**: Extracts UI elements dynamically from the screenshot context, mapping them directly to screen interactions without complex DOM/OCR dependencies.
+* **🧠 Unified Vision & Reasoning**: Handles both screen perception and action planning simultaneously using a single, fine-tuned Qwen2.5-VL-2B model.
+* **⚡ Intel SYCL Hardware Acceleration**: Native iGPU execution via `llama.cpp` maximizes performance on Intel Core Ultra 5 Arc GPUs for ultra-efficient, low-power processing.
+* **⚙️ Autonomous Execution & Killswitch**: Features a streamlined auto-execution loop that fires commands directly with a 1.5-second delay. A global **ESC** key abort feature acts as an emergency killswitch to instantly halt operations.
 * **🔒 100% Local & Private**: No cloud APIs required. Your screen and data stay completely offline.
 
 ---
 
-## Prerequisites & Installation
+## 🚀 Prerequisites & Installation
 
-### 1. Build Custom llama.cpp
-* We use a custom branch of `llama.cpp` tailored for Intel SYCL compatibility.
-* Ensure you have the `llama-mtmd-cli` executable built in `src/vlm_pipeline/llama.cpp/build/bin/Release`.
+### 1. Build Custom llama.cpp for SYCL
+* We use `llama.cpp` compiled specifically for Intel SYCL compatibility to leverage the iGPU.
+* Ensure you have the SYCL environment configured and `llama-cli` built.
 
-### 2. Export and Merge the Model
-* Ensure `Forge-VLM-v1-Q4_K_M.gguf` and `Forge-VLM-v1-mmproj-f16.gguf` exist in `src/vlm_pipeline/export/`.
+### 2. Prepare the Model
+* Download the quantized model (`qwen2.5-vl-2b.gguf`) and place it in the `models/` directory.
 
 ### 3. Install Project Dependencies
 1. Clone the repository:
@@ -64,16 +63,24 @@ graph TD
 
 ---
 
-## Usage
+## 💻 Usage
 
-1. Run the server script from the root folder:
+1. **Start the SYCL-Accelerated VLM Server:**
+   Run the `llama.cpp` SYCL server natively on your Intel iGPU:
+   ```bash
+   llama-cli -m models/qwen2.5-vl-2b.gguf -ngl 33
+   ```
+   *(Ensure your specific SYCL environment variables like `SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS=1` are set).*
+
+2. **Start Forge:**
+   Run the application entry point from the root folder:
    ```bash
    python server.py
    ```
-2. Open the locally served dashboard at `ui/index.html`.
-3. Type your instruction and the VLM will capture your screen, generate an action plan, and execute it!
+3. Open the locally served dashboard at `ui/index.html`.
+4. Type your instruction, and the unified VLM will seamlessly capture your screen, generate an action plan, and automatically execute it!
 
 ---
 
-## Contributing & License
-Distributed under the MIT License. Pull requests are welcome to help harden the system, build new plugins, and improve local execution!
+## 🤝 Contributing & License
+Distributed under the MIT License. Pull requests are welcome to help harden the system, build new plugins, and improve local execution efficiency!
