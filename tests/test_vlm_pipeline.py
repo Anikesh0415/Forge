@@ -64,6 +64,8 @@ def test_plan_task_triggers_vlm_and_returns_plan():
 
 def test_execute_task_plan_executes_step():
     """Verify execute_task_plan executes VLM step successfully."""
+    from src.agent_loop import memory_mgr
+    memory_mgr.abort_flag = False
     async def _test():
         step = {"action": "open_github"}
         with patch("src.vlm_pipeline.execution.executor.execute_action", return_value=True) as mock_exec:

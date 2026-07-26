@@ -2,12 +2,10 @@ import os
 import time
 import asyncio
 import pyautogui
-from src.vision import verify_anchor, smart_wait_for_completion, preflight_check
 from src.context_manager import ContextManager
 from src.memory_manager import MemoryManager
 from src.execution_manager import ExecutionManager
 from src.logger import logger
-from src.macro_orchestrator import macro_orchestrator
 from src.vlm_pipeline.tests.run_inference import run_vlm_inference
 
 # Configuration Constants
@@ -115,14 +113,7 @@ async def execute_task_plan(plan: list, update_callback=None) -> bool:
         memory_mgr.update_task_step(idx, status="executing")
         notify(f"[TRACE] Step {idx+1}/{len(plan)}: {action_type} ({target})")
 
-        # ── 1. OBSERVE & PREFLIGHT ──────────────────────────────────────────
-        fast_macros = ["send_whatsapp", "set_timer", "open_app", "open_browser"]
-        if action_type not in fast_macros and target:
-            pre_res = preflight_check(str(target))
-            if not pre_res["clear_to_proceed"]:
-                notify(f"[TRACE] ⚠️ Preflight Warning: {pre_res['popup_description']}")
-
-        # ── 1.5. SAFETY GUARDRAIL ───────────────────────────────────────────
+        # ── 1. SAFETY GUARDRAIL ───────────────────────────────────────────
         def is_safe_action(action: str, tgt: str) -> bool:
             if action in ["type_text", "key_shortcut", "type", "press"]:
                 blacklist = ["del ", "format ", "rmdir", "rd /s", "powershell -enc", "reg add", "net user", "drop table"]
@@ -176,50 +167,9 @@ async def execute_task_plan(plan: list, update_callback=None) -> bool:
         elif action_type.startswith("background_") or action_type == "summarize_youtube":
             notify(f"[ANSWER] {exec_msg}")
 
-        # ── 3. VERIFY ───────────────────────────────────────────────────────
-        NO_VERIFY = {"click", "type", "press", "double_click", "scroll", "open_github", "copy_all", "paste", "speak", "wait_until", "hover_element", "read_file", "write_file", "run_terminal", "summarize_youtube", "generate_study_html", "search_knowledge_base"}
-        if action_type in NO_VERIFY or not anchor_check:
-            await asyncio.sleep(ACTION_PAUSE)
-            memory_mgr.log_action(action_type, str(target), exec_msg, True, "No verification needed")
-            continue
-
-        if action_type in {"open_app", "open_browser"}:
-            notify(f"[TRACE] Waiting {APP_OPEN_WAIT}s for page/app to load...")
-            await asyncio.sleep(APP_OPEN_WAIT)
-            max_retries = OPEN_APP_MAX_RETRIES
-        else:
-            await asyncio.sleep(ACTION_PAUSE)
-            max_retries = 1
-
-        verified = False
-        
-        for attempt in range(max_retries):
-            notify(f"[TRACE] VISTA anchor check (attempt {attempt+1}/{max_retries}): '{anchor_check}'")
-            try:
-                anchor_met = verify_anchor(anchor_check)
-            except Exception as e:
-                notify(f"[TRACE] VISTA check crashed: {e}")
-                anchor_met = False
-                
-            if anchor_met:
-                notify("[TRACE] Anchor confirmed ✓")
-                verified = True
-                memory_mgr.log_action(action_type, str(target), exec_msg, True, "Anchor confirmed")
-                break
-            else:
-                if attempt < max_retries - 1:
-                    notify(f"[TRACE] Anchor not yet visible, retrying in {OPEN_APP_RETRY_DELAY}s...")
-                    await asyncio.sleep(OPEN_APP_RETRY_DELAY)
-                    try:
-                        await exec_mgr.execute_step(step)
-                    except Exception:
-                        pass
-
-        # ── 4. REFLECT & REPLAN ─────────────────────────────────────────────
-        if not verified:
-            notify(f"[TRACE] Step {idx+1} verification failed.")
-            memory_mgr.complete_task(success=False)
-            return False
+        # ── 3. POST-ACTION PAUSE ────────────────────────────────────────────
+        await asyncio.sleep(ACTION_PAUSE)
+        memory_mgr.log_action(action_type, str(target), exec_msg, success, "Action executed")
 
     notify("[TRACE] Plan execution completed successfully.")
     return True
@@ -234,46 +184,13 @@ async def run_autonomous_agent(instruction: str, update_callback=None) -> bool:
         if update_callback:
             update_callback(msg)
 
-    notify("[TRACE] Checking if instruction requires Macro Loop Orchestration...")
-    macro_plan = macro_orchestrator.analyze_instruction(instruction)
-    
-    if macro_plan.get("is_loop"):
-        iterations = macro_plan.get("iterations", 1)
-        notify(f"[TRACE] 🚀 MASSIVE LOOP DETECTED! Iterations: {iterations}")
-        
-        # 1. Setup Phase
-        setup_task = macro_plan.get("setup_instructions")
-        if setup_task:
-            notify(f"[TRACE] Phase 1/3: Running Setup -> {setup_task}")
-            setup_plan = await plan_task(setup_task, update_callback)
-            if not await execute_task_plan(setup_plan, update_callback):
-                notify("[TRACE] Setup failed. Aborting Macro.")
-                return False
-                
-        # 2. Loop Phase
-        loop_task = macro_plan.get("loop_instructions")
-        if loop_task:
-            notify(f"[TRACE] Phase 2/3: Executing Loop {iterations} times...")
-            for i in range(iterations):
-                notify(f"[TRACE] --- LOOP ITERATION {i+1} OF {iterations} ---")
-                iter_plan = await plan_task(loop_task, update_callback)
-                if not await execute_task_plan(iter_plan, update_callback):
-                    notify(f"[TRACE] Loop iteration {i+1} failed! Attempting to continue next iteration...")
-                    
-        # 3. Teardown Phase
-        teardown_task = macro_plan.get("teardown_instructions")
-        if teardown_task:
-            notify(f"[TRACE] Phase 3/3: Running Teardown -> {teardown_task}")
-            teardown_plan = await plan_task(teardown_task, update_callback)
-            await execute_task_plan(teardown_plan, update_callback)
-            
-        notify("[TRACE] ✅ Macro Orchestration Completed Successfully!")
-        return True
+    notify("[TRACE] Single Task Plan Phase...")
+    plan = await plan_task(instruction, update_callback)
+    if not plan:
+        return False
 
-    else:
-        notify("[TRACE] Standard linear task detected.")
-        plan = await plan_task(instruction, update_callback)
-        return await execute_task_plan(plan, update_callback)
+    return await execute_task_plan(plan, update_callback)
+
 
 
 async def execute_react_loop(instruction: str, update_callback=None):

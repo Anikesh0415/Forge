@@ -1,33 +1,6 @@
 import os
 import json
 
-# Fallback configurations if not defined in environment
-OLLAMA_API_URL = os.environ.get("OLLAMA_API_URL", "http://127.0.0.1:11434/api/generate")
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:1.5b")
-
-LM_STUDIO_API_URL = os.environ.get(
-    "LM_STUDIO_API_URL", "http://127.0.0.1:1234/v1/chat/completions"
-)
-LM_STUDIO_MODELS_URL = os.environ.get(
-    "LM_STUDIO_MODELS_URL", "http://127.0.0.1:1234/v1/models"
-)
-DEFAULT_LM_STUDIO_MODEL = os.environ.get(
-    "DEFAULT_LM_STUDIO_MODEL", "hermes-2-pro-llama-3-8b"
-)
-
-VISION_MODEL = os.environ.get("VISION_MODEL", "moondream")
-
-# Phase 3: Cognitive Model Swapping
-IDE_MODEL_OLLAMA = os.environ.get("IDE_MODEL_OLLAMA", "qwen2.5-coder:1.5b")
-IDE_MODEL_LMSTUDIO = os.environ.get("IDE_MODEL_LMSTUDIO", "qwen2.5-coder")
-IDE_APP_NAMES = [
-    "Code",
-    "Visual Studio Code",
-    "Cursor",
-    "PyCharm",
-    "IntelliJ",
-    "devenv",
-]
 
 # Comprehensive Universal Service Map
 _default_browser_map = {

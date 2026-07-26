@@ -9,10 +9,7 @@ from src.action_library import (
     navigate_browser,
     copy_all,
     paste_action,
-    semantic_copy,
 )
-from src.vision import smart_wait_for_completion
-
 
 class PyAutoGUIExecutor(BaseExecutor):
     """
@@ -123,16 +120,9 @@ class PyAutoGUIExecutor(BaseExecutor):
                 if not condition or str(condition).strip() == "":
                     return True, "No wait condition provided, skipping."
 
-                success = smart_wait_for_completion(condition)
-                if success:
-                    return True, f"Wait condition met: '{condition}'"
-                else:
-                    return False, f"Wait condition timed out: '{condition}'"
-
-            elif action_type == "semantic_copy":
-                goal = step_data.get("goal") or step_data.get("text", "")
-                msg = await semantic_copy(goal)
-                return True, msg
+                import asyncio
+                await asyncio.sleep(5)  # Simple fallback sleep
+                return True, f"Waited for '{condition}' (fallback sleep used)"
 
             elif action_type == "hover_element":
                 target_text = step_data.get("target") or step_data.get("text", "")
