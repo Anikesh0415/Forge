@@ -54,8 +54,9 @@ class MacroOrchestrator:
         logger.info("Macro Orchestrator Pass 1: Detecting Loop...")
         prompt1 = PASS1_PROMPT.replace("{instruction}", instruction)
 
+        import asyncio
         try:
-            res1 = self.core.process_intent(prompt1, {"voice_command": instruction})
+            res1 = asyncio.run(self.core.process_intent(prompt1, {"voice_command": instruction}))
             if isinstance(res1, list) and len(res1) > 0 and isinstance(res1[0], dict):
                 res1 = res1[0]
 
@@ -66,7 +67,7 @@ class MacroOrchestrator:
                 )
 
                 prompt2 = PASS2_PROMPT.replace("{instruction}", instruction)
-                res2 = self.core.process_intent(prompt2, {"voice_command": instruction})
+                res2 = asyncio.run(self.core.process_intent(prompt2, {"voice_command": instruction}))
 
                 if (
                     isinstance(res2, list)

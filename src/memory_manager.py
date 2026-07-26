@@ -25,6 +25,7 @@ class MemoryManager:
         }
         self.action_history = []
         self.long_term_memory = self._load_long_term_memory()
+        self.abort_flag = False
 
         # BIO-ORGANOID INTEGRATION
         self.use_bio_engine = False

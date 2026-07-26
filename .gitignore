@@ -30,7 +30,13 @@ package-lock.json
 *.pt
 *.bin
 *.onnx
+*.gguf
+*.safetensors
 models/
+outputs/
+unsloth_compiled_cache/
+src/vlm_pipeline/export/*.gguf
+src/vlm_pipeline/export/forge_vlm_model*
 
 # Runtime Data & Logs
 logs/

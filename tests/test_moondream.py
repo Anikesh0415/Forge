@@ -1,23 +1,25 @@
-import requests
-import base64
+import sys
+import os
 import json
+from unittest.mock import patch, MagicMock
 
-try:
-    print("Fetching image...")
-    # Generate a dummy base64 image 1x1 pixel for testing
-    img_str = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
-    print("Calling Ollama...")
-    response = requests.post("http://localhost:11434/api/generate", json={
-        "model": "moondream",
-        "prompt": "Output a JSON object with: {'action': 'wait'}",
-        "images": [img_str],
-        "stream": False,
-        "options": {
-            "temperature": 0.1
-        }
-    }, timeout=10)
-    print(response.status_code)
-    print(response.text)
-except Exception as e:
-    import traceback
-    traceback.print_exc()
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from src.vlm_pipeline.tests.run_inference import run_vlm_inference
+
+def test_moondream_vlm_parsing():
+    """Verify VLM inference pipeline correctly extracts JSON action structures."""
+    with patch("subprocess.run") as mock_run, \
+         patch("os.path.exists", return_value=True):
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = 'Loading VLM weights...\n{"action": "wait", "duration": 1.5}\nInference complete.'
+        mock_run.return_value = mock_result
+        
+        result = run_vlm_inference("dummy_path.png", "Wait 1.5 seconds")
+        assert isinstance(result, dict)
+        assert result.get("action") == "wait"
+        assert result.get("duration") == 1.5
+
+if __name__ == "__main__":
+    test_moondream_vlm_parsing()
+

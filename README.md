@@ -1,8 +1,8 @@
 # Forge: Local, Multi-Modal Automation Agent
 
-Forge is a local, privacy-first Windows OS automation agent designed to help individuals control their computers using voice commands and hand gestures. 
+Forge is a local, privacy-first Windows OS automation agent designed to help individuals control their computers using voice commands and text instructions. 
 
-By tying together local reasoning models (Hermes 2 Pro via LM Studio) and multimodal visual verification (Moondream, PyTesseract), Forge provides hands-free, intelligent operation of the Windows desktop.
+By utilizing our unified, fine-tuned **Forge-VLM (Qwen2-VL-2B) GGUF** model running entirely locally on Intel Arc iGPU (via SYCL), Forge takes a desktop screenshot and generates a precise JSON action plan in one seamless step.
 
 ---
 
@@ -10,68 +10,44 @@ By tying together local reasoning models (Hermes 2 Pro via LM Studio) and multim
 
 ```mermaid
 graph TD
-    User(("🗣️ User Request")) --> UI["💻 Ecosystem Control Center"]
+    User(("🗣️ User Request")) --> UI["💻 Ecosystem Control Center (WebSocket)"]
     
-    %% Bio-Engine Extraction Pipeline
-    subgraph BioEngine ["🧪 Biological Neural Organoid Layer (FinalSpark Dataset)"]
-        HDF5[("🧫 60GB Organoid HDF5\n(fs437_package.hdf5)")] -->|Offline Slicing| Extractor["⚡ scripts/extract_bio_weights.py"]
-        Extractor -->|Generates| BioJSON[("🧬 data/bio_weights.json\n(ISI, Tau, Voltage Thresholds)")]
-    end
-
-    %% The Brain Injection
-    UI --> Macro["🏗️ Macro Orchestrator\n(Logic & Loops)"]
-    Macro -->|Dynamic Sub-Tasks| Planner{"🧠 ARIA Planner\n(Hermes 8B)"}
+    %% VLM Pipeline
+    UI --> Screenshot["📸 Take Desktop Screenshot"]
+    Screenshot --> Inference["⚡ Forge VLM Pipeline\n(llama-mtmd-cli via SYCL)"]
     
-    %% Memory Systems
-    SkillDB[("📚 Semantic Memory\n(RAG / skills.json)")] -.->|Injects Skills| Planner
-    EpisodicDB[("🧠 Episodic Memory\n(User Preferences)")] -.->|Injects OS Context| Planner
-    Plugins[("🔌 Dynamic Plugins\n(src/plugins/)")] -.->|Injects Capabilities| Planner
+    Inference -->|Unified Vision + Text Processing| Qwen["🧠 Forge-VLM-v1\n(Qwen2-VL-2B GGUF)"]
     
-    BioJSON -.->|Neuromorphic Decay| MemoryMgr[("🧠 Memory Manager\n(Synaptic LTP Decay)")]
-    BioJSON -.->|Voltage Spike Thresholds| Planner
-    MemoryMgr -.->|Decayed History Context| Planner
-
-    Planner -->|JSON Action Plan| AgentLoop(("⚙️ Central Agent Loop"))
+    %% Execution
+    Qwen -->|Outputs Structured JSON Action Plan| Executor["⚙️ Direct Action Executor"]
     
-    AgentLoop -->|Execute| ExecMgr["⚡ Execution Manager\n(PyAutoGUI / TTS)"]
-    AgentLoop -->|Verify| VistaWait["👁️ VISTA Moondream\n(smart_wait_for_completion)"]
-    
-    VistaWait -.->|Wait Condition Met ✓| AgentLoop
+    %% Global Safeguard
+    Killswitch["🛑 Global Killswitch\n(ESC / Ctrl+E)"] -.->|Instantly Halts| Executor
     
     %% OS Level Execution
-    ExecMgr --> TargetApp["🖥️ Target App\n(Windows OS)"]
-    
-    ExecMgr --> OCRClick["👀 OCR click_text"]
-    OCRClick --> TargetApp
-    
-    ExecMgr --> TTS["🗣️ Asynchronous TTS"]
-    TTS --> TargetApp
+    Executor --> TargetApp["🖥️ Windows OS\n(PyAutoGUI / System Macros)"]
 ```
 
 ---
 
-## Features (Phases 1-13)
+## Features (Unified VLM Architecture)
 
-* **🧪 Neuromorphic Bio-Engine (Organoid Intelligence)**: Integrates electrophysiological parameters extracted from living human brain organoid datasets (FinalSpark `fs437`). Implements a biological synaptic LTP decay model for memory forgetting and dynamic voltage-threshold-based instruction fast-path routing!
-* **🧠 Multi-Stage Agentic Reasoning**: Uses **Hermes 2 Pro 8B** to convert complex voice instructions into structured JSON plans. Uses a Macro Orchestrator to break down massive tasks into logical loops.
-* **👁️ VISTA (Visual Verification)**: Uses a local Moondream vision model to verify OS states before proceeding (e.g., waiting for an app to load).
-* **🎯 Coordinate OCR**: Bypasses rigid UI rules by finding and clicking the exact `(x, y)` coordinates of any text on the screen using PyTesseract.
-* **📚 Semantic & Episodic Memory**: Self-heals by learning successful workflows and permanently storing user preferences and facts across sessions.
-* **🗣️ Asynchronous Local TTS**: Talks back naturally using a non-blocking background voice synthesizer.
-* **🔌 Dynamic Plugin Architecture**: Extensible design. Drop a `.py` script into `src/plugins/`, and the AI instantly learns how to use it.
-* **🔒 100% Local & Private**: No cloud APIs required. Your screen and data stay on your machine.
+* **🧠 End-to-End Multimodal Reasoning**: Replaced separate LLM and Vision models with a single **Qwen2-VL-2B** fine-tune that directly ingests a desktop screenshot and instruction to output a JSON action plan.
+* **⚡ Intel Arc SYCL Acceleration**: Custom `llama.cpp` wrapper explicitly optimized for local Intel iGPU environments (`llama-mtmd-cli`).
+* **🛑 Global Safety Killswitch**: Press `ESC` or `Ctrl+E` at any time to instantly trigger a PyAutoGUI Failsafe and halt execution.
+* **🎯 Coordinate & Semantic Actions**: Extracts UI elements dynamically from the screenshot context, mapping them directly to screen interactions without complex DOM/OCR dependencies.
+* **🔒 100% Local & Private**: No cloud APIs required. Your screen and data stay completely offline.
 
 ---
 
 ## Prerequisites & Installation
 
-### 1. Set Up Local Models
-* **LM Studio:** Download and run [LM Studio](https://lmstudio.ai/). Load a function-calling model like **`Hermes-2-Pro-Llama-3-8B-GGUF`** and start the local server on port `1234`.
-* **Ollama (Vision):** Install [Ollama](https://ollama.com/) and run `ollama pull moondream`.
+### 1. Build Custom llama.cpp
+* We use a custom branch of `llama.cpp` tailored for Intel SYCL compatibility.
+* Ensure you have the `llama-mtmd-cli` executable built in `src/vlm_pipeline/llama.cpp/build/bin/Release`.
 
-### 2. Install Tesseract OCR
-For visual capabilities to work, you must install Tesseract:
-* **Windows:** Download and install the [Tesseract-OCR executable](https://github.com/UB-Mannheim/tesseract/wiki). Ensure the installation path is added to your Windows Environment Variables.
+### 2. Export and Merge the Model
+* Ensure `Forge-VLM-v1-Q4_K_M.gguf` and `Forge-VLM-v1-mmproj-f16.gguf` exist in `src/vlm_pipeline/export/`.
 
 ### 3. Install Project Dependencies
 1. Clone the repository:
@@ -90,12 +66,12 @@ For visual capabilities to work, you must install Tesseract:
 
 ## Usage
 
-1. Start your local model servers (LM Studio on port `1234`, Ollama).
-2. Run the server script:
+1. Run the server script from the root folder:
    ```bash
    python server.py
    ```
-3. Open the locally served dashboard at `ui/index.html` (or run `Start_Ecosystem.bat`).
+2. Open the locally served dashboard at `ui/index.html`.
+3. Type your instruction and the VLM will capture your screen, generate an action plan, and execute it!
 
 ---
 

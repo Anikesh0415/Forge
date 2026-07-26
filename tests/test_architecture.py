@@ -11,7 +11,6 @@ from src.logger import logger
 from src.executors.pyautogui_executor import PyAutoGUIExecutor
 from src.executors.ui_automation_executor import UIAutomationExecutor
 from src.execution_manager import ExecutionManager
-from src.planner import MultiStagePlanner
 
 def run_tests():
     print("=== Testing Forge Architecture Modules ===")
@@ -38,13 +37,7 @@ def run_tests():
     status, msg = asyncio.run(em.execute_step({"id": 1, "action": "speak", "text": "Architecture Test Successful"}))
     print(f"[OK] ExecutionManager test: success={status}, msg='{msg}'")
 
-    # 5. Planner Initialization
-    planner = MultiStagePlanner()
-    planner.core.use_mock = True  # Use fast mock mode for unit verification
-    decomp = asyncio.run(planner.decompose_intent("Open Google and search for AI news"))
-    print(f"[OK] MultiStagePlanner intent decomposition (mock): {decomp.get('intent')}")
-
-    # 6. Logger
+    # 5. Logger
     logger.info("Architecture test completed successfully.")
     print("\nALL ARCHITECTURE UPGRADE TESTS PASSED SUCCESSFULLY!")
 

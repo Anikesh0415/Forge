@@ -1,26 +1,25 @@
-import requests
-import base64
-import io
-from PIL import ImageGrab
+import sys
+import os
+from unittest.mock import patch, MagicMock
 
-def capture_screen_base64():
-    img = ImageGrab.grab()
-    buffered = io.BytesIO()
-    img.save(buffered, format="JPEG", quality=80)
-    return base64.b64encode(buffered.getvalue()).decode('utf-8')
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from src.vlm_pipeline.tests.run_inference import run_vlm_inference
 
-b64_image = capture_screen_base64()
+def test_moondream_point_vlm_coordinate_action():
+    """Verify VLM inference correctly parses point/click target coordinates into JSON plan."""
+    with patch("subprocess.run") as mock_run, \
+         patch("os.path.exists", return_value=True):
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = '{"action": "click", "target": "Gemini copy button", "x": 450, "y": 800}'
+        mock_run.return_value = mock_result
+        
+        result = run_vlm_inference("dummy_screen.png", "Point at the Gemini copy button.")
+        assert result.get("action") == "click"
+        assert int(result.get("x")) == 450
+        assert int(result.get("y")) == 800
 
-payload = {
-    "model": "moondream",
-    "prompt": "Point at the Gemini copy button.",
-    "images": [b64_image],
-    "stream": False
-}
 
-try:
-    response = requests.post("http://127.0.0.1:11434/api/generate", json=payload)
-    print("Moondream response:")
-    print(response.json().get("response"))
-except Exception as e:
-    print(e)
+if __name__ == "__main__":
+    test_moondream_point_vlm_coordinate_action()
+

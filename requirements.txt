@@ -3,11 +3,8 @@ uvicorn
 websockets
 PyAutoGUI
 pywin32
-pytesseract
 pyperclip
 pillow
-opencv-python
-mediapipe
 faster-whisper
 sounddevice
 numpy
@@ -17,3 +14,5 @@ pyttsx3
 youtube-transcript-api
 chromadb
 customtkinter
+keyboard
+

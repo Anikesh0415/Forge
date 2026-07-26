@@ -1,6 +1,10 @@
+import sys
+import os
 import json
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from src.macro_orchestrator import macro_orchestrator
-from src.planner import planner_instance
 
 prompts = [
     """Begin the 'Legacy Database Migration' protocol. Open the local directory C:\\Legacy_Records\\ containing 10,000 nested folders, each representing a client.
@@ -20,37 +24,24 @@ Continue this exact loop without stopping until all 10,000 folders have been pro
 
 def run_tests():
     print("# Full Divided-Brain Pipeline Test Results\n", flush=True)
+    macro_orchestrator.core.use_mock = True
     for i, prompt in enumerate(prompts):
         print(f"## Test {i+1}: 80+ Action Prompt Processing", flush=True)
         try:
             print("### Phase 1: Macro Orchestrator (Architect Brain)", flush=True)
             macro_plan = macro_orchestrator.analyze_instruction(prompt)
+            assert isinstance(macro_plan, dict)
+            assert "is_loop" in macro_plan
             print(json.dumps(macro_plan, indent=2), flush=True)
-            
-            if macro_plan.get("is_loop"):
-                print("\n### Phase 2: ARIA Planner (Worker Brain)", flush=True)
-                
-                setup = macro_plan.get("setup_instructions")
-                if setup:
-                    print("\n#### Generating Setup Plan:", flush=True)
-                    setup_json = planner_instance.generate_action_plan(setup, "Context: Desktop")
-                    print(json.dumps(setup_json, indent=2), flush=True)
-                    
-                loop = macro_plan.get("loop_instructions")
-                if loop:
-                    print("\n#### Generating Loop Iteration Plan (Runs N times):", flush=True)
-                    loop_json = planner_instance.generate_action_plan(loop, "Context: Target App")
-                    print(json.dumps(loop_json, indent=2), flush=True)
-                    
-                teardown = macro_plan.get("teardown_instructions")
-                if teardown:
-                    print("\n#### Generating Teardown Plan:", flush=True)
-                    teardown_json = planner_instance.generate_action_plan(teardown, "Context: Desktop")
-                    print(json.dumps(teardown_json, indent=2), flush=True)
 
         except Exception as e:
             print(f"### Error:\n{e}", flush=True)
+            raise e
         print("\n---\n", flush=True)
+
+def test_stress():
+    run_tests()
 
 if __name__ == "__main__":
     run_tests()
+
