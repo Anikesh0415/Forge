@@ -7,6 +7,7 @@ from src.memory_manager import MemoryManager
 from src.execution_manager import ExecutionManager
 from src.logger import logger
 from src.vlm_pipeline.tests.run_inference import run_vlm_inference
+from src.memory_buffer import ActionBuffer
 
 # Configuration Constants
 ACTION_PAUSE         = 0.5   # seconds after standard actions
@@ -17,6 +18,7 @@ OPEN_APP_RETRY_DELAY = 2.0   # seconds between retries
 context_mgr = ContextManager()
 memory_mgr  = MemoryManager()
 exec_mgr    = ExecutionManager()
+action_buffer = ActionBuffer(max_length=5)
 
 
 def capture_screenshot(output_path: str = "temp_screenshot.png") -> str:
@@ -58,6 +60,15 @@ async def plan_task(instruction: str, update_callback=None, ctx_summary: str = N
     # 1. Capture Desktop Screenshot
     screenshot_path = capture_screenshot("temp_screenshot.png")
     notify(f"[TRACE] Screenshot captured to {screenshot_path}")
+
+    if action_buffer.detect_loop():
+        notify("⚠️ LOOP DETECTED! Executing reset safeguard...")
+        pyautogui.press('esc')
+        action_buffer.clear()
+        
+    context_str = action_buffer.get_context_string()
+    if context_str:
+        instruction = f"{instruction}\n\n{context_str}"
 
     # 2. Run VLM Inference (SYCL flags configured inside run_vlm_inference)
     notify("[TRACE] Running unified VLM inference pipeline...")
@@ -169,6 +180,8 @@ async def execute_task_plan(plan: list, update_callback=None) -> bool:
 
         # ── 3. POST-ACTION PAUSE ────────────────────────────────────────────
         await asyncio.sleep(ACTION_PAUSE)
+        if success:
+            action_buffer.add_action(action_type, str(target))
         memory_mgr.log_action(action_type, str(target), exec_msg, success, "Action executed")
 
     notify("[TRACE] Plan execution completed successfully.")

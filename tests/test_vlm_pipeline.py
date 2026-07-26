@@ -47,6 +47,8 @@ def test_capture_screenshot_creates_file(tmp_path):
 
 def test_plan_task_triggers_vlm_and_returns_plan():
     """Verify plan_task captures screenshot and invokes run_vlm_inference."""
+    from src.agent_loop import action_buffer
+    action_buffer.clear()
     async def _test():
         expected_action = {"action": "click", "x": 500, "y": 300}
         with patch("src.agent_loop.run_vlm_inference", return_value=expected_action) as mock_vlm, \
