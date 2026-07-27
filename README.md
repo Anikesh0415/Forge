@@ -82,5 +82,20 @@ graph TD
 
 ---
 
+## 🕵️ Shadow Mode (Dataset Collection)
+
+Forge features a **Shadow Mode** designed to quietly build a high-quality RL/SFT fine-tuning dataset while you operate your PC normally. 
+
+When Shadow Mode is active (`python src/shadow_mode.py`), it runs as a non-blocking background listener that:
+1. Listens for human mouse clicks using `pynput`.
+2. Captures a lightweight screenshot instantly using `mss`.
+3. Queries the local Qwen2-VL model in the background to predict what action it *would* have taken.
+4. Calculates the pixel error delta (`error_delta = sqrt((ai_x - human_x)^2 + (ai_y - human_y)^2)`).
+5. Logs the ground-truth and AI predictions into a JSONL dataset at `./dataset/shadow_dataset.jsonl` along with the images in `./dataset/images/`.
+
+This continuously generates rich training pairs without interrupting your normal workflow!
+
+---
+
 ## 🤝 Contributing & License
 Distributed under the MIT License. Pull requests are welcome to help harden the system, build new plugins, and improve local execution efficiency!
