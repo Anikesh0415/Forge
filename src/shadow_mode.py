@@ -14,6 +14,8 @@ from pynput import mouse
 # Append src path for imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src.vlm_pipeline.tests.run_inference import run_vlm_inference
+from src.safety_logger import safety_logger
+
 
 DATASET_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dataset'))
 IMAGES_DIR = os.path.join(DATASET_DIR, 'images')
@@ -88,17 +90,28 @@ def process_event_worker():
         except Exception as e:
             print(f"ShadowMode Error querying VLM: {e}")
             
-        payload = {
-            "timestamp": timestamp,
-            "image_path": image_path,
-            "screen_size": screen_size,
-            "ground_truth": {"action": "click", "x": x, "y": y},
-            "ai_prediction": ai_prediction,
-            "error_delta": error_delta
+        user_action = {"type": "click", "x": x, "y": y, "full_image_path": image_path}
+        crop_path = ""
+        try:
+            from src.agent_loop import crop_target_element
+            crop_path = crop_target_element(image_path, float(x), float(y))
+        except Exception:
+            pass
+        if crop_path:
+            user_action["target_crop_path"] = crop_path
+
+        from datetime import timezone
+        record_payload = {
+            "timestamp": datetime.fromtimestamp(timestamp / 1000.0, timezone.utc).isoformat().replace("+00:00", "Z") if isinstance(timestamp, (int, float)) else str(timestamp),
+            "screen_dim": screen_size,
+            "user_action": user_action,
+            "model_prediction": ai_prediction if isinstance(ai_prediction, dict) else {"raw_output": str(ai_prediction)},
+            "error_delta_px": round(error_delta, 2) if error_delta is not None else None,
+            "context_history": []
         }
         
-        with open(LOG_FILE, 'a') as f:
-            f.write(json.dumps(payload) + "\n")
+        safety_logger.log_shadow_record(record_payload)
+
             
         print(f"[Shadow Mode] Logged event. Delta: {error_delta}")
         event_queue.task_done()

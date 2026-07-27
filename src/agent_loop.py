@@ -1,6 +1,8 @@
 import os
 import time
+import math
 import asyncio
+from datetime import datetime, timezone
 import pyautogui
 from src.context_manager import ContextManager
 from src.memory_manager import MemoryManager
@@ -8,6 +10,8 @@ from src.execution_manager import ExecutionManager
 from src.logger import logger
 from src.vlm_pipeline.tests.run_inference import run_vlm_inference
 from src.memory_buffer import ActionBuffer
+from src.plugin_manager import PluginManager
+from src.safety_logger import safety_logger
 
 # Configuration Constants
 ACTION_PAUSE         = 0.5   # seconds after standard actions
@@ -19,6 +23,8 @@ context_mgr = ContextManager()
 memory_mgr  = MemoryManager()
 exec_mgr    = ExecutionManager()
 action_buffer = ActionBuffer(max_length=5)
+plugin_manager = PluginManager()
+plugin_manager.discover_plugins()
 
 
 def capture_screenshot(output_path: str = "temp_screenshot.png") -> str:
@@ -40,6 +46,114 @@ def capture_screenshot(output_path: str = "temp_screenshot.png") -> str:
             shot = ImageGrab.grab()
             shot.save(abs_path)
     return abs_path
+
+
+def crop_target_element(image_path: str, x: float, y: float, crop_width: int = 200, crop_height: int = 200) -> str:
+    """
+    Crops a square ROI around target coordinates (x, y) from desktop screenshot.
+    Saves cropped image to dataset/images/crop_<timestamp_ms>.png and returns absolute path.
+    """
+    images_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "dataset", "images"))
+    os.makedirs(images_dir, exist_ok=True)
+    
+    timestamp_ms = int(time.time() * 1000)
+    crop_filename = f"crop_{timestamp_ms}.png"
+    crop_path = os.path.join(images_dir, crop_filename)
+
+    try:
+        from PIL import Image
+        if os.path.exists(image_path):
+            img = Image.open(image_path)
+            img_w, img_h = img.size
+            half_w, half_h = crop_width / 2.0, crop_height / 2.0
+            
+            left = max(0, int(x - half_w))
+            upper = max(0, int(y - half_h))
+            right = min(img_w, int(x + half_w))
+            lower = min(img_h, int(y + half_h))
+            
+            cropped = img.crop((left, upper, right, lower))
+            cropped.save(crop_path)
+            return crop_path
+    except Exception as e:
+        logger.info(f"Failed to crop element screenshot: {e}")
+    
+    return ""
+
+
+def handle_interactive_override(
+    user_action: dict,
+    model_prediction: dict = None,
+    screenshot_path: str = None,
+    context_history: list = None
+) -> dict:
+    """
+    Interactive override handler for Teach Mode.
+    Captures user coordinates, crops target element screenshot, calculates error delta in pixels,
+    records context history, formats standard Teach Mode payload, and logs to dataset/shadow_dataset.jsonl.
+    """
+    if model_prediction is None:
+        model_prediction = {}
+
+    screen_dim = {"width": 1920, "height": 1080}
+    try:
+        sw, sh = pyautogui.size()
+        screen_dim = {"width": int(sw), "height": int(sh)}
+    except Exception:
+        pass
+
+    if not screenshot_path or not os.path.exists(screenshot_path):
+        screenshot_path = capture_screenshot("temp_override.png")
+
+    if screenshot_path and os.path.exists(screenshot_path):
+        try:
+            from PIL import Image
+            img = Image.open(screenshot_path)
+            screen_dim = {"width": img.width, "height": img.height}
+        except Exception:
+            pass
+
+    user_x = user_action.get("x")
+    user_y = user_action.get("y")
+
+    crop_path = ""
+    if user_x is not None and user_y is not None:
+        crop_path = crop_target_element(screenshot_path, float(user_x), float(user_y))
+
+    formatted_user_action = dict(user_action)
+    if crop_path:
+        formatted_user_action["target_crop_path"] = crop_path
+    if screenshot_path:
+        formatted_user_action["full_image_path"] = os.path.abspath(screenshot_path)
+
+    model_x = model_prediction.get("x")
+    model_y = model_prediction.get("y")
+    
+    error_delta_px = None
+    if user_x is not None and user_y is not None and model_x is not None and model_y is not None:
+        try:
+            dx = float(user_x) - float(model_x)
+            dy = float(user_y) - float(model_y)
+            error_delta_px = round(math.sqrt(dx * dx + dy * dy), 2)
+        except (ValueError, TypeError):
+            error_delta_px = None
+
+    if context_history is None:
+        context_history = action_buffer.get_history()
+
+    timestamp = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    record_payload = {
+        "timestamp": timestamp,
+        "screen_dim": screen_dim,
+        "user_action": formatted_user_action,
+        "model_prediction": model_prediction,
+        "error_delta_px": error_delta_px,
+        "context_history": context_history
+    }
+
+    safety_logger.log_shadow_record(record_payload)
+    return record_payload
+
 
 
 async def plan_task(instruction: str, update_callback=None, ctx_summary: str = None) -> list:
@@ -124,17 +238,17 @@ async def execute_task_plan(plan: list, update_callback=None) -> bool:
         memory_mgr.update_task_step(idx, status="executing")
         notify(f"[TRACE] Step {idx+1}/{len(plan)}: {action_type} ({target})")
 
-        # ── 1. SAFETY GUARDRAIL ───────────────────────────────────────────
-        def is_safe_action(action: str, tgt: str) -> bool:
-            if action in ["type_text", "key_shortcut", "type", "press"]:
-                blacklist = ["del ", "format ", "rmdir", "rd /s", "powershell -enc", "reg add", "net user", "drop table"]
-                if any(bad in str(tgt).lower() for bad in blacklist):
-                    return False
-            return True
-            
-        if not is_safe_action(action_type, str(target)):
-            notify(f"[TRACE] 🛑 SECURITY ALERT: Blocked destructive action '{target}'")
+        # ── 1. SAFETY GUARDRAIL & PLUGIN FILTERING ──────────────────────
+        if safety_logger.check_boundary_violation(step):
+            notify(f"[TRACE] 🛑 SECURITY ALERT: Blocked action '{action_type}' targeting '{target}' due to safety boundary violation")
             memory_mgr.log_action(action_type, str(target), "Blocked by Safety Guardrail", False)
+            memory_mgr.complete_task(success=False)
+            return False
+
+
+        if not plugin_manager.filter_action(step):
+            notify(f"[TRACE] 🛑 PLUGIN FILTER ALERT: Action '{action_type}' ({target}) blocked by active plugin policy.")
+            memory_mgr.log_action(action_type, str(target), "Blocked by Plugin Action Filter Guardrail", False)
             memory_mgr.complete_task(success=False)
             return False
 
@@ -144,13 +258,20 @@ async def execute_task_plan(plan: list, update_callback=None) -> bool:
                 notify("🛑 TASK ABORTED BY KILL-SWITCH!")
                 memory_mgr.complete_task(success=False)
                 return False
-            success, exec_msg = await exec_mgr.execute_step(step)
-            if not success:
-                from src.vlm_pipeline.execution.executor import execute_action
-                vlm_exec_success = execute_action(step)
-                if vlm_exec_success:
-                    success = True
-                    exec_msg = f"Executed VLM action '{action_type}'"
+
+            if plugin_manager.can_handle(step):
+                notify(f"[TRACE] Routing action '{action_type}' to target plugin...")
+                route_res = plugin_manager.route_action(step)
+                success = route_res.get("success", False)
+                exec_msg = route_res.get("message") or route_res.get("error") or str(route_res)
+            else:
+                success, exec_msg = await exec_mgr.execute_step(step)
+                if not success:
+                    from src.vlm_pipeline.execution.executor import execute_action
+                    vlm_exec_success = execute_action(step)
+                    if vlm_exec_success:
+                        success = True
+                        exec_msg = f"Executed VLM action '{action_type}'"
         except pyautogui.FailSafeException as fse:
             memory_mgr.abort_flag = True
             notify("🛑 TASK ABORTED BY KILL-SWITCH!")
