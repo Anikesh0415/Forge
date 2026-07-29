@@ -1,18 +1,15 @@
-# Project Context & Findings
+# Context: Forge AI OS Consumer Features Project
 
-## Requirements Summary
-- Project: Forge UI Unified VLM Refactor
-- Core Objectives:
-  1. Delete `src/planner.py`, clean `requirements.txt` (remove `ollama` & legacy vision deps), remove legacy routes/state from `server.py`.
-  2. Wire `TEXT_INPUT` event in `server.py` / `src/agent_loop.py` to screenshot + VLM inference wrapper, preserving SYCL flags.
-  3. Auto-execute valid VLM JSON actions with a 1.5s toast delay ("Executing: [Action] in 1.5s... [Press ESC to Cancel]") and global ESC listener for pyautogui halt.
-  4. Stage, commit, and push changes to `main` branch.
+## Overview
+Project orchestrator for implementing three key consumer features in Forge AI OS:
+1. One-Click Installer & Bundler (`forge_builder.py`, `forge.spec`)
+2. Teach Mode & Safety Boundary Logging (`src/agent_loop.py`, `src/safety_logger.py`, dataset files, safety rules config)
+3. Dynamic Plugin Ecosystem (`src/plugin_manager.py`, `src/plugins/dev_mode.py`, `src/plugins/student_mode.py`)
 
-## Codebase Map (Initial)
-- Workspace: `E:\AIF_Project`
-- Agents Directory: `E:\AIF_Project\.agents`
-- Subagent Directory Pattern: `E:\AIF_Project\.agents\<agent_dir>`
-
-## Active State
-- Milestone: M1 (Legacy Cleanup) - Exploration starting
-- Subagents: Dispatching 3 Explorers
+## Key System Requirements & Constraints
+- No mocks, stubs, or dummy implementations. All code must be production-grade.
+- PyInstaller bundling for `server.py`. Entry script checks `models/Qwen2-VL-2B-Instruct-Q4_K_M.gguf`, downloads via `huggingface_hub` from `bartowski/Qwen2-VL-2B-Instruct-GGUF` if missing.
+- Boots `llama-server` with SYCL backend params and launches `server.py` on port 8765.
+- Teach Mode: interactive override capturing screen $(x,y)$, screenshot, context buffer -> `dataset/shadow_dataset.jsonl`.
+- Safety boundary: check restricted zones from `config/safety_rules.json` -> log breaches to `dataset/safety_audit.jsonl`.
+- Plugin Ecosystem: `src/plugin_manager.py` using `importlib` and `pkgutil` dynamically loading `BaseForgePlugin` implementations in `src/plugins/`.

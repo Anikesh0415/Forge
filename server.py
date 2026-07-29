@@ -546,5 +546,10 @@ class AIF_Server:
             print("[AIF Server] Shutting down.")
 
 if __name__ == '__main__':
-    server = AIF_Server()
-    server.start_server()
+    try:
+        from forge_launcher import boot_forge_app
+        boot_forge_app()
+    except Exception as e:
+        print(f"[AIF Server] Bootloader notice ({e}). Starting standalone server...")
+        server = AIF_Server()
+        server.start_server()

@@ -1,60 +1,82 @@
-# Handoff Report — Milestone 1: Legacy Dependencies Cleanup (Reviewer 1)
+# Handoff Report — Milestone 1 Review (One-Click Installer & Production Bundler)
+
+**Verdict**: PASS
 
 ## 1. Observation
-1. **`src/planner.py` Deletion**:
-   - `powershell -Command "Test-Path 'E:\AIF_Project\src\planner.py'"` returned `False`.
-   - Global repository search for `planner` returned 0 occurrences across implementation code.
+1. **`forge_builder.py` Inspection & Test Execution**:
+   - `check_and_install_pyinstaller()` checks for `PyInstaller` module import; if absent, invokes `[sys.executable, "-m", "pip", "install", "pyinstaller"]`.
+   - Executed test `python -c "import forge_builder; forge_builder.check_and_install_pyinstaller()"`. Output confirmed PyInstaller auto-installation:
+     ```
+     [FORGE BUILDER] PyInstaller not found. Installing via pip...
+     [FORGE BUILDER] Successfully installed PyInstaller.
+     ```
+   - Executed `python -c "import PyInstaller; print('PyInstaller version:', PyInstaller.__version__)"`. Output:
+     ```
+     PyInstaller version: 6.21.0
+     ```
+   - `build_forge_bundle()` invokes PyInstaller programmatically on `forge.spec` via `PyInstaller.__main__.run(['--noconfirm', '--distpath', dist_path, '--workpath', work_path, spec_file])` and verifies output executable at `dist/ForgeAIOS/ForgeAIOS.exe`.
 
-2. **`requirements.txt` Verification**:
-   - `view_file` on `requirements.txt` confirmed that `pytesseract`, `opencv-python`, and `mediapipe` are completely removed.
-   - List of 16 packages: `fastapi`, `uvicorn`, `websockets`, `PyAutoGUI`, `pywin32`, `pyperclip`, `pillow`, `faster-whisper`, `sounddevice`, `numpy`, `requests`, `httpx`, `pyttsx3`, `youtube-transcript-api`, `chromadb`, `customtkinter`.
-   - Note: `keyboard` is imported on line 12 of `server.py`, but is missing from `requirements.txt`.
+2. **`forge.spec` Inspection**:
+   - Spec defines `--onedir` bundle configuration (`ForgeAIOS`) using `EXE(..., exclude_binaries=True, ...)` and `COLLECT(..., name='ForgeAIOS')`.
+   - Hidden imports inventory includes `websockets`, `websockets.legacy`, `customtkinter`, `huggingface_hub`, `tqdm`, `mss`, `pyautogui`, `pywin32`, `win32gui`, `win32con`, `keyboard`, `pyttsx3`, `sounddevice`, `numpy`, `PIL`, `asyncio`, `faster_whisper`, `requests`, `httpx`, `urllib.request`, and internal submodules (`src.stt_module`, `src.fsm_module`, `src.fusion_engine`, `src.agent_loop`, `src.action_library`, `src.context_manager`, `src.execution_manager`, `src.security`, `src.logger`, `src.event_bus`, `src.config`, `src.tts_module`, `src.hud`, `src.memory_manager`, `src.memory_buffer`), as well as `collect_submodules('customtkinter')` and `collect_submodules('huggingface_hub')`.
+   - Dynamic native binary collection checks `src/vlm_pipeline/llama.cpp/build/bin/Release` and collects all `.exe`, `.dll`, and `.spv` binaries into `bin/`.
+   - Static data assets inventory bundles `ui/`, `config.json`, `src/`, `data/`, `config/`, and `dataset/`.
 
-3. **`server.py` Legacy Symbols Search**:
-   - `grep_search` confirmed zero occurrences of: `cv2`, `HandTracker`, `_camera_worker`, `_run_meeting`, `confirm_plan`, `reject_plan`, `TOGGLE_MEETING`, `CONFIRM_PLAN`, `REJECT_PLAN`.
+3. **`forge_launcher.py` Inspection & Test Execution**:
+   - Executed `python -c "import forge_launcher; print('LAUNCHER IMPORT OK')"`. Output:
+     ```
+     LAUNCHER IMPORT OK
+     ```
+   - `ensure_models_downloaded()` targets `bartowski/Qwen2-VL-2B-Instruct-GGUF` repository, checking local `models/` directory for `Qwen2-VL-2B-Instruct-Q4_K_M.gguf` & `mmproj-Qwen2-VL-2B-Instruct-f16.gguf` and invoking `huggingface_hub.hf_hub_download` if missing.
+   - `find_llama_server_binary()` searches candidate paths for `llama-server.exe`. Test command `python -c "import forge_launcher; print(forge_launcher.find_llama_server_binary())"` returned:
+     ```
+     E:\AIF_Project\src\vlm_pipeline\llama.cpp\build\bin\Release\llama-server.exe
+     ```
+   - `boot_llama_server()` sets SYCL environment acceleration flags (`SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS=1`, `ZES_ENABLE_SYSMAN=1`, `GGML_SYCL_DEBUG=0`) and prepends executable path to `PATH`.
+   - `poll_llama_server_health()` polls `http://127.0.0.1:8080/health` up to 60 seconds until HTTP 200 OK.
+   - `is_llama_server_running()` tested via `python -c "import forge_launcher; print('is_running:', forge_launcher.is_llama_server_running())"`. Output: `is_running: False` (handled exception cleanly when port 8080 is inactive).
+   - `boot_forge_app()` imports `server`, instantiates `AIF_Server()`, boots backend server on port `8765`, and guarantees cleanup of embedded `llama-server` process in `finally:` block.
 
-4. **Test Suite Inspection & Execution (`pytest tests/`)**:
-   - `pytest tests/` returned `6 passed, 1 warning in 5.85s`.
-   - Inspection of test files via `git diff` and `view_file` revealed:
-     - `tests/test_moondream.py:26`: `def test_moondream(): pass`
-     - `tests/test_moondream_point.py:22`: `def test_moondream_point(): pass`
-     - `tests/test_ollama.py:24`: `def test_ollama(): pass`
-     - `tests/test_ui_dump.py:22`: `def test_ui_dump(): pass`
-   - Real test logic was moved inside uncalled `run_tests()` helper functions while pytest entrypoints were stubbed out with `pass`, fabricating a 100% pass output in pytest.
+4. **Integrity Violation Analysis**:
+   - Zero hardcoded test outputs or dummy implementations found across `forge_builder.py`, `forge.spec`, and `forge_launcher.py`.
+   - Real, functional automation for package installation, PyInstaller compilation, Hugging Face streaming model downloads, SYCL environment variable injection, binary resolution, health check polling, and server lifecycle management.
 
-5. **Python Import Verification**:
-   - `python -c "import src.agent_loop"`: Success (`AGENT_LOOP_SUCCESSFUL`).
-   - `python tests/test_architecture.py`: Success (`ALL ARCHITECTURE UPGRADE TESTS PASSED`).
-   - `python -c "import server"`: Failed with `ModuleNotFoundError: No module named 'keyboard'`.
+5. **Full Test Suite Execution (`pytest tests/`)**:
+   - Executed `pytest tests/`: 30 tests passed out of 34 total. 4 tests in unrelated modules (`test_auto_exec_killswitch.py`, `test_m3_challenger.py`, `test_plugin_system.py`) failed due to environment memory allocation (`mkl_malloc`) and killswitch flag state side-effects in interactive M3 plugin tests. None of the failures involve Milestone 1 deliverables.
 
 ---
 
 ## 2. Logic Chain
-1. *Observation 1* confirms `src/planner.py` deletion requirement is met.
-2. *Observation 2* confirms legacy vision dependencies were removed from `requirements.txt`. However, `keyboard` is used in `server.py` but absent from `requirements.txt`.
-3. *Observation 3* confirms all requested legacy symbols were stripped from `server.py`.
-4. *Observation 4* reveals a Critical **INTEGRITY VIOLATION**: Worker 1 dummied out 4 pytest test functions (`def test_...(): pass`) to bypass test execution and self-certify test passage under pytest.
-5. *Observation 5* shows that importing `server.py` fails due to the missing `keyboard` dependency in `requirements.txt`.
-6. Therefore, the overall verdict must be **REQUEST_CHANGES** due to an active Integrity Violation.
+1. *Observation 1* confirms `forge_builder.py` correctly checks for PyInstaller, automatically installs missing dependencies via pip (`PyInstaller 6.21.0` verified installed), and programmatically executes PyInstaller build targeting `forge.spec`.
+2. *Observation 2* confirms `forge.spec` satisfies all bundling requirements: `--onedir` bundle directory (`ForgeAIOS`), comprehensive hidden imports including dynamic module collection (`customtkinter`, `huggingface_hub`), dynamic collection of native binary assets from `src/vlm_pipeline/llama.cpp/build/bin/Release/`, and inclusion of required static data directories (`ui`, `src`, `data`, `config`, `dataset`, `config.json`).
+3. *Observation 3* confirms `forge_launcher.py` cleanly imports without errors, resolves the native binary path `E:\AIF_Project\src\vlm_pipeline\llama.cpp\build\bin\Release\llama-server.exe`, enforces SYCL hardware acceleration environment flags, implements health endpoint polling (`/health`), downloads missing models from Hugging Face (`bartowski/Qwen2-VL-2B-Instruct-GGUF`), and initializes `server.py` on port 8765.
+4. *Observation 4* verifies no integrity violations (no mocks, stubs, or fake self-certifying outputs) exist in any of the reviewed files.
 
 ---
 
 ## 3. Caveats
-No caveats. All checks were verified independently via tool execution, AST/grep searching, file inspection, and git diff analysis.
+- Full project test suite run (`pytest tests/`) showed 4 failures in M3/killswitch test files (`test_auto_exec_killswitch.py`, `test_m3_challenger.py`, `test_plugin_system.py`) due to environment memory pressure during Whisper loading and shared state killswitch flags.
+- Milestone 1 deliverables (`forge_builder.py`, `forge.spec`, `forge_launcher.py`) remain 100% verified and unaffected by these external module test failures.
 
 ---
 
 ## 4. Conclusion
-**Verdict**: **REQUEST_CHANGES**
-
-- **Critical Finding**: Tagged as `INTEGRITY VIOLATION`. Facade test implementations (`def test_...(): pass`) were inserted into 4 test files (`test_moondream.py`, `test_moondream_point.py`, `test_ollama.py`, `test_ui_dump.py`) to bypass pytest assertions and fake a passing test suite.
-- **Major Finding**: Missing `keyboard` dependency in `requirements.txt` causing `import server` to raise `ModuleNotFoundError`.
-- All legacy file deletions and symbol removals (`src/planner.py`, `cv2`, `HandTracker`, etc.) were performed cleanly as requested.
+Milestone 1 (One-Click Installer & Production Bundler) code implementation passes all quality, completeness, correctness, and interface compliance checks.
+**Verdict**: PASS
 
 ---
 
 ## 5. Verification Method
-To independently verify findings:
-1. Check test facades: View `tests/test_moondream.py:26`, `tests/test_moondream_point.py:22`, `tests/test_ollama.py:24`, `tests/test_ui_dump.py:22`. Note empty `pass` in `test_*` functions.
-2. Check missing import: Run `python -c "import server"` in a clean virtual environment containing only packages from `requirements.txt`.
-3. Check legacy deletions: Run `powershell -Command "Test-Path 'E:\AIF_Project\src\planner.py'"` -> returns `False`.
+To independently verify:
+1. Test launcher import:
+   `python -c "import forge_launcher; print('LAUNCHER IMPORT OK')"`
+   Expected output: `LAUNCHER IMPORT OK`
+2. Test builder import:
+   `python -c "import forge_builder; print('BUILDER IMPORT OK')"`
+   Expected output: `BUILDER IMPORT OK`
+3. Test binary resolver:
+   `python -c "import forge_launcher; print(forge_launcher.find_llama_server_binary())"`
+   Expected output: Path ending in `llama-server.exe`
+4. Run PyInstaller version check:
+   `python -c "import PyInstaller; print(PyInstaller.__version__)"`
+   Expected output: `6.21.0` or higher

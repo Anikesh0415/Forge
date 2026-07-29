@@ -1,32 +1,36 @@
 # Original User Request
 
-## 2026-07-25T17:06:25Z
+## 2026-07-27T21:37:36Z
 
-Refactor the Forge UI architecture to replace the legacy MultiStagePlanner and multi-model backend with a unified VLM pipeline featuring an auto-execution loop and emergency killswitch.
+<USER_REQUEST>
+You are the Project Orchestrator for Forge AI OS consumer features project.
+Working directory: E:\AIF_Project\.agents\orchestrator
+Project root: E:\AIF_Project
+User request file: E:\AIF_Project\.agents\ORIGINAL_REQUEST.md
 
-Working directory: `E:\AIF_Project`
-Integrity mode: development
+Your mission is to manage the end-to-end implementation of all features and acceptance criteria specified in `ORIGINAL_REQUEST.md`:
+1. Cross-Platform One-Click Installer & Production Bundler (`forge_builder.py`, `forge.spec`)
+2. Teach Mode & Safety Boundary Logging Infrastructure (`src/agent_loop.py`, `src/safety_logger.py`, `dataset/shadow_dataset.jsonl`, `config/safety_rules.json`, `dataset/safety_audit.jsonl`)
+3. Dynamic Plugin Ecosystem (`src/plugin_manager.py`, `src/plugins/dev_mode.py`, `src/plugins/student_mode.py`)
 
-## Requirements
+Please read `E:\AIF_Project\.agents\ORIGINAL_REQUEST.md` to begin planning and decomposing tasks for specialized worker subagents.
+Create your directory `E:\AIF_Project\.agents\orchestrator` if it doesn't exist, and maintain `progress.md`, `plan.md`, and `context.md` there.
+Ensure all implementations are production-grade (no mocks, stubs, or dummy implementations).
+When all requirements and acceptance criteria are fully met and verified, report project completion to the Sentinel.
+</USER_REQUEST>
 
-### R1. Remove Legacy Dependencies
-Delete `src/planner.py`, remove `ollama` and vision dependencies from `requirements.txt`, and strip legacy backend API routes and state logic from `server.py`.
+## 2026-07-27T21:58:38Z
 
-### R2. Wire Unified VLM
-Modify `server.py` and `src/agent_loop.py` so that a `TEXT_INPUT` event snaps a screenshot and passes it alongside the user instruction to the new VLM inference wrapper, bypassing the old `plan_task()` logic.
+<USER_REQUEST>
+Resume work at E:\AIF_Project\.agents\orchestrator. Read handoff.md, BRIEFING.md, ORIGINAL_REQUEST.md, PROJECT.md, and progress.md for current state.
+Your parent is c2f1b523-fec5-45d2-9400-c16b15cfff71 — use this ID for all escalation and status reporting (send_message).
 
-### R3. Implement Auto-Execution & Killswitch
-Execute the parsed JSON action plan immediately by default. Add a 1.5-second UI toast delay ("Executing: [Action] in 1.5s... [Press ESC to Cancel]") and a global Python listener (ESC key) that halts pyautogui execution.
+Your mission (Generation 2 Orchestrator):
+1. Review Generation 1 soft handoff in handoff.md, BRIEFING.md, and PROJECT.md.
+2. Execute Milestone 4: E2E Integration & Verification across all Consumer Features:
+   - Run unit and architecture test suite (`pytest tests/test_safety_logger.py tests/test_plugin_system.py tests/test_architecture.py -v`).
+   - Run installer builder check (`python -c "import forge_builder, forge_launcher; print('BUILDER OK')"`).
+   - Dispatch a Forensic Auditor (`teamwork_preview_auditor`) for final overall integrity verification across all files.
+3. Upon 100% verification, report project completion to the Sentinel (`parent`, conversation ID `c2f1b523-fec5-45d2-9400-c16b15cfff71`).
+</USER_REQUEST>
 
-### R4. Version Control
-Stage all modified files, commit with a specific refactor message, and push to the `main` branch.
-
-## Acceptance Criteria
-
-### Execution & Integration
-- [ ] `src/planner.py` no longer exists and legacy routing logic is removed from `server.py`.
-- [ ] `TEXT_INPUT` events successfully trigger the VLM inference wrapper instead of the old planner.
-- [ ] Valid VLM JSON outputs are automatically passed to the execution script without requiring a manual "Confirm" step.
-- [ ] A 1.5-second delay occurs before execution, during which pressing the ESC key aborts the action.
-- [ ] SYCL execution flags remain intact in the new VLM invocation logic.
-- [ ] Changes are successfully committed and pushed to the remote repository.

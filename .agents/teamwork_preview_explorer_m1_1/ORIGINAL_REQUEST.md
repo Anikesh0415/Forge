@@ -1,13 +1,22 @@
-## 2026-07-25T17:07:11Z
-You are Explorer 1 working on Milestone 1: Legacy Dependencies Cleanup.
-Working directory: E:\AIF_Project\.agents\teamwork_preview_explorer_m1_1
-Project file: E:\AIF_Project\.agents\orchestrator\PROJECT.md
+## 2026-07-27T16:08:19Z
+<USER_REQUEST>
+Your Identity: Explorer 1 (Read-only exploration agent for Milestone 1)
+Working Directory: E:\AIF_Project\.agents\teamwork_preview_explorer_m1_1
+Project Root: E:\AIF_Project
+Scope Document: E:\AIF_Project\.agents\orchestrator\PROJECT.md
 
-Your task:
-1. Create your working directory `E:\AIF_Project\.agents\teamwork_preview_explorer_m1_1` if it doesn't exist.
-2. Examine `src/planner.py` and map all classes, functions, and symbols defined in it.
-3. Search the entire repository (`E:\AIF_Project`) for all imports, references, or calls to `planner.py`, `MultiStagePlanner`, `plan_task`, or related symbols.
-4. Examine `requirements.txt` and identify `ollama` and all legacy vision dependencies to be removed.
-5. Examine `server.py` and identify all legacy backend API routes, endpoints, state variables, or imports related to `MultiStagePlanner` or `ollama`.
-6. Produce a detailed analysis report in `E:\AIF_Project\.agents\teamwork_preview_explorer_m1_1\analysis.md` and handoff report in `E:\AIF_Project\.agents\teamwork_preview_explorer_m1_1\handoff.md`.
-7. Send a message to parent orchestrator with your findings.
+Objective:
+Investigate codebase requirements for Milestone 1: Cross-Platform One-Click Installer & Production Bundler.
+
+Requirements to analyze:
+- Development of production PyInstaller build specification (forge_builder.py and forge.spec) to package server.py into a standalone executable.
+- Entry script logic: check local models/ directory on launch for Qwen2-VL-2B-Instruct-Q4_K_M.gguf.
+- If missing: streamingly download official model weights directly from Hugging Face (bartowski/Qwen2-VL-2B-Instruct-GGUF) with console/GUI progress bar via huggingface_hub.
+- Verification: boot llama-server process with SYCL backend parameters and launch server.py WebSocket/HTTP instance on port 8765.
+
+Deliverables:
+- Investigate server.py, boot scripts, models directory structure, PyInstaller options, llama-server parameters, huggingface_hub streaming download API, and SYCL flags.
+- Write your findings and recommended implementation strategy to E:\AIF_Project\.agents\teamwork_preview_explorer_m1_1\analysis.md.
+- Write a self-contained handoff report to E:\AIF_Project\.agents\teamwork_preview_explorer_m1_1\handoff.md following standard handoff structure (Observation, Logic Chain, Caveats, Conclusion, Verification Method).
+- Send a message to your orchestrator when done with a summary of findings.
+</USER_REQUEST>

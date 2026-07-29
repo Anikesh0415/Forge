@@ -1,49 +1,58 @@
-# BRIEFING — 2026-07-25T22:52:35+05:30
+# BRIEFING — 2026-07-27T21:59:55Z
 
 ## Mission
-Review Milestone 1: Legacy Dependencies Cleanup for Servent-AI project.
+Perform adversarial static analysis, edge-case evaluation, and build verification for Milestone 1 (`forge_builder.py`, `forge.spec`, `forge_launcher.py`).
 
 ## 🔒 My Identity
-- Archetype: reviewer_critic
+- Archetype: Reviewer 2
 - Roles: reviewer, critic
 - Working directory: E:\AIF_Project\.agents\teamwork_preview_reviewer_m1_2
-- Original parent: e0f9a2e6-26d3-4690-9585-825fa7019c93
-- Milestone: Milestone 1: Legacy Dependencies Cleanup
-- Instance: 2 of 2 (Reviewer 2)
+- Original parent: 13d5f790-b98e-44aa-9762-d6e2f8be1ce4
+- Milestone: Milestone 1
+- Instance: 2 of 2
 
 ## 🔒 Key Constraints
-- Review-only — do NOT modify implementation code
-- Code-only network access (no external network calls)
-- Check for integrity violations actively
+- Review-only — do NOT modify implementation code.
+- Report any failure, defect, or vulnerability as findings with PASS or REQUEST_CHANGES verdict.
+- Write handoff report to `E:\AIF_Project\.agents\teamwork_preview_reviewer_m1_2\handoff.md`.
+- Send message to parent orchestrator (`13d5f790-b98e-44aa-9762-d6e2f8be1ce4`) when done.
 
 ## Current Parent
-- Conversation ID: e0f9a2e6-26d3-4690-9585-825fa7019c93
-- Updated: 2026-07-25T22:52:35+05:30
+- Conversation ID: 13d5f790-b98e-44aa-9762-d6e2f8be1ce4
+- Updated: 2026-07-27T21:59:55Z
 
 ## Review Scope
-- **Files to review**: E:\AIF_Project repository, specifically src/ and tests/, and worker 1 handoff: E:\AIF_Project\.agents\teamwork_preview_worker_m1_1\handoff.md
-- **Interface contracts**: E:\AIF_Project\.agents\orchestrator\PROJECT.md
-- **Review criteria**: Dangling references removal, interface conformance, clean imports, pytest passing, integrity violation checks
-
-## Key Decisions Made
-- Confirmed deletion of `src/planner.py`
-- Verified clean removal of `src.planner`, `MultiStagePlanner`, `planner_instance`
-- Verified clean import of `src/agent_loop.py`
-- Verified pytest results (6 passed)
-- Checked for integrity violations (none found)
-- Issued verdict: PASS / APPROVE
-
-## Artifact Index
-- E:\AIF_Project\.agents\teamwork_preview_reviewer_m1_2\ORIGINAL_REQUEST.md — Original request log
-- E:\AIF_Project\.agents\teamwork_preview_reviewer_m1_2\review.md — Detailed review report
-- E:\AIF_Project\.agents\teamwork_preview_reviewer_m1_2\handoff.md — 5-component handoff report
+- **Files to review**: `forge_builder.py`, `forge.spec`, `forge_launcher.py`
+- **Interface contracts**: `E:\AIF_Project\.agents\orchestrator\PROJECT.md`
+- **Worker handoff**: `E:\AIF_Project\.agents\teamwork_preview_worker_m1_1\handoff.md`
 
 ## Review Checklist
-- **Items reviewed**: `src/planner.py` deletion, `requirements.txt`, `server.py`, `src/agent_loop.py`, `tests/`
-- **Verdict**: PASS / APPROVE
-- **Unverified claims**: None remaining
+- **Items reviewed**: `forge_builder.py`, `forge.spec`, `forge_launcher.py`
+- **Verdict**: REQUEST_CHANGES
+- **Unverified claims**:
+  - Missing llama-server binary handling (FAILED: raises unhandled FileNotFoundError)
+  - Process cleanup robustness (FAILED: llama_proc leaked if exception occurs in polling or import)
+  - Health check verification (FAILED: return value ignored)
+  - Port conflict resilience (FAILED: port 8080 collision causes crash)
+  - Path search security (FAILED: BASE_DIR prepended to sys.path risks module sideloading)
 
 ## Attack Surface
-- **Hypotheses tested**: Dangling imports in src/tests, broken imports, missing dependencies, hardcoded outputs, fake pytest execution
-- **Vulnerabilities found**: None in core logic (2 minor findings noted in review.md)
-- **Untested angles**: UI JS event cleanup (scheduled for M2/M3)
+- **Hypotheses tested**:
+  1. Missing `llama-server.exe` execution -> Result: `FileNotFoundError` unhandled crash in `subprocess.Popen`.
+  2. Exception during health polling -> Result: `llama_proc` leaked since `try...finally` is outer-scoped to server start.
+  3. Health check timeout -> Result: `poll_llama_server_health` return value ignored, proceeds to server boot.
+  4. Port 8080 conflict with non-llama process -> Result: `is_llama_server_running` returns `False`, Popen fails to bind port.
+  5. Module import path priority -> Result: `BASE_DIR` at `sys.path[0]` enables local file hijacking.
+  6. Arbitrary CWD launch -> Result: Relative paths in backend fail without `os.chdir`.
+- **Vulnerabilities found**: 2 Major process/crash bugs, 2 Major logic defects, 2 Medium security/working directory issues.
+- **Untested angles**: Full PyInstaller compilation cycle execution (requires external build dependencies and time, verified spec structure statically).
+
+## Key Decisions Made
+- Executed import verification command (`python -c "import forge_builder, forge_launcher; print('MODULES VALID')"`), passed.
+- Completed static analysis and edge-case stress testing on `forge_builder.py`, `forge.spec`, `forge_launcher.py`.
+- Issued verdict: REQUEST_CHANGES based on 6 identified findings.
+
+## Artifact Index
+- `E:\AIF_Project\.agents\teamwork_preview_reviewer_m1_2\ORIGINAL_REQUEST.md` — Original request text
+- `E:\AIF_Project\.agents\teamwork_preview_reviewer_m1_2\BRIEFING.md` — Agent briefing index
+- `E:\AIF_Project\.agents\teamwork_preview_reviewer_m1_2\handoff.md` — Final review handoff report

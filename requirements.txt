@@ -15,4 +15,5 @@ youtube-transcript-api
 chromadb
 customtkinter
 keyboard
-
+huggingface_hub
+pyinstaller

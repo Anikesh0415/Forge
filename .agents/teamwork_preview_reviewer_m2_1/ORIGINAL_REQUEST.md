@@ -1,13 +1,27 @@
-## 2026-07-25T17:23:29Z
-You are Reviewer 3 reviewing Milestone 2: Wire Unified VLM Pipeline.
-Working directory: E:\AIF_Project\.agents\teamwork_preview_reviewer_m2_1
-Worker 2 handoff: E:\AIF_Project\.agents\teamwork_preview_worker_m2_1\handoff.md
-PROJECT.md: E:\AIF_Project\.agents\orchestrator\PROJECT.md
+## 2026-07-27T16:18:19Z
+<USER_REQUEST>
+Your Identity: Reviewer 1 (Reviewer agent for Milestone 2: Teach Mode & Safety Boundary Logging Infrastructure)
+Working Directory: E:\AIF_Project\.agents\teamwork_preview_reviewer_m2_1
+Project Root: E:\AIF_Project
+Scope Document: E:\AIF_Project\.agents\orchestrator\PROJECT.md
+Worker Handoff: E:\AIF_Project\.agents\teamwork_preview_worker_m2_1\handoff.md
 
-Your task:
-1. Create your working directory `E:\AIF_Project\.agents\teamwork_preview_reviewer_m2_1`.
-2. Inspect `src/agent_loop.py` and `server.py` to verify that `TEXT_INPUT` events trigger `run_vlm_inference()` with desktop screenshot + instruction, bypassing legacy `plan_task()`.
-3. Verify that SYCL execution environment flags (`SYCL_PI_LEVEL_ZERO_USE_IMMEDIATE_COMMANDLISTS=1`, `ZES_ENABLE_SYSMAN=1`, `GGML_SYCL_DEBUG=0`) are preserved in VLM invocation.
-4. Run `pytest tests/` and ensure all unit tests pass cleanly without dummy stubs or facade implementations.
-5. Write your review report in `E:\AIF_Project\.agents\teamwork_preview_reviewer_m2_1\review.md` and handoff report in `E:\AIF_Project\.agents\teamwork_preview_reviewer_m2_1\handoff.md`.
-6. Send a message to parent orchestrator with your verdict (PASS/FAIL) and findings.
+Objective:
+Review and verify code implementation and test coverage for Milestone 2 (Teach Mode & Safety Boundary Logging Infrastructure).
+
+Scope to review:
+- `config/safety_rules.json`: Desktop restricted zones, command blacklists, restricted app titles.
+- `src/safety_logger.py`: `SafetyLogger` class (`check_boundary_violation`, `log_shadow_record`, `log_safety_audit`).
+- `src/agent_loop.py`: `safety_logger.check_boundary_violation` guardrail integration in `execute_task_plan`, `handle_interactive_override`, screenshot cropping (`crop_target_element`), pixel error calculation, context history buffer exposure (`ActionBuffer.get_history()`).
+- `src/shadow_mode.py`: Record routing to `safety_logger.log_shadow_record`.
+- `tests/test_safety_logger.py`: Unit and integration test suite.
+
+Requirements to verify:
+1. Production-grade implementation (no mocks, stubs, or dummy implementations in production modules).
+2. JSON schemas for `dataset/shadow_dataset.jsonl` (`timestamp`, `screen_dim`, `user_action`, `model_prediction`, `error_delta_px`, `context_history`) and `dataset/safety_audit.jsonl` (`timestamp`, `violation_type`, `action_payload`, `matched_rule`, `blocked`).
+3. Run test suite (`pytest tests/test_safety_logger.py`) and record outcomes.
+
+Deliverables:
+Write handoff report to `E:\AIF_Project\.agents\teamwork_preview_reviewer_m2_1\handoff.md` with verdict (PASS or REQUEST_CHANGES), test command outputs, code analysis, and findings.
+Send a message to your orchestrator when done.
+</USER_REQUEST>
