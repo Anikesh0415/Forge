@@ -12,6 +12,7 @@ from src.vlm_pipeline.tests.run_inference import run_vlm_inference
 from src.memory_buffer import ActionBuffer
 from src.plugin_manager import PluginManager
 from src.safety_logger import safety_logger
+from src.aria_planner import AriaPlanner
 
 # Configuration Constants
 ACTION_PAUSE         = 0.5   # seconds after standard actions
@@ -25,6 +26,7 @@ exec_mgr    = ExecutionManager()
 action_buffer = ActionBuffer(max_length=5)
 plugin_manager = PluginManager()
 plugin_manager.discover_plugins()
+aria_planner = AriaPlanner(memory_mgr, plugin_manager)
 
 
 def capture_screenshot(output_path: str = "temp_screenshot.png") -> str:
@@ -158,9 +160,8 @@ def handle_interactive_override(
 
 async def plan_task(instruction: str, update_callback=None, ctx_summary: str = None) -> list:
     """
-    Generates action plan using unified VLM pipeline (run_vlm_inference).
-    Snaps desktop screenshot and passes screenshot path + instruction to VLM.
-    Preserves all SYCL execution flags set in run_vlm_inference.
+    Generates action plan using AriaPlanner.
+    Snaps desktop screenshot and passes it to the planner.
     """
     callback = update_callback if callable(update_callback) else None
 
@@ -169,7 +170,7 @@ async def plan_task(instruction: str, update_callback=None, ctx_summary: str = N
         if callback:
             callback(msg)
 
-    notify(f"[TRACE] Analyzing instruction with VLM: '{instruction}'...")
+    notify(f"[TRACE] Analyzing instruction with ARIA Planner: '{instruction}'...")
 
     # 1. Capture Desktop Screenshot
     screenshot_path = capture_screenshot("temp_screenshot.png")
@@ -180,26 +181,11 @@ async def plan_task(instruction: str, update_callback=None, ctx_summary: str = N
         pyautogui.press('esc')
         action_buffer.clear()
         
-    context_str = action_buffer.get_context_string()
-    if context_str:
-        instruction = f"{instruction}\n\n{context_str}"
+    context_history = action_buffer.get_history()
 
-    # 2. Run VLM Inference (SYCL flags configured inside run_vlm_inference)
-    notify("[TRACE] Running unified VLM inference pipeline...")
-    vlm_result = run_vlm_inference(screenshot_path, instruction)
-
-    # Parse returned action dictionary/list into plan list
-    if isinstance(vlm_result, list):
-        plan = vlm_result
-    elif isinstance(vlm_result, dict):
-        if "plan" in vlm_result and isinstance(vlm_result["plan"], list):
-            plan = vlm_result["plan"]
-        elif "actions" in vlm_result and isinstance(vlm_result["actions"], list):
-            plan = vlm_result["actions"]
-        else:
-            plan = [vlm_result]
-    else:
-        plan = [{"raw_output": str(vlm_result)}]
+    # 2. Run ARIA Planner
+    notify("[TRACE] Running unified ARIA inference pipeline...")
+    plan = aria_planner.generate_plan(instruction, screenshot_path, context_history)
 
     notify(f"[TRACE] VLM Action Plan generated: {plan}")
     return plan
