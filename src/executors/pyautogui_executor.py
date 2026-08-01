@@ -23,6 +23,8 @@ class PyAutoGUIExecutor(BaseExecutor):
     def can_handle(self, action_type: str, step_data: dict) -> bool:
         from src.action_library import action_registry
 
+        if action_type.lower() in ["type", "press", "sleep"]:
+            return True
         return action_type.lower() in action_registry.actions
 
     async def execute(self, action_type: str, step_data: dict) -> tuple[bool, str]:
@@ -38,15 +40,24 @@ class PyAutoGUIExecutor(BaseExecutor):
                 msg = navigate_browser(url)
                 return True, msg
 
-            elif action_type == "type_text":
+            elif action_type == "type_text" or action_type == "type":
                 text = step_data.get("text", "")
+                if not text:
+                    text = step_data.get("target", "")
                 msg = type_action(text)
                 return True, msg
 
-            elif action_type == "key_shortcut":
+            elif action_type == "key_shortcut" or action_type == "press":
                 keys = step_data.get("keys") or step_data.get("key", "")
+                if not keys:
+                    keys = step_data.get("target", "")
                 msg = key_action(keys)
                 return True, msg
+
+            elif action_type == "sleep":
+                t = step_data.get("time", 1)
+                time.sleep(float(t))
+                return True, f"Slept for {t}s"
 
             elif action_type == "search_web":
                 query = step_data.get("query") or step_data.get("target", "")

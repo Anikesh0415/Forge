@@ -12,7 +12,7 @@ from src.vlm_pipeline.tests.run_inference import run_vlm_inference
 from src.memory_buffer import ActionBuffer
 from src.plugin_manager import PluginManager
 from src.safety_logger import safety_logger
-from src.aria_planner import AriaPlanner
+from src.forge_orchestrator import ForgeOrchestrator
 
 # Configuration Constants
 ACTION_PAUSE         = 0.5   # seconds after standard actions
@@ -26,7 +26,7 @@ exec_mgr    = ExecutionManager()
 action_buffer = ActionBuffer(max_length=5)
 plugin_manager = PluginManager()
 plugin_manager.discover_plugins()
-aria_planner = AriaPlanner(memory_mgr, plugin_manager)
+orchestrator = ForgeOrchestrator(memory_mgr, plugin_manager)
 
 
 def capture_screenshot(output_path: str = "temp_screenshot.png") -> str:
@@ -160,8 +160,7 @@ def handle_interactive_override(
 
 async def plan_task(instruction: str, update_callback=None, ctx_summary: str = None) -> list:
     """
-    Generates action plan using AriaPlanner.
-    Snaps desktop screenshot and passes it to the planner.
+    Generates action plan using Forge Orchestrator.
     """
     callback = update_callback if callable(update_callback) else None
 
@@ -170,9 +169,8 @@ async def plan_task(instruction: str, update_callback=None, ctx_summary: str = N
         if callback:
             callback(msg)
 
-    notify(f"[TRACE] Analyzing instruction with ARIA Planner: '{instruction}'...")
+    notify(f"[TRACE] Analyzing instruction with Orchestrator: '{instruction}'...")
 
-    # 1. Capture Desktop Screenshot
     screenshot_path = capture_screenshot("temp_screenshot.png")
     notify(f"[TRACE] Screenshot captured to {screenshot_path}")
 
@@ -184,11 +182,19 @@ async def plan_task(instruction: str, update_callback=None, ctx_summary: str = N
     context_history = action_buffer.get_history()
 
     # 2. Run ARIA Planner
-    notify("[TRACE] Running unified ARIA inference pipeline...")
-    plan = aria_planner.generate_plan(instruction, screenshot_path, context_history)
-
-    notify(f"[TRACE] VLM Action Plan generated: {plan}")
-    return plan
+    notify("[TRACE] Generating Action Plan...")
+    try:
+        # 2. Forge Orchestrator execution
+        action_plan = orchestrator.generate_plan(
+            instruction=instruction, 
+            screenshot_path=screenshot_path,
+            context_history=context_history
+        )
+        notify(f"[TRACE] VLM Action Plan generated: {action_plan}")
+        return action_plan
+    except Exception as e:
+        notify(f"[ERROR] Planning failed: {e}")
+        return []
 
 
 async def execute_task_plan(plan: list, update_callback=None) -> bool:

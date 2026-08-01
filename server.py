@@ -66,9 +66,8 @@ class AIF_Server:
         global _server_instance
         _server_instance = self
 
-        migrate_skills()
         self.fsm = AIF_StateMachine()
-        self.stt = SpeechRecognizer(noise_threshold=NOISE_GATE_THRESHOLD)
+        self.stt = None # Lazy loaded to save RAM
         self.fusion = FusionEngine()
         
         # Core Architectural Managers
@@ -114,7 +113,8 @@ class AIF_Server:
         event_bus.subscribe("update_noise_gate", self.on_noise_gate_update)
         
     def on_noise_gate_update(self, threshold: float):
-        self.stt.noise_threshold = threshold
+        if self.stt:
+            self.stt.noise_threshold = threshold
         logger.info(f"Noise gate updated to {threshold}")
 
     def _load_history(self):
@@ -182,6 +182,11 @@ class AIF_Server:
         while True:
             if self.mode in ["BOTH", "VOICE_ONLY"]:
                 if self.fsm.state == SystemState.IDLE:
+                    if self.stt is None:
+                        print("Initializing STT Model (Lazy Load)...")
+                        from src.stt_module import SpeechRecognizer
+                        self.stt = SpeechRecognizer(noise_threshold=NOISE_GATE_THRESHOLD)
+                        
                     text = self.stt.listen()
                     if text:
                         if self.is_dictating:
@@ -388,12 +393,22 @@ class AIF_Server:
                         elif mode == "CAMERA_ONLY":
                             self.is_listening_mode = False
                             self.is_tracking_mode = True
+                            if hasattr(self, 'stt') and self.stt is not None:
+                                print("Unloading STT Model to save RAM...")
+                                self.stt = None
+                                import gc
+                                gc.collect()
                         elif mode == "VOICE_ONLY":
                             self.is_listening_mode = True
                             self.is_tracking_mode = False
-                        elif mode == "STANDBY":
+                        elif mode == "STANDBY" or mode == "DEVELOPER":
                             self.is_listening_mode = False
                             self.is_tracking_mode = False
+                            if hasattr(self, 'stt') and self.stt is not None:
+                                print("Unloading STT Model to save RAM...")
+                                self.stt = None
+                                import gc
+                                gc.collect()
                         
                         if hasattr(self, 'exec_mgr') and hasattr(self.exec_mgr, 'headless_executor'):
                             self.exec_mgr.headless_executor.llm_core.swap_model(mode)
@@ -505,9 +520,32 @@ class AIF_Server:
             await asyncio.Future()
 
     def start_server(self):
-        # Run WebSocket server in a background thread
-        ws_thread = threading.Thread(target=lambda: asyncio.run(self.main_server()), daemon=True)
-        ws_thread.start()
+        import sys
+        
+        def run_server_sync():
+            try:
+                asyncio.run(self.main_server())
+            except OSError as e:
+                print(f"[AIF Server] FATAL ERROR: Could not bind to port 8765 (is another instance running?). {e}")
+                os._exit(1)
+            except Exception as e:
+                print(f"[AIF Server] FATAL ERROR in server loop: {e}")
+                os._exit(1)
+                
+        try:
+            ws_thread = threading.Thread(target=run_server_sync, daemon=True)
+            ws_thread.start()
+            print("[AIF Server] Started backend WebSocket server on 8765.")
+            
+            # Wait for thread to exit, so main thread doesn't hang forever if ws_thread crashes
+            while ws_thread.is_alive():
+                time.sleep(1)
+            
+            print("[AIF Server] WebSocket thread exited. Shutting down.")
+            os._exit(1)
+        except KeyboardInterrupt:
+            print("[AIF Server] Shutting down.")
+            os._exit(0)
         
         # Check if HUD is enabled in config.json
         enable_hud = False

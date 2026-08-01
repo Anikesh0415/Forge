@@ -78,6 +78,11 @@ def execute_action(action_plan: dict):
             pyautogui.write('https://github.com')
             pyautogui.press('enter')
             
+        elif action == "sleep":
+            t = action_plan.get("time", 1)
+            print(f"Executing: sleep for {t}s")
+            time.sleep(float(t))
+            
         else:
             print(f"Unsupported action type: {action}")
             return False

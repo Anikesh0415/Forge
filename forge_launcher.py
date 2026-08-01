@@ -28,10 +28,8 @@ def get_bundle_dir() -> str:
 BASE_DIR = get_base_dir()
 BUNDLE_DIR = get_bundle_dir()
 MODELS_DIR = os.path.join(BASE_DIR, "models")
-
-REPO_ID = "ggml-org/moondream2-20250414-GGUF"
-MODEL_FILENAME = "moondream2-text-model-f16_ct-vicuna.gguf"
-MMPROJ_FILENAME = "moondream2-mmproj-f16-20250414.gguf"
+REPO_ID = "Qwen/Qwen2.5-3B-Instruct-GGUF"
+MODEL_FILENAME = "qwen2.5-3b-instruct-q4_k_m.gguf"
 
 def ensure_models_downloaded() -> dict:
     """
@@ -41,11 +39,9 @@ def ensure_models_downloaded() -> dict:
     """
     os.makedirs(MODELS_DIR, exist_ok=True)
     model_path = os.path.join(MODELS_DIR, MODEL_FILENAME)
-    mmproj_path = os.path.join(MODELS_DIR, MMPROJ_FILENAME)
     
     required = [
-        (MODEL_FILENAME, model_path),
-        (MMPROJ_FILENAME, mmproj_path)
+        (MODEL_FILENAME, model_path)
     ]
     
     for fname, fpath in required:
@@ -68,8 +64,7 @@ def ensure_models_downloaded() -> dict:
             logger.info(f"[FORGE BOOT] Model weight verified: {fname} ({os.path.getsize(fpath)} bytes)")
             
     return {
-        "model_path": model_path,
-        "mmproj_path": mmproj_path
+        "model_path": model_path
     }
 
 def find_llama_server_binary() -> str:
@@ -134,7 +129,6 @@ def boot_llama_server(model_paths: dict, port: int = 8080, host: str = "127.0.0.
     cmd = [
         llama_exe,
         "-m", model_paths["model_path"],
-        "--mmproj", model_paths["mmproj_path"],
         "--host", host,
         "--port", str(port),
         "-c", "2048",
