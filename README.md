@@ -11,8 +11,20 @@ Forge OS is an incredibly fast, entirely local GUI Agent that acts as the physic
 
 ## Installation 🛠️
 1. Clone this repository.
-2. Run `Start_FORGE_App.bat`.
-3. The system will automatically download the necessary GGUF files and launch the Web UI!
+2. Download the models manually (see Model Installation below).
+3. Run `Start_FORGE_App.bat`.
+4. The system will automatically launch the Web UI!
+
+## Model Installation 📥
+To keep this repository lightweight, the large model files are not included. You must download them manually into the `models/` directory:
+
+**1. Primary Vision Model (Moondream2):**
+- Download `moondream2-text-model-f16_ct-vicuna.gguf` and `moondream2-mmproj-f16-20250414.gguf` from [HuggingFace](https://huggingface.co/vikhyatk/moondream2/tree/main).
+- Place both files inside the `models/` folder.
+
+**2. Optional Advanced Planner (Hermes 8B):**
+- If you wish to use the advanced `ARIA Planner` with a local 8B model instead of Moondream2, download [Hermes-2-Pro-Llama-3-8B-GGUF](https://huggingface.co/NousResearch/Hermes-2-Pro-Llama-3-8B-GGUF).
+- Place the `.gguf` file in the `models/` folder and configure `aria_planner.py` to point to it.
 
 ## Architecture 🧠
 Forge operates on a highly decoupled node system:
