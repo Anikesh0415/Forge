@@ -17,3 +17,4 @@ customtkinter
 keyboard
 huggingface_hub
 pyinstaller
+google-genai

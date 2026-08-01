@@ -500,8 +500,8 @@ class AIF_Server:
     async def main_server(self):
         import asyncio
         self.loop = asyncio.get_running_loop()
-        print("Starting WebSocket Server on ws://0.0.0.0:8765 (Available on Local Network)")
-        async with websockets.serve(self.ws_handler, "0.0.0.0", 8765):
+        print("Starting WebSocket Server on ws://127.0.0.1:8765 (Localhost Only)")
+        async with websockets.serve(self.ws_handler, "127.0.0.1", 8765):
             await asyncio.Future()
 
     def start_server(self):
@@ -538,7 +538,7 @@ class AIF_Server:
             print("[HUD] HUD GUI disabled via config.json. Running in headless background mode.")
 
         # CRITICAL: Keep main thread alive so closing HUD window NEVER terminates the backend!
-        print("[AIF Server] Backend active & listening on ws://0.0.0.0:8765. Press Ctrl+C to stop.")
+        print("[AIF Server] Backend active & listening on ws://127.0.0.1:8765. Press Ctrl+C to stop.")
         try:
             while True:
                 time.sleep(1)

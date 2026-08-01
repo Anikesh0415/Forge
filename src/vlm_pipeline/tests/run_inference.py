@@ -7,6 +7,7 @@ import re
 import urllib.request
 import base64
 
+
 def get_project_root() -> str:
     if getattr(sys, 'frozen', False):
         return os.path.dirname(sys.executable)
@@ -35,12 +36,12 @@ LLAMA_CLI_PATH = find_file([
 ])
 
 MODEL_PATH = find_file([
-    os.path.join("models", "Qwen2-VL-2B-Instruct-Q4_K_M.gguf"),
+    os.path.join("models", "moondream2-text-model-f16_ct-vicuna.gguf"),
     os.path.join("src", "vlm_pipeline", "export", "Forge-VLM-v1-Q4_K_M.gguf"),
 ])
 
 MMPROJ_PATH = find_file([
-    os.path.join("models", "mmproj-Qwen2-VL-2B-Instruct-f16.gguf"),
+    os.path.join("models", "moondream2-mmproj-f16-20250414.gguf"),
     os.path.join("src", "vlm_pipeline", "export", "Forge-VLM-v1-mmproj-f16.gguf"),
 ])
 
@@ -64,6 +65,10 @@ def try_server_inference(image_path: str, prompt: str, port: int = 8080) -> dict
         payload = {
             "messages": [
                 {
+                    "role": "system",
+                    "content": "You are a robotic GUI agent. You must output ONLY a valid JSON action plan. Do not include conversational text or markdown formatting."
+                },
+                {
                     "role": "user",
                     "content": [
                         {"type": "text", "text": prompt},
@@ -72,11 +77,12 @@ def try_server_inference(image_path: str, prompt: str, port: int = 8080) -> dict
                 }
             ],
             "max_tokens": 512,
-            "temperature": 0.1
+            "temperature": 0.3,
+            "frequency_penalty": 0.5
         }
         data_bytes = json.dumps(payload).encode("utf-8")
         req = urllib.request.Request(chat_url, data=data_bytes, headers={"Content-Type": "application/json"})
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=300) as resp:
             res_json = json.loads(resp.read().decode("utf-8"))
             content = res_json["choices"][0]["message"]["content"]
             
@@ -95,12 +101,14 @@ def try_server_inference(image_path: str, prompt: str, port: int = 8080) -> dict
         print(f"[run_vlm_inference] HTTP inference call failed: {e}")
         return None
 
+
 def run_vlm_inference(image_path: str, prompt: str) -> dict:
     """
     Runs the Forge VLM model using llama.cpp with SYCL backend or llama-server HTTP API.
     """
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"Image not found at {image_path}.")
+
 
     # 1. Try llama-server HTTP inference first if running
     srv_res = try_server_inference(image_path, prompt)
@@ -131,9 +139,11 @@ def run_vlm_inference(image_path: str, prompt: str) -> dict:
         "--image", image_path,
         "-p", prompt,
         "-n", "512",
-        "-c", "8192",
-        "-b", "4096",
-        "--temp", "0.1"
+        "-c", "2048",
+        "-b", "512",
+        "--temp", "0.3",
+        "--repeat-penalty", "1.15",
+        "--image-min-tokens", "1024"
     ]
     
     print(f"Running VLM Inference on {image_path} via CLI...")

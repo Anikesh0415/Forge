@@ -4,8 +4,10 @@ import time
 import subprocess
 import urllib.request
 import json
+import threading
 import logging
 import socket
+from pathlib import Path
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -27,9 +29,9 @@ BASE_DIR = get_base_dir()
 BUNDLE_DIR = get_bundle_dir()
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 
-REPO_ID = "bartowski/Qwen2-VL-2B-Instruct-GGUF"
-MODEL_FILENAME = "Qwen2-VL-2B-Instruct-Q4_K_M.gguf"
-MMPROJ_FILENAME = "mmproj-Qwen2-VL-2B-Instruct-f16.gguf"
+REPO_ID = "ggml-org/moondream2-20250414-GGUF"
+MODEL_FILENAME = "moondream2-text-model-f16_ct-vicuna.gguf"
+MMPROJ_FILENAME = "moondream2-mmproj-f16-20250414.gguf"
 
 def ensure_models_downloaded() -> dict:
     """
@@ -133,15 +135,16 @@ def boot_llama_server(model_paths: dict, port: int = 8080, host: str = "127.0.0.
         llama_exe,
         "-m", model_paths["model_path"],
         "--mmproj", model_paths["mmproj_path"],
-        "-ngl", "99",
         "--host", host,
         "--port", str(port),
-        "-c", "8192",
-        "-b", "4096",
-        "--temp", "0.1"
+        "-c", "2048",
+        "-b", "512",
+        "--temp", "0.3",
+        "--repeat-penalty", "1.15",
+        "--image-min-tokens", "1024"
     ]
     
-    logger.info(f"[FORGE BOOT] Spawning llama-server process on port {port} with SYCL hardware acceleration...")
+    logger.info(f"[FORGE BOOT] Spawning llama-server process on port {port} (CPU ONLY)...")
     creation_flags = subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
     proc = subprocess.Popen(cmd, env=env, creationflags=creation_flags)
     return proc
@@ -200,7 +203,12 @@ def boot_forge_app():
         else:
             logger.info("[FORGE BOOT] llama-server is already running and healthy on port 8080.")
             
-        # 4. Launch server.py WebSocket/HTTP instance on port 8765
+        # 4. Launch Native UI Dashboard in Brave
+        ui_path = os.path.abspath(os.path.join(BASE_DIR, "ui", "index.html")).replace("\\", "/")
+        logger.info(f"[FORGE BOOT] Opening Native Dashboard: file:///{ui_path}")
+        subprocess.Popen(f'start "" "C:\\Program Files\\BraveSoftware\\Brave-Browser\\Application\\brave.exe" --app="file:///{ui_path}" --window-size=1280,800', shell=True)
+
+        # 5. Launch server.py WebSocket/HTTP instance on port 8765
         logger.info("[FORGE BOOT] Starting Forge Server backend on port 8765...")
         import server
         server_inst = server.AIF_Server()
