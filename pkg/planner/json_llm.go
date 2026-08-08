@@ -11,14 +11,14 @@ import (
 )
 
 func PlanActions(intent string, visionContext string, uiaContext string, history string) ([]executor.Action, error) {
-	prompt := fmt.Sprintf(`You are a PC automation agent with zero hallucinations. 
-You are given Vision Context, EXACT UI Element Coordinates (UIA), and a History of previous actions.
-If the intent is fully accomplished, output ONLY [{"action": "done"}].
+	prompt := fmt.Sprintf(`<|im_start|>system
+You are a highly precise PC automation agent. 
+Output ONLY a JSON array of actions. No explanations.
+<|im_end|>
+<|im_start|>user
+Vision Context: %s
 
-Vision Context:
-%s
-
-UIA Elements (Use exact X,Y coordinates from here!):
+UIA Elements (Use exact X,Y coordinates):
 %s
 
 History of Previous Actions (Avoid repeating failures):
@@ -26,11 +26,11 @@ History of Previous Actions (Avoid repeating failures):
 
 User Intent: %s
 
-Respond ONLY with a JSON array of actions to execute right now.
-Actions format:
-[{"action": "click"}, {"action": "move", "x": 100, "y": 200}, {"action": "type", "text": "hello"}, {"action": "sleep", "ms": 500}, {"action": "done"}]
-
-JSON:`, visionContext, uiaContext, history, intent)
+Actions format MUST follow this strictly:
+[{"type": "move", "x": 100, "y": 200}, {"type": "click"}, {"type": "type", "text": "hello"}, {"type": "key", "key": "enter"}, {"type": "sleep", "ms": 500}, {"type": "done"}]
+<|im_end|>
+<|im_start|>assistant
+`, visionContext, uiaContext, history, intent)
 
 	llamaExe := `E:\AIF_Project\llama.cpp\build\bin\Release\llama-cli.exe`
 	modelPath := `E:\AIF_Project\models\qwen2.5-0.5b-instruct-q4_k_m.gguf`

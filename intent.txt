@@ -1,1 +1,1 @@
-open notepad
+open spotify
