@@ -30,9 +30,9 @@ func CaptureAndAnalyze() (string, error) {
 		return "", fmt.Errorf("failed to encode png: %w", err)
 	}
 
-	// 2. Call Moondream via llama-llava-cli
+	// 2. Call Moondream via llama-mtmd-cli
 	// Assuming it runs from root E:\AIF_Project
-	llavaExe := `E:\AIF_Project\llama.cpp\build\bin\Release\llama-llava-cli.exe`
+	llavaExe := `E:\AIF_Project\llama.cpp\build\bin\Release\llama-mtmd-cli.exe`
 	modelPath := `E:\AIF_Project\models\moondream2-text-model-f16.gguf`
 	mmprojPath := `E:\AIF_Project\models\moondream2-mmproj-f16.gguf`
 

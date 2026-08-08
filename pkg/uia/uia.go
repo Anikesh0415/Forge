@@ -62,7 +62,9 @@ func DumpUI() (string, error) {
 		defer os.Remove(csPath)
 
 		cscPath := filepath.Join(os.Getenv("WINDIR"), `Microsoft.NET\Framework64\v4.0.30319\csc.exe`)
-		cmd := exec.Command(cscPath, "/target:exe", "/out:"+exePath, "/reference:UIAutomationClient.dll,UIAutomationTypes.dll,WindowsBase.dll", csPath)
+		wpfPath := filepath.Join(os.Getenv("WINDIR"), `Microsoft.NET\Framework64\v4.0.30319\WPF`)
+		refStr := fmt.Sprintf("/reference:%s,%s,%s", filepath.Join(wpfPath, "UIAutomationClient.dll"), filepath.Join(wpfPath, "UIAutomationTypes.dll"), filepath.Join(wpfPath, "WindowsBase.dll"))
+		cmd := exec.Command(cscPath, "/target:exe", "/out:"+exePath, refStr, csPath)
 		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 		if out, err := cmd.CombinedOutput(); err != nil {
 			return "", fmt.Errorf("compile error: %v, output: %s", err, string(out))
