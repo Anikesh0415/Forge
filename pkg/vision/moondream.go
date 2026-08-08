@@ -43,7 +43,8 @@ func CaptureAndAnalyze() (string, error) {
 		"--mmproj", mmprojPath,
 		"--image", "temp_screenshot.png",
 		"-p", prompt,
-		"-c", "2048",
+		"--chat-template", "chatml",
+		"-c", "4096",
 		"--temp", "0.1",
 	)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}

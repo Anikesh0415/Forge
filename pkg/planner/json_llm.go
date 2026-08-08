@@ -38,6 +38,7 @@ JSON:`, visionContext, uiaContext, history, intent)
 	cmd := exec.Command(llamaExe,
 		"-m", modelPath,
 		"-p", prompt,
+		"-c", "16384",
 		"-n", "256",
 		"--temp", "0.1",
 	)
