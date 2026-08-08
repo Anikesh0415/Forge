@@ -52,3 +52,9 @@ fs369data/
 fs437_export/
 fs*/
 dataset/
+
+temp_screenshot.png
+
+go/
+llama.cpp/
+forge.exe

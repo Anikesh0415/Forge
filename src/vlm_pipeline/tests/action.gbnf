@@ -1,5 +1,0 @@
-root ::= ActionArray
-ActionArray ::= "[" ws Action ("," ws Action)* "]" ws
-Action ::= "{" ws "\"action\"" ws ":" ws string "," ws "\"target_id\"" ws ":" ws string "}" ws
-string ::= "\"" [a-zA-Z0-9_-]+ "\""
-ws ::= [ \t\n]*

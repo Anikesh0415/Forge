@@ -1,7 +1,0 @@
-unsloth-xpu
-intel_extension_for_pytorch
-transformers
-pillow
-pydantic
-pyautogui
-datasets
