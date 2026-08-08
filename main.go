@@ -37,12 +37,27 @@ func handleSummon() {
 	}
 
 	out, err := os.ReadFile("intent.txt")
-	text := strings.TrimSpace(string(out))
-	if err != nil || text == "" {
+	intent := strings.TrimSpace(string(out))
+	if err != nil || intent == "" {
 		return
 	}
 
-	fmt.Println("User Intent:", text)
+	intent = strings.TrimSpace(strings.ToLower(intent))
+	fmt.Printf("User Intent: %s\n\n", intent)
+
+	if intent == "open notepad" {
+		fmt.Println("Hardcoded fallback triggered: open notepad")
+		actions := []executor.Action{
+			{Type: "key", Key: "win"},
+			{Type: "sleep", Ms: 1000},
+			{Type: "type", Text: "notepad"},
+			{Type: "sleep", Ms: 1000},
+			{Type: "key", Key: "enter"},
+			{Type: "done"},
+		}
+		executor.ExecutePlan(actions)
+		return
+	}
 
 	history := "[]"
 	var allActions []executor.Action
@@ -68,7 +83,7 @@ func handleSummon() {
 
 		// 2. Plan Actions
 		fmt.Println("Planning actions...")
-		actions, err := planner.PlanActions(text, visionContext, uiaContext, history)
+		actions, err := planner.PlanActions(intent, visionContext, uiaContext, history)
 		if err != nil {
 			fmt.Printf("Planner failed: %v\n", err)
 			return

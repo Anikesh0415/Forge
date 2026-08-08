@@ -17,6 +17,7 @@ type Action struct {
 	Y    int    `json:"y,omitempty"`
 	Text string `json:"text,omitempty"`
 	Ms   int    `json:"ms,omitempty"`
+	Key  string `json:"key,omitempty"`
 }
 
 func ExecutePlan(actions []Action) {
@@ -28,6 +29,8 @@ func ExecutePlan(actions []Action) {
 			clickMouse()
 		case "type":
 			typeText(act.Text)
+		case "key":
+			pressSpecialKey(act.Key)
 		case "sleep":
 			time.Sleep(time.Duration(act.Ms) * time.Millisecond)
 		}
@@ -125,4 +128,41 @@ func typeText(text string) {
 	if len(inputs) > 0 {
 		procSendInput.Call(uintptr(len(inputs)), uintptr(unsafe.Pointer(&inputs[0])), uintptr(unsafe.Sizeof(inputs[0])))
 	}
+}
+
+func pressSpecialKey(keyName string) {
+	type KEYBDINPUT struct {
+		WVk         uint16
+		WScan       uint16
+		DwFlags     uint32
+		Time        uint32
+		DwExtraInfo uintptr
+	}
+	type INPUT struct {
+		Type uint32
+		Ki   KEYBDINPUT
+		Pad  [8]byte
+	}
+
+	var vk uint16
+	switch keyName {
+	case "win":
+		vk = 0x5B // VK_LWIN
+	case "enter":
+		vk = 0x0D // VK_RETURN
+	default:
+		return
+	}
+
+	var down INPUT
+	down.Type = 1
+	down.Ki.WVk = vk
+
+	var up INPUT
+	up.Type = 1
+	up.Ki.WVk = vk
+	up.Ki.DwFlags = 0x0002 // KEYEVENTF_KEYUP
+
+	inputs := []INPUT{down, up}
+	procSendInput.Call(2, uintptr(unsafe.Pointer(&inputs[0])), uintptr(unsafe.Sizeof(down)))
 }
