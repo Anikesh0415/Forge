@@ -45,8 +45,9 @@ func handleSummon() {
 	intent = strings.TrimSpace(strings.ToLower(intent))
 	fmt.Printf("User Intent: %s\n\n", intent)
 
-	// Rule-based fallback for common "open X" commands
-	if strings.HasPrefix(intent, "open ") {
+	// Rule-based fallback for simple "open X" commands (max 3 words, no commas)
+	words := strings.Fields(intent)
+	if strings.HasPrefix(intent, "open ") && len(words) <= 3 && !strings.Contains(intent, ",") {
 		appName := strings.TrimPrefix(intent, "open ")
 		fmt.Printf("Rule-based fallback: opening '%s'\n", appName)
 		actions := []executor.Action{
