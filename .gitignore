@@ -58,3 +58,6 @@ temp_screenshot.png
 go/
 llama.cpp/
 forge.exe
+
+uia_dumper.exe
+uia_dumper.cs

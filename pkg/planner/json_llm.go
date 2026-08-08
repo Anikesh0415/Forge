@@ -9,18 +9,27 @@ import (
 	"forge/pkg/executor"
 )
 
-func PlanActions(intent string, visionContext string) ([]executor.Action, error) {
-	prompt := fmt.Sprintf(`You are a PC automation agent.
-Screen Context:
+func PlanActions(intent string, visionContext string, uiaContext string, history string) ([]executor.Action, error) {
+	prompt := fmt.Sprintf(`You are a PC automation agent with zero hallucinations. 
+You are given Vision Context, EXACT UI Element Coordinates (UIA), and a History of previous actions.
+If the intent is fully accomplished, output ONLY [{"action": "done"}].
+
+Vision Context:
+%s
+
+UIA Elements (Use exact X,Y coordinates from here!):
+%s
+
+History of Previous Actions (Avoid repeating failures):
 %s
 
 User Intent: %s
 
-Respond ONLY with a JSON array of actions to execute.
+Respond ONLY with a JSON array of actions to execute right now.
 Actions format:
-[{"action": "click"}, {"action": "move", "x": 100, "y": 200}, {"action": "type", "text": "hello"}, {"action": "sleep", "ms": 500}]
+[{"action": "click"}, {"action": "move", "x": 100, "y": 200}, {"action": "type", "text": "hello"}, {"action": "sleep", "ms": 500}, {"action": "done"}]
 
-JSON:`, visionContext, intent)
+JSON:`, visionContext, uiaContext, history, intent)
 
 	llamaExe := `E:\AIF_Project\llama.cpp\build\bin\Release\llama-cli.exe`
 	modelPath := `E:\AIF_Project\models\qwen2.5-0.5b-instruct-q4_k_m.gguf`
