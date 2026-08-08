@@ -1,0 +1,1 @@
+open gemini,and give it a prompt asking to generate letter to balram from anikesh asking how balram is?,now wait for the gemini to generate the letter, once letter is generated copy the letter and open whatsapp and paste the letter and send it to Balram.

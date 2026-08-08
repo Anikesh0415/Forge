@@ -1,0 +1,20 @@
+<|im_start|>system
+You are a highly precise PC automation agent.
+Output ONLY a JSON array of actions. No explanations, no markdown, no text.
+<|im_end|>
+<|im_start|>user
+Vision Context: Screen context unavailable.
+
+UIA Elements (Use exact X,Y coordinates):
+[{"name":"","type":"Button","x":-31971,"y":-31975},{"name":"Minimize","type":"Button","x":-32161,"y":-31974},{"name":"Maximize","type":"Button","x":-32092,"y":-31974},{"name":"Close","type":"Button","x":-32023,"y":-31974},{"name":"Back","type":"Button","x":-31920,"y":-31978},{"name":"Reload","type":"Button","x":-31876,"y":-31978},{"name":"Brave Shields","type":"Button","x":-30436,"y":-31978},{"name":"Extensions","type":"Button","x":-30376,"y":-31978},{"name":"Customize and control YouTube","type":"Button","x":-30316,"y":-31978},{"name":"YouTube - Zohran Won The Election. Has He Actually Changed Anything? - YouTube","type":"Text","x":-31163,"y":-31978},{"name":"","type":"Button","x":-31971,"y":-31975},{"name":"Minimize","type":"Button","x":-32161,"y":-31974},{"name":"Maximize","type":"Button","x":-32092,"y":-31974},{"name":"Close","type":"Button","x":-32023,"y":-31974},{"name":"Back","type":"Button","x":-31920,"y":-31978},{"name":"Reload","type":"Button","x":-31876,"y":-31978},{"name":"Brave Shields","type":"Button","x":-30436,"y":-31978},{"name":"Extensions","type":"Button","x":-30376,"y":-31978},{"name":"Customize and control YouTube","type":"Button","x":-30316,"y":-31978},{"name":"YouTube","type":"Text","x":-31163,"y":-31978},{"name":"Program Manager","type":"Pane","x":960,"y":600},{"name":"Desktop","type":"List","x":960,"y":600},{"name":"Anikesh","type":"ListItem","x":56,"y":45},{"name":"Command Prompt","type":"ListItem","x":56,"y":186},{"name":"Recycle Bin","type":"ListItem","x":56,"y":303},{"name":"Spotify","type":"ListItem","x":56,"y":432},{"name":"Wise Memory Optimizer","type":"ListItem","x":56,"y":573},{"name":"Microsoft Edge","type":"ListItem","x":56,"y":702},{"name":"Free Download Manager","type":"ListItem","x":56,"y":831},{"name":"LM Studio","type":"ListItem","x":56,"y":948},{"name":"ms.txt","type":"ListItem","x":56,"y":1077},{"name":"Antigravity","type":"ListItem","x":168,"y":45},{"name":"Claude","type":"ListItem","x":168,"y":174},{"name":"YouTube","type":"ListItem","x":168,"y":303},{"name":"Riot Client","type":"ListItem","x":168,"y":432},{"name":"Brave","type":"ListItem","x":168,"y":561},{"name":"VALORANT","type":"ListItem","x":168,"y":690},{"name":"NotebookLM","type":"ListItem","x":168,"y":819},{"name":"Physics Wallah","type":"ListItem","x":168,"y":960},{"name":"NoLlama-main","type":"ListItem","x":168,"y":1077},{"name":"LM Studio","type":"ListItem","x":280,"y":45},{"name":"Forge 2.0","type":"ListItem","x":280,"y":174},{"name":"Counter-Strike 2","type":"ListItem","x":280,"y":315}]
+
+
+History of Previous Actions (Avoid repeating failures):
+[]
+
+User Intent: open gemini,and give it a prompt asking to generate letter to balram from anikesh asking how balram is?,now wait for the gemini to generate the letter, once letter is generated copy the letter and open whatsapp and paste the letter and send it to balram.
+
+Actions format MUST follow this strictly:
+[{"type": "move", "x": 100, "y": 200}, {"type": "click"}, {"type": "type", "text": "hello"}, {"type": "key", "key": "enter"}, {"type": "sleep", "ms": 500}, {"type": "done"}]
+<|im_end|>
+<|im_start|>assistant

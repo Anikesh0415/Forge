@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
 	"syscall"
 
 	"forge/pkg/executor"
@@ -53,9 +54,16 @@ Actions format MUST follow this strictly:
 	out, err := cmd.CombinedOutput()
 	response := string(out)
 
+	// Only look at what the assistant generated (ignore echoed prompt)
+	parts := strings.Split(response, "<|im_start|>assistant")
+	assistantResp := response
+	if len(parts) > 1 {
+		assistantResp = parts[len(parts)-1]
+	}
+
 	// Extract JSON array
 	re := regexp.MustCompile(`(?s)\[\s*\{.*?\}\s*\]`)
-	match := re.FindString(response)
+	match := re.FindString(assistantResp)
 	if match == "" {
 		if err != nil {
 			return nil, fmt.Errorf("llama execution failed: %v\nOutput: %s", err, response)
