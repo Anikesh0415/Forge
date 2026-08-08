@@ -45,15 +45,16 @@ func handleSummon() {
 	intent = strings.TrimSpace(strings.ToLower(intent))
 	fmt.Printf("User Intent: %s\n\n", intent)
 
-	if intent == "open notepad" {
-		fmt.Println("Hardcoded fallback triggered: open notepad")
+	// Rule-based fallback for common "open X" commands
+	if strings.HasPrefix(intent, "open ") {
+		appName := strings.TrimPrefix(intent, "open ")
+		fmt.Printf("Rule-based fallback: opening '%s'\n", appName)
 		actions := []executor.Action{
 			{Type: "key", Key: "win"},
-			{Type: "sleep", Ms: 1000},
-			{Type: "type", Text: "notepad"},
-			{Type: "sleep", Ms: 1000},
+			{Type: "sleep", Ms: 800},
+			{Type: "type", Text: appName},
+			{Type: "sleep", Ms: 800},
 			{Type: "key", Key: "enter"},
-			{Type: "done"},
 		}
 		executor.ExecutePlan(actions)
 		return

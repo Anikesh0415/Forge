@@ -12,7 +12,7 @@ var (
 )
 
 type Action struct {
-	Type string `json:"action"`
+	Type string `json:"type"`
 	X    int    `json:"x,omitempty"`
 	Y    int    `json:"y,omitempty"`
 	Text string `json:"text,omitempty"`

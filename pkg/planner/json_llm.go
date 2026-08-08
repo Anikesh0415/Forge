@@ -3,6 +3,7 @@ package planner
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"regexp"
 	"syscall"
@@ -12,8 +13,8 @@ import (
 
 func PlanActions(intent string, visionContext string, uiaContext string, history string) ([]executor.Action, error) {
 	prompt := fmt.Sprintf(`<|im_start|>system
-You are a highly precise PC automation agent. 
-Output ONLY a JSON array of actions. No explanations.
+You are a highly precise PC automation agent.
+Output ONLY a JSON array of actions. No explanations, no markdown, no text.
 <|im_end|>
 <|im_start|>user
 Vision Context: %s
@@ -32,29 +33,33 @@ Actions format MUST follow this strictly:
 <|im_start|>assistant
 `, visionContext, uiaContext, history, intent)
 
+	os.WriteFile("temp_prompt.txt", []byte(prompt), 0644)
+
 	llamaExe := `E:\AIF_Project\llama.cpp\build\bin\Release\llama-cli.exe`
 	modelPath := `E:\AIF_Project\models\qwen2.5-0.5b-instruct-q4_k_m.gguf`
 
 	cmd := exec.Command(llamaExe,
 		"-m", modelPath,
-		"-p", prompt,
-		"-c", "16384",
+		"-f", "temp_prompt.txt",
+		"-c", "4096",
 		"-n", "256",
 		"--temp", "0.1",
+		"--no-conversation",
+		"--simple-io",
+		"--no-display-prompt",
 	)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 
 	out, err := cmd.CombinedOutput()
-	if err != nil {
-		return nil, fmt.Errorf("llama execution failed: %v", err)
-	}
-
 	response := string(out)
 
 	// Extract JSON array
 	re := regexp.MustCompile(`(?s)\[\s*\{.*?\}\s*\]`)
 	match := re.FindString(response)
 	if match == "" {
+		if err != nil {
+			return nil, fmt.Errorf("llama execution failed: %v\nOutput: %s", err, response)
+		}
 		return nil, fmt.Errorf("no valid JSON array found in output:\n%s", response)
 	}
 
@@ -65,3 +70,4 @@ Actions format MUST follow this strictly:
 
 	return actions, nil
 }
+

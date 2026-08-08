@@ -46,6 +46,8 @@ func CaptureAndAnalyze() (string, error) {
 		"--chat-template", "chatml",
 		"-c", "4096",
 		"--temp", "0.1",
+		"--no-conversation",
+		"--simple-io",
 	)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 
