@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os/exec"
 	"regexp"
+	"syscall"
 
 	"forge/pkg/executor"
 )
@@ -40,6 +41,7 @@ JSON:`, visionContext, uiaContext, history, intent)
 		"-n", "256",
 		"--temp", "0.1",
 	)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {

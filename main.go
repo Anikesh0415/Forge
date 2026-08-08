@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 	"time"
 
 	"forge/pkg/executor"
@@ -15,6 +16,13 @@ import (
 )
 
 func main() {
+	logFile, err := os.OpenFile("forge.log", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0666)
+	if err == nil {
+		os.Stdout = logFile
+		os.Stderr = logFile
+		defer logFile.Close()
+	}
+	
 	handleSummon()
 }
 
@@ -22,6 +30,7 @@ func handleSummon() {
 	// 1. Pop up native VBS input box
 	os.Remove("intent.txt")
 	cmd := exec.Command("wscript", "//nologo", "input.vbs")
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	err := cmd.Run()
 	if err != nil {
 		return

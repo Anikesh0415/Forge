@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"syscall"
 )
 
 const csSource = `
@@ -62,6 +63,7 @@ func DumpUI() (string, error) {
 
 		cscPath := filepath.Join(os.Getenv("WINDIR"), `Microsoft.NET\Framework64\v4.0.30319\csc.exe`)
 		cmd := exec.Command(cscPath, "/target:exe", "/out:"+exePath, "/reference:UIAutomationClient.dll,UIAutomationTypes.dll,WindowsBase.dll", csPath)
+		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 		if out, err := cmd.CombinedOutput(); err != nil {
 			return "", fmt.Errorf("compile error: %v, output: %s", err, string(out))
 		}
@@ -69,6 +71,7 @@ func DumpUI() (string, error) {
 
 	// Execute it
 	cmd := exec.Command("cmd", "/c", exePath)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	out, err := cmd.Output()
 	if err != nil {
 		return "", fmt.Errorf("uia dumper execution failed: %v", err)

@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 
 	"github.com/kbinani/screenshot"
 )
@@ -45,6 +46,7 @@ func CaptureAndAnalyze() (string, error) {
 		"-c", "2048",
 		"--temp", "0.1",
 	)
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
