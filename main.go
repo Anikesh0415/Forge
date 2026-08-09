@@ -30,18 +30,46 @@ func main() {
 }
 
 func handleSummon() {
-	// 1. Pop up native VBS input box
-	os.Remove("intent.txt")
-	cmd := exec.Command("wscript", "//nologo", "input.vbs")
+	// 1. Pop up native WPF Input Box
+	ps1Script := `
+Add-Type -AssemblyName PresentationFramework
+$xaml = @"
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Forge 2.5" Width="800" Height="80" 
+        WindowStyle="None" AllowsTransparency="True" Background="#D9000000"
+        WindowStartupLocation="CenterScreen" Topmost="True">
+    <Grid>
+        <TextBox Name="InputBox" Margin="20,10" Background="Transparent" Foreground="White" 
+                 BorderThickness="0" FontSize="32" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+    </Grid>
+</Window>
+"@
+$reader = (New-Object System.Xml.XmlNodeReader ([xml]$xaml))
+$win = [Windows.Markup.XamlReader]::Load($reader)
+$inputBox = $win.FindName("InputBox")
+$win.Add_Loaded({ $inputBox.Focus() })
+$inputBox.Add_KeyDown({
+    if ($_.Key -eq 'Enter') {
+        [Console]::Out.WriteLine($inputBox.Text)
+        $win.Close()
+    }
+    if ($_.Key -eq 'Escape') {
+        $win.Close()
+    }
+})
+$win.ShowDialog() | Out-Null
+`
+	os.WriteFile("input.ps1", []byte(ps1Script), 0644)
+	cmd := exec.Command("powershell", "-ExecutionPolicy", "Bypass", "-File", "input.ps1")
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	err := cmd.Run()
+	out, err := cmd.Output()
 	if err != nil {
 		return
 	}
 
-	out, err := os.ReadFile("intent.txt")
 	intent := strings.TrimSpace(string(out))
-	if err != nil || intent == "" {
+	if intent == "" {
 		os.Exit(0)
 	}
 
@@ -77,11 +105,13 @@ func handleSummon() {
 
 	history := "[]"
 	var allActions []executor.Action
+	var lastUiaContext string
 
 	// DYNAMIC AI ORCHESTRATOR (Fallback)
 	for step := 1; step <= 15; step++ {
 		fmt.Printf("\n--- Step %d ---\n", step)
 		
+		notifyUser("Forge Orchestrator", fmt.Sprintf("Step %d: Analyzing screen...", step))
 		fmt.Println("Capturing screen and analyzing via Moondream...")
 		visionContext, err := vision.CaptureAndAnalyze()
 		if err != nil {
@@ -95,11 +125,19 @@ func handleSummon() {
 			fmt.Printf("UIA failed: %v\n", err)
 			uiaContext = "[]"
 		}
+		
+		// Context Memory: Check if the screen actually changed after the last action
+		if step > 1 && uiaContext == lastUiaContext {
+			history += "\nFAILED: Screen unchanged. The last action did not work. Try a different element."
+			notifyUser("Forge Error", "Action failed, retrying...")
+		}
+		lastUiaContext = uiaContext
 
 		fmt.Println("Planning actions...")
 		actions, err := planner.PlanActions(intent, visionContext, uiaContext, history)
 		if err != nil {
 			fmt.Printf("Planner failed: %v\n", err)
+			notifyUser("Forge Error", "Failed to plan action.")
 			return
 		}
 		
@@ -108,6 +146,7 @@ func handleSummon() {
 		// SAFEGUARD CHECK
 		if !checkSafeguards(actions) {
 			fmt.Println("Safeguard triggered: User denied permission for high-risk action. Aborting.")
+			notifyUser("Forge Security", "Action aborted by user.")
 			return
 		}
 
@@ -122,6 +161,7 @@ func handleSummon() {
 		}
 
 		if len(executedThisStep) > 0 {
+			notifyUser("Forge Executor", fmt.Sprintf("Step %d: Executing %s", step, executedThisStep[0].Type))
 			fmt.Println("Executing...")
 			executor.ExecutePlan(executedThisStep)
 			allActions = append(allActions, executedThisStep...)
@@ -132,6 +172,7 @@ func handleSummon() {
 
 		if isDone {
 			fmt.Println("Intent fully achieved. Exiting loop.")
+			notifyUser("Forge Complete", "Task achieved successfully!")
 			break
 		}
 
@@ -188,4 +229,23 @@ End If
 		return exitErr.ExitCode() == 0
 	}
 	return err == nil
+}
+
+func notifyUser(title, message string) {
+	ps1 := fmt.Sprintf(`
+Add-Type -AssemblyName System.Windows.Forms
+$balloon = New-Object System.Windows.Forms.NotifyIcon
+$balloon.Icon = [System.Drawing.SystemIcons]::Information
+$balloon.BalloonTipIcon = "Info"
+$balloon.BalloonTipText = "%%s"
+$balloon.BalloonTipTitle = "%%s"
+$balloon.Visible = $true
+$balloon.ShowBalloonTip(2000)
+Start-Sleep -Seconds 3
+$balloon.Dispose()
+`, message, title)
+	os.WriteFile("notify.ps1", []byte(ps1), 0644)
+	cmd := exec.Command("powershell", "-ExecutionPolicy", "Bypass", "-File", "notify.ps1")
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	cmd.Start() // run asynchronously
 }
