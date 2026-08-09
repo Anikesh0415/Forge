@@ -3,15 +3,15 @@ Add-Type -AssemblyName PresentationFramework
 $xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Forge" Width="800" Height="90" 
+        Title="Forge" Width="600" Height="60" 
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         WindowStartupLocation="CenterScreen" Topmost="True">
-    <Border CornerRadius="20" Background="#CC111111" BorderBrush="#33FFFFFF" BorderThickness="1.5" Margin="5">
+    <Border CornerRadius="15" Background="#CC111111" BorderBrush="#33FFFFFF" BorderThickness="1" Margin="5">
         <Grid Margin="10,0,10,0">
-            <TextBlock Name="Placeholder" Text="What do you want to automate?" Foreground="#66FFFFFF" FontSize="32" 
+            <TextBlock Name="Placeholder" Text="What do you want to automate?" Foreground="#66FFFFFF" FontSize="22" 
                        VerticalAlignment="Center" Margin="10,0,0,0" IsHitTestVisible="False" FontFamily="Segoe UI" FontWeight="Light"/>
             <TextBox Name="InputBox" Margin="5,0,5,0" Background="Transparent" Foreground="White" CaretBrush="White"
-                     BorderThickness="0" FontSize="32" VerticalAlignment="Center" FontFamily="Segoe UI" FontWeight="Light"/>
+                     BorderThickness="0" FontSize="22" VerticalAlignment="Center" FontFamily="Segoe UI" FontWeight="Light"/>
         </Grid>
     </Border>
 </Window>
