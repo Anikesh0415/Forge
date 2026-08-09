@@ -1,5 +1,5 @@
 {
-  "name": "open instagram",
+  "name": "instagram messages",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "chrome https://instagram.com"
+      "text": "chrome https://instagram.com/direct"
     },
     {
       "type": "sleep",

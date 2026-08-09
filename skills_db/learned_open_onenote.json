@@ -1,9 +1,9 @@
 {
-  "name": "open instagram",
+  "name": "open onenote",
   "actions": [
     {
       "type": "key",
-      "key": "win+r"
+      "key": "win"
     },
     {
       "type": "sleep",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "chrome https://instagram.com"
+      "text": "onenote"
     },
     {
       "type": "sleep",

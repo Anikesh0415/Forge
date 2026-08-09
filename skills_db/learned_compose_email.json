@@ -1,5 +1,5 @@
 {
-  "name": "open instagram",
+  "name": "compose email",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "chrome https://instagram.com"
+      "text": "chrome https://mail.google.com/mail/u/0/#inbox?compose=new"
     },
     {
       "type": "sleep",

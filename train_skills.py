@@ -154,6 +154,131 @@ for name, uri in settings:
         ]
     })
 
+advanced_skills = [
+    # SPOTIFY
+    {"intent": "play spotify", "actions": [{"type": "key", "key": "playpause"}]},
+    {"intent": "pause spotify", "actions": [{"type": "key", "key": "playpause"}]},
+    {"intent": "next track", "actions": [{"type": "key", "key": "audio_next"}]},
+    {"intent": "previous track", "actions": [{"type": "key", "key": "audio_prev"}]},
+    {"intent": "volume up", "actions": [{"type": "key", "key": "audio_vol_up"}]},
+    {"intent": "volume down", "actions": [{"type": "key", "key": "audio_vol_down"}]},
+    {"intent": "mute volume", "actions": [{"type": "key", "key": "audio_mute"}]},
+    
+    # GMAIL
+    {"intent": "open gmail", "actions": [
+        {"type": "key", "key": "win+r"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "chrome https://mail.google.com"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]},
+    {"intent": "compose email", "actions": [
+        {"type": "key", "key": "win+r"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "chrome https://mail.google.com/mail/u/0/#inbox?compose=new"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]},
+    
+    # GOOGLE
+    {"intent": "search google", "actions": [
+        {"type": "key", "key": "win+r"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "chrome https://google.com"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]},
+
+    # REDDIT
+    {"intent": "search reddit", "actions": [
+        {"type": "key", "key": "win+r"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "chrome https://reddit.com"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]},
+
+    # INSTAGRAM
+    {"intent": "open instagram", "actions": [
+        {"type": "key", "key": "win+r"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "chrome https://instagram.com"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]},
+    {"intent": "instagram messages", "actions": [
+        {"type": "key", "key": "win+r"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "chrome https://instagram.com/direct"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]},
+
+    # WHATSAPP
+    {"intent": "whatsapp web", "actions": [
+        {"type": "key", "key": "win+r"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "chrome https://web.whatsapp.com"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]},
+
+    # ONENOTE
+    {"intent": "open onenote", "actions": [
+        {"type": "key", "key": "win"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "onenote"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]},
+    {"intent": "new page in onenote", "actions": [
+        {"type": "key", "key": "ctrl+n"}
+    ]},
+
+    # NOTION
+    {"intent": "open notion", "actions": [
+        {"type": "key", "key": "win"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "notion"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]},
+    {"intent": "new page in notion", "actions": [
+        {"type": "key", "key": "ctrl+n"}
+    ]},
+    {"intent": "search notion", "actions": [
+        {"type": "key", "key": "ctrl+p"}
+    ]},
+    
+    # NOTEPAD
+    {"intent": "save notepad", "actions": [
+        {"type": "key", "key": "ctrl+s"}
+    ]},
+    {"intent": "save as notepad", "actions": [
+        {"type": "key", "key": "ctrl+shift+s"}
+    ]},
+    {"intent": "find in notepad", "actions": [
+        {"type": "key", "key": "ctrl+f"}
+    ]},
+    {"intent": "replace in notepad", "actions": [
+        {"type": "key", "key": "ctrl+h"}
+    ]},
+
+    # GEMINI ANTIGRAVITY (Itself!)
+    {"intent": "open gemini", "actions": [
+        {"type": "key", "key": "win+r"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "chrome https://gemini.google.com"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]},
+    {"intent": "ask antigravity", "actions": [
+        {"type": "key", "key": "ctrl+k"}
+    ]}
+]
+
+skills.extend(advanced_skills)
+
 # Write to disk
 for skill in skills:
     safe_name = skill["intent"].replace(" ", "_")
