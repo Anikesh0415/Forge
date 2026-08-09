@@ -57,6 +57,7 @@ Available Actions MUST follow this exact JSON format:
 		"--no-conversation",
 		"--simple-io",
 		"--no-display-prompt",
+		"-jf", "schema.json",
 	)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 
