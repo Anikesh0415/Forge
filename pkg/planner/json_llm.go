@@ -14,8 +14,8 @@ import (
 
 func PlanActions(intent string, visionContext string, uiaContext string, history string) ([]executor.Action, error) {
 	prompt := fmt.Sprintf(`<|im_start|>system
-You are a highly precise PC automation agent.
-Output ONLY a VALID JSON array of action objects. No explanations. No markdown.
+You are a precise PC automation agent.
+Output ONLY ONE VALID JSON action object for the NEXT step. No arrays. No explanations.
 <|im_end|>
 <|im_start|>user
 Vision Context: %s
@@ -28,24 +28,19 @@ History:
 
 User Intent: %s
 
-Available Actions MUST follow this exact JSON format:
-[
-  {"type": "click_element", "name": "exact name from UIA Elements"},
-  {"type": "move", "x": 100, "y": 200},
-  {"type": "click"},
-  {"type": "type", "text": "text to type"},
-  {"type": "key", "key": "enter"},
-  {"type": "sleep", "ms": 500},
-  {"type": "done"}
-]
+Available Actions format:
+{"type": "click_element", "name": "exact name from UIA Elements"}
+{"type": "type", "text": "text to type"}
+{"type": "key", "key": "enter"}
+{"type": "sleep", "ms": 500}
+{"type": "done"}
 
-Example Task:
-User Intent: open notepad
-UIA Elements: [{"name": "Notepad", "type": "Button"}]
+Example 1:
+User Intent: search for cats
+History: opened browser
+UIA Elements: [{"name": "Search Box", "type": "Edit"}]
 Assistant:
-[
-  {"type": "click_element", "name": "Notepad"}
-]
+{"type": "click_element", "name": "Search Box"}
 <|im_end|>
 <|im_start|>assistant
 `, visionContext, uiaContext, history, intent)
@@ -59,7 +54,7 @@ Assistant:
 		"-m", modelPath,
 		"-f", "temp_prompt.txt",
 		"-c", "8192",
-		"-n", "1024",
+		"-n", "512",
 		"--temp", "0.1",
 		"--repeat-penalty", "1.2",
 		"--no-conversation",
@@ -71,32 +66,31 @@ Assistant:
 	out, err := cmd.CombinedOutput()
 	response := string(out)
 
-	// Only look at what the assistant generated (ignore echoed prompt)
 	parts := strings.Split(response, "<|im_start|>assistant")
 	assistantResp := response
 	if len(parts) > 1 {
 		assistantResp = parts[len(parts)-1]
 	}
 
-	// Extract JSON array
-	re := regexp.MustCompile(`(?s)\[\s*\{.*?\}\s*\]`)
+	// Extract ONE JSON object
+	re := regexp.MustCompile(`(?s)\{.*?\}`)
 	match := re.FindString(assistantResp)
 	if match == "" {
 		if err != nil {
 			return nil, fmt.Errorf("llama execution failed: %v\nOutput: %s", err, response)
 		}
-		return nil, fmt.Errorf("no valid JSON array found in output:\n%s", response)
+		return nil, fmt.Errorf("no valid JSON object found in output:\n%s", response)
 	}
 
-	// Sanitize common 0.5B model hallucinations (unquoted keys)
 	match = regexp.MustCompile(`(?i)([{,]\s*)x\s*:`).ReplaceAllString(match, `$1"x":`)
 	match = regexp.MustCompile(`(?i)([{,]\s*)y\s*:`).ReplaceAllString(match, `$1"y":`)
 
-	var actions []executor.Action
-	if err := json.Unmarshal([]byte(match), &actions); err != nil {
+	var action executor.Action
+	if err := json.Unmarshal([]byte(match), &action); err != nil {
 		return nil, fmt.Errorf("JSON parse error: %v\nJSON:\n%s", err, match)
 	}
 
-	return actions, nil
+	// We return it as an array of 1 to keep compatibility with existing code
+	return []executor.Action{action}, nil
 }
 

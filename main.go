@@ -79,7 +79,7 @@ func handleSummon() {
 	var allActions []executor.Action
 
 	// DYNAMIC AI ORCHESTRATOR (Fallback)
-	for step := 1; step <= 3; step++ {
+	for step := 1; step <= 15; step++ {
 		fmt.Printf("\n--- Step %d ---\n", step)
 		
 		fmt.Println("Capturing screen and analyzing via Moondream...")
