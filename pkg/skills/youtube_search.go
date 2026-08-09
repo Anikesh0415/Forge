@@ -3,6 +3,9 @@ package skills
 import (
 	"fmt"
 	"forge/pkg/executor"
+	"io"
+	"net/http"
+	"regexp"
 	"strings"
 )
 
@@ -17,7 +20,6 @@ func (s *YouTubeSearchSkill) Name() string {
 }
 
 func (s *YouTubeSearchSkill) Match(intent string) bool {
-	// If the user refers to the current screen, fall back to the Dynamic AI Planner (Moondream)
 	if strings.Contains(intent, "opened") || strings.Contains(intent, "this") || 
 	   strings.Contains(intent, "click") || strings.Contains(intent, "screen") {
 		return false
@@ -30,8 +32,6 @@ func (s *YouTubeSearchSkill) Match(intent string) bool {
 func (s *YouTubeSearchSkill) Execute(intent string) error {
 	fmt.Println("Executing Advanced Skill: YouTubeSearch")
 	
-	// Extremely naive extraction for demonstration.
-	// "open youtube and search for sarthak goswami" -> "sarthak goswami"
 	searchTerm := "Sarthak Goswami" // fallback
 	if idx := strings.Index(intent, "search for"); idx != -1 {
 		searchTerm = strings.TrimSpace(intent[idx+10:])
@@ -42,30 +42,30 @@ func (s *YouTubeSearchSkill) Execute(intent string) error {
 		searchTerm = strings.TrimSpace(searchTerm)
 	}
 	
+	safeSearch := strings.ReplaceAll(searchTerm, " ", "+")
+	targetUrl := "https://www.youtube.com/results?search_query=" + safeSearch
+	
+	// If it's a "play" command, we want to reliably hit the first video.
+	if strings.Contains(intent, "play") {
+		fmt.Printf("Fetching search results for: %s\n", searchTerm)
+		resp, err := http.Get(targetUrl)
+		if err == nil {
+			body, _ := io.ReadAll(resp.Body)
+			resp.Body.Close()
+			re := regexp.MustCompile(`"videoId":"([a-zA-Z0-9_-]{11})"`)
+			matches := re.FindStringSubmatch(string(body))
+			if len(matches) > 1 {
+				targetUrl = "https://www.youtube.com/watch?v=" + matches[1]
+				fmt.Printf("Found direct video ID: %s\n", matches[1])
+			}
+		}
+	}
+	
 	actions := []executor.Action{
-		// 1. Open Brave (Default browser via run prompt)
 		{Type: "key", Key: "win"},
 		{Type: "sleep", Ms: 1000},
-		{Type: "type", Text: "brave"},
+		{Type: "type", Text: "brave " + targetUrl},
 		{Type: "sleep", Ms: 1000},
-		{Type: "key", Key: "enter"},
-		{Type: "sleep", Ms: 3000},
-		
-		// 2. Focus address bar and navigate to youtube search directly
-		{Type: "type", Text: "https://www.youtube.com/results?search_query=" + strings.ReplaceAll(searchTerm, " ", "+")},
-		{Type: "sleep", Ms: 500},
-		{Type: "key", Key: "enter"},
-		{Type: "sleep", Ms: 3000},
-		
-		// 3. Tab to the first video and press enter to play it
-		{Type: "key", Key: "tab"},
-		{Type: "sleep", Ms: 200},
-		{Type: "key", Key: "tab"},
-		{Type: "sleep", Ms: 200},
-		{Type: "key", Key: "tab"},
-		{Type: "sleep", Ms: 200},
-		{Type: "key", Key: "tab"},
-		{Type: "sleep", Ms: 200},
 		{Type: "key", Key: "enter"},
 	}
 	
