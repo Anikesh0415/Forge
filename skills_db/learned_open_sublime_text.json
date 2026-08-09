@@ -1,5 +1,5 @@
 {
-  "name": "open spotify",
+  "name": "open sublime text",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "spotify.com"
+      "text": "sublime text"
     },
     {
       "type": "sleep",

@@ -1,9 +1,9 @@
 {
-  "name": "open file explorer",
+  "name": "fullscreen",
   "actions": [
     {
       "type": "key",
-      "key": "win+e"
+      "key": "f11"
     }
   ]
 }

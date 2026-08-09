@@ -1,9 +1,9 @@
 {
-  "name": "open file explorer",
+  "name": "restore all",
   "actions": [
     {
       "type": "key",
-      "key": "win+e"
+      "key": "win+shift+m"
     }
   ]
 }

@@ -1,5 +1,5 @@
 {
-  "name": "open spotify",
+  "name": "open target",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "spotify.com"
+      "text": "target.com"
     },
     {
       "type": "sleep",

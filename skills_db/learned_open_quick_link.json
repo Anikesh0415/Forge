@@ -1,9 +1,9 @@
 {
-  "name": "open file explorer",
+  "name": "open quick link",
   "actions": [
     {
       "type": "key",
-      "key": "win+e"
+      "key": "win+x"
     }
   ]
 }

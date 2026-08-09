@@ -1,9 +1,9 @@
 {
-  "name": "open file explorer",
+  "name": "save",
   "actions": [
     {
       "type": "key",
-      "key": "win+e"
+      "key": "ctrl+s"
     }
   ]
 }

@@ -1,9 +1,9 @@
 {
-  "name": "open file explorer",
+  "name": "redo",
   "actions": [
     {
       "type": "key",
-      "key": "win+e"
+      "key": "ctrl+y"
     }
   ]
 }

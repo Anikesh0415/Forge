@@ -1,5 +1,5 @@
 {
-  "name": "open spotify",
+  "name": "open imdb",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "spotify.com"
+      "text": "imdb.com"
     },
     {
       "type": "sleep",

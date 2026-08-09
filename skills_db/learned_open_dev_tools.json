@@ -1,9 +1,9 @@
 {
-  "name": "open file explorer",
+  "name": "open dev tools",
   "actions": [
     {
       "type": "key",
-      "key": "win+e"
+      "key": "f12"
     }
   ]
 }

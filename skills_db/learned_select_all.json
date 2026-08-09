@@ -1,9 +1,9 @@
 {
-  "name": "open file explorer",
+  "name": "select all",
   "actions": [
     {
       "type": "key",
-      "key": "win+e"
+      "key": "ctrl+a"
     }
   ]
 }

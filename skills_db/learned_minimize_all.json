@@ -1,9 +1,9 @@
 {
-  "name": "open file explorer",
+  "name": "minimize all",
   "actions": [
     {
       "type": "key",
-      "key": "win+e"
+      "key": "win+m"
     }
   ]
 }

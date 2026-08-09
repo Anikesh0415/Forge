@@ -1,5 +1,5 @@
 {
-  "name": "open spotify",
+  "name": "open league of legends",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "spotify.com"
+      "text": "league of legends"
     },
     {
       "type": "sleep",

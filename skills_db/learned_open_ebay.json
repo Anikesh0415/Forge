@@ -1,5 +1,5 @@
 {
-  "name": "open spotify",
+  "name": "open ebay",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "spotify.com"
+      "text": "ebay.com"
     },
     {
       "type": "sleep",

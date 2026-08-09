@@ -1,5 +1,5 @@
 {
-  "name": "open spotify",
+  "name": "open foxnews",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "spotify.com"
+      "text": "foxnews.com"
     },
     {
       "type": "sleep",

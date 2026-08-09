@@ -1,9 +1,9 @@
 {
-  "name": "open file explorer",
+  "name": "project screen",
   "actions": [
     {
       "type": "key",
-      "key": "win+e"
+      "key": "win+p"
     }
   ]
 }

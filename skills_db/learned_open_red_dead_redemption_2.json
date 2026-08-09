@@ -1,5 +1,5 @@
 {
-  "name": "open spotify",
+  "name": "open red dead redemption 2",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "spotify.com"
+      "text": "red dead redemption 2"
     },
     {
       "type": "sleep",

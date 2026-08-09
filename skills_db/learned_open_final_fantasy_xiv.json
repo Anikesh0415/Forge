@@ -1,5 +1,5 @@
 {
-  "name": "open spotify",
+  "name": "open final fantasy xiv",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "spotify.com"
+      "text": "final fantasy xiv"
     },
     {
       "type": "sleep",

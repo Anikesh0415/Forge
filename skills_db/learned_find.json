@@ -1,9 +1,9 @@
 {
-  "name": "open file explorer",
+  "name": "find",
   "actions": [
     {
       "type": "key",
-      "key": "win+e"
+      "key": "ctrl+f"
     }
   ]
 }

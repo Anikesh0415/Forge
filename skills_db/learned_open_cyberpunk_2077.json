@@ -1,5 +1,5 @@
 {
-  "name": "open spotify",
+  "name": "open cyberpunk 2077",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "spotify.com"
+      "text": "cyberpunk 2077"
     },
     {
       "type": "sleep",

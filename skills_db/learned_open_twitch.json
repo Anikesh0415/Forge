@@ -1,5 +1,5 @@
 {
-  "name": "open spotify",
+  "name": "open twitch",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "spotify.com"
+      "text": "twitch.tv"
     },
     {
       "type": "sleep",

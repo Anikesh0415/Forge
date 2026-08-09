@@ -1,5 +1,5 @@
 {
-  "name": "open spotify",
+  "name": "open bestbuy",
   "actions": [
     {
       "type": "key",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "spotify.com"
+      "text": "bestbuy.com"
     },
     {
       "type": "sleep",
