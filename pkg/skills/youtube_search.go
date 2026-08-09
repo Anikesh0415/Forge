@@ -62,7 +62,7 @@ func (s *YouTubeSearchSkill) Execute(intent string) error {
 	}
 	
 	actions := []executor.Action{
-		{Type: "key", Key: "win"},
+		{Type: "key", Key: "win+r"},
 		{Type: "sleep", Ms: 1000},
 		{Type: "type", Text: "brave " + targetUrl},
 		{Type: "sleep", Ms: 1000},
