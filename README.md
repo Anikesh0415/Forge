@@ -1,36 +1,40 @@
 # Forge OS 🚀
 
-Forge OS is an incredibly fast, entirely local GUI Agent that acts as the physical brain and hands for your PC. By combining real-time screen capture with the ultra-lightweight Moondream2 Vision-Language Model, Forge OS is capable of observing your screen, planning complex actions using its ARIA Planner, and executing them flawlessly with zero cloud dependencies.
+Forge OS is an incredibly fast, entirely local GUI Agent that acts as the physical brain and hands for your PC. 
+
+Originally built as a simple Python wrapper, **Forge has been entirely rewritten in Go** to achieve a true **Zero-RAM footprint** when idle. It combines real-time screen capture, UI Automation (UIA), and localized AI Planning to execute complex multi-step workflows safely and securely on your machine.
 
 ## Features ✨
-- **1-Click Boot:** Double click `Start_FORGE_App.bat` and the entire backend, model, and UI boots up instantly.
-- **1-Click Stop:** Double click `Stop_FORGE_App.bat` to safely shut down all local inference servers and python runtimes.
-- **Moondream2 Powered:** 100% local, uncensored, and fast screen reasoning using a sub-2B parameter VLM running perfectly on standard laptop CPUs.
-- **ARIA Planner:** A dedicated intelligence layer that combines Semantic Memory (RAG skills) and Episodic Memory (User preferences) to generate context-aware Action Plans.
-- **Bulletproof Security:** Bound strictly to `127.0.0.1`. No external Wi-Fi hijacks possible.
-
-## Installation 🛠️
-1. Clone this repository.
-2. Download the models manually (see Model Installation below).
-3. Run `Start_FORGE_App.bat`.
-4. The system will automatically launch the Web UI!
-
-## Model Installation 📥
-To keep this repository lightweight, the large model files are not included. You must download them manually into the `models/` directory:
-
-**1. Primary Vision Model (Moondream2):**
-- Download `moondream2-text-model-f16_ct-vicuna.gguf` and `moondream2-mmproj-f16-20250414.gguf` from [HuggingFace](https://huggingface.co/vikhyatk/moondream2/tree/main).
-- Place both files inside the `models/` folder.
-
-**2. Optional Advanced Planner (Hermes 8B):**
-- If you wish to use the advanced `ARIA Planner` with a local 8B model instead of Moondream2, download [Hermes-2-Pro-Llama-3-8B-GGUF](https://huggingface.co/NousResearch/Hermes-2-Pro-Llama-3-8B-GGUF).
-- Place the `.gguf` file in the `models/` folder and configure `aria_planner.py` to point to it.
+- **Zero-RAM Idle Footprint:** Written in Go, Forge consumes effectively 0MB of RAM when sleeping. It wakes instantly via an OS hook.
+- **Two-Tier Hybrid Orchestrator:** 
+  - Uses highly robust **Advanced Macros (Skills)** for complex, daily tasks (like "Study Mode" or "AI Messenger").
+  - Seamlessly falls back to the dynamic **Qwen 0.5B AI Planner** for novel, unstructured requests.
+- **Targeted Safeguards:** Forge actively scans generated execution plans. If it detects a high-risk action (like `delete`, `pay`, `remove`, or `transfer`), it pauses and spawns a native Windows dialog asking for your explicit permission before clicking or typing.
+- **Moondream2 Powered Vision:** 100% local, uncensored, and fast screen reasoning using a sub-2B parameter VLM.
+- **Bulletproof Security:** Fully local inference. No cloud subscriptions, no data harvesting.
 
 ## Architecture 🧠
-Forge operates on a highly decoupled node system:
-1. **Semantic/Episodic Memory:** Retrieves user facts and skills.
-2. **ARIA Planner:** Reads the screen and memory to generate a structured JSON Plan.
-3. **Execution Manager:** Translates JSON coordinates into physical PyAutoGUI mouse clicks.
+Forge operates using a highly decoupled architecture:
+1. **Hybrid Task Splitter (`pkg/orchestrator` & `pkg/skills`):** Analyzes your intent. If it matches a daily workflow, it routes it to a deterministic Go macro.
+2. **AI Planner (`pkg/planner`):** If no skill is matched, the Qwen 0.5B model takes over, generating a sequence of high-level UI abstractions (e.g., `{"type": "click_element", "name": "Send"}`).
+3. **Execution & Safeguards (`pkg/executor`):** Evaluates the plan for danger, extracts exact X/Y coordinates via the Windows UIA tree, and executes native Win32 inputs.
+
+## The Skills Library 🛠️
+Forge comes pre-loaded with advanced skills that run deterministically:
+*   **Study Mode:** Automatically opens Notion, creates a page, launches the Windows Clock, and starts a Focus Session.
+*   **AI Messenger:** Seamlessly prompts local/web AI, waits for the response, copies it, and sends it to a contact via WhatsApp.
+*   **System Monitor:** Hooks into OS telemetry to provide instant native popups about CPU and RAM usage.
+*   **Browser Search:** Instantly opens a browser and executes web searches.
+
+## Installation 📥
+1. Clone this repository.
+2. Download the models manually (see below).
+3. Run `forge.exe`. The background daemon will start instantly.
+
+### Required Models:
+To keep this repository lightweight, download the following `.gguf` files into the `models/` directory:
+- **Qwen 2.5 (0.5B):** For the AI Planner (`qwen2.5-0.5b-instruct-q4_k_m.gguf`).
+- **Moondream2:** For vision processing (`moondream2-text-model-f16_ct-vicuna.gguf` & `mmproj`).
 
 ## Disclaimer ⚠️
-This system has direct access to your physical mouse and keyboard. Always supervise the agent during complex workflows. Ensure no sensitive windows are active during execution.
+This system has direct access to your physical mouse and keyboard. While targeted safeguards protect against specific keywords, always supervise the agent during complex dynamic workflows.
