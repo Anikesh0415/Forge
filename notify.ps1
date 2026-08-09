@@ -9,4 +9,4 @@ $balloon.Visible = $true
 $balloon.ShowBalloonTip(2000)
 Start-Sleep -Seconds 3
 $balloon.Dispose()
-%!(EXTRA string=Step 3: Analyzing screen..., string=Forge Orchestrator)
+%!(EXTRA string=Failed to plan action., string=Forge Error)
