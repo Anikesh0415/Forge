@@ -17,6 +17,9 @@ func (s *BrowserSearchSkill) Name() string {
 }
 
 func (s *BrowserSearchSkill) Match(intent string) bool {
+	if strings.Contains(intent, "youtube") {
+		return false
+	}
 	return ContainsAllKeywords(intent, "search", "for") || 
 	       ContainsAllKeywords(intent, "google")
 }

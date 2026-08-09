@@ -24,7 +24,9 @@ func main() {
 		defer logFile.Close()
 	}
 	
-	handleSummon()
+	for {
+		handleSummon()
+	}
 }
 
 func handleSummon() {
@@ -40,10 +42,13 @@ func handleSummon() {
 	out, err := os.ReadFile("intent.txt")
 	intent := strings.TrimSpace(string(out))
 	if err != nil || intent == "" {
-		return
+		os.Exit(0)
 	}
 
 	intent = strings.TrimSpace(strings.ToLower(intent))
+	if intent == "exit" || intent == "quit" {
+		os.Exit(0)
+	}
 	fmt.Printf("User Intent: %s\n\n", intent)
 
 	// HYBRID ORCHESTRATOR: Check if intent matches any advanced Skills
