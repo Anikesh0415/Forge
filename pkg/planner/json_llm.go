@@ -15,21 +15,29 @@ import (
 func PlanActions(intent string, visionContext string, uiaContext string, history string) ([]executor.Action, error) {
 	prompt := fmt.Sprintf(`<|im_start|>system
 You are a highly precise PC automation agent.
-Output ONLY a JSON array of actions. No explanations, no markdown, no text.
+Output ONLY a VALID JSON array of action objects. No explanations. No markdown.
 <|im_end|>
 <|im_start|>user
 Vision Context: %s
 
-UIA Elements (Use exact X,Y coordinates):
+UIA Elements:
 %s
 
-History of Previous Actions (Avoid repeating failures):
+History:
 %s
 
 User Intent: %s
 
-Actions format MUST follow this strictly:
-[{"type": "move", "x": 100, "y": 200}, {"type": "click"}, {"type": "type", "text": "hello"}, {"type": "key", "key": "enter"}, {"type": "sleep", "ms": 500}, {"type": "done"}]
+Available Actions MUST follow this exact JSON format:
+[
+  {"type": "click_element", "name": "exact name from UIA Elements"},
+  {"type": "move", "x": 100, "y": 200},
+  {"type": "click"},
+  {"type": "type", "text": "text to type"},
+  {"type": "key", "key": "enter"},
+  {"type": "sleep", "ms": 500},
+  {"type": "done"}
+]
 <|im_end|>
 <|im_start|>assistant
 `, visionContext, uiaContext, history, intent)
