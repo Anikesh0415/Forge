@@ -2,67 +2,108 @@ import json
 import os
 
 os.makedirs("skills_db", exist_ok=True)
-
 skills = []
 
-apps = [
-    "notepad", "word", "excel", "powerpoint", "chrome", "firefox", "brave", "edge", 
-    "steam", "valorant", "minecraft", "obs", "spotify", "slack", "zoom", "teams",
-    "vscode", "visual studio", "cmd", "powershell", "settings", "control panel",
-    "paint", "calculator", "calendar", "mail", "photos", "weather", "clock",
-    "discord", "telegram", "whatsapp", "vlc", "epic games", "battlenet", "origin",
-    "blender", "premiere", "photoshop", "illustrator", "after effects", "figma",
-    "notion", "evernote", "obsidian", "todoist", "ticktick", "anydesk", "teamviewer",
-    "winrar", "7zip", "rufus", "file explorer", "task manager", "device manager",
-    "postman", "git bash", "docker", "putty", "wireshark", "android studio",
-    "intellij", "pycharm", "webstorm", "eclipse", "sublime text", "vmware",
-    "virtualbox", "itunes", "netflix", "hulu", "amazon prime", "disney plus",
-    "xbox", "ea app", "ubisoft connect", "gog galaxy", "riot client", "league of legends",
-    "csgo", "dota 2", "apex legends", "fortnite", "roblox", "genshin impact",
-    "overwatch", "world of warcraft", "final fantasy xiv", "cyberpunk 2077",
-    "gta v", "red dead redemption 2", "witcher 3", "skyrim", "fallout 4"
-]
-
-for app in apps:
-    skills.append({
-        "intent": f"open {app}",
+def generate_open_macro(intent_name, run_cmd_text):
+    return {
+        "intent": intent_name,
         "actions": [
             {"type": "key", "key": "win"},
             {"type": "sleep", "ms": 800},
-            {"type": "type", "text": app},
+            {"type": "type", "text": run_cmd_text},
             {"type": "sleep", "ms": 800},
             {"type": "key", "key": "enter"}
         ]
-    })
+    }
 
+# 1. EVERY WINDOWS / SYSTEM APP
+windows_apps = [
+    "calculator", "calendar", "camera", "clock", "cortana", "feedback hub",
+    "get help", "groove music", "mail", "maps", "messaging", "mixed reality portal",
+    "movies & tv", "paint 3d", "people", "photos", "print 3d", "settings",
+    "skype", "snip & sketch", "snipping tool", "solitaire", "sticky notes",
+    "tips", "voice recorder", "weather", "windows security", "xbox", "xbox game bar",
+    "your phone", "3d viewer", "alarms & clock", "command prompt", "control panel",
+    "device manager", "disk management", "event viewer", "file explorer",
+    "microsoft edge", "microsoft store", "notepad", "powershell", "registry editor",
+    "resource monitor", "run", "services", "system information", "task manager",
+    "windows memory diagnostic", "wordpad", "steps recorder", "character map",
+    "math input panel", "quick assist", "remote desktop connection", "windows fax and scan",
+    "windows media player", "xps viewer", "paint", "calculator"
+]
+
+for app in windows_apps:
+    skills.append(generate_open_macro(f"open {app}", app))
+
+# 2. SOCIAL APPS / COMMUNICATION
+social_apps = [
+    "discord", "telegram", "whatsapp", "slack", "zoom", "microsoft teams",
+    "skype", "viber", "signal", "line", "wechat", "kik", "snapchat", "instagram",
+    "facebook messenger", "twitter", "reddit", "pinterest", "tumblr", "linkedin",
+    "groupme", "cisco webex", "google meet", "teamspeak", "mumble", "guilded"
+]
+
+for app in social_apps:
+    skills.append(generate_open_macro(f"open {app}", app))
+
+# 3. WEBSITES (Top 200+)
 websites = [
-    "youtube.com", "google.com", "facebook.com", "twitter.com", "instagram.com",
-    "reddit.com", "wikipedia.org", "amazon.com", "netflix.com", "twitch.tv",
-    "linkedin.com", "github.com", "stackoverflow.com", "chatgpt.com", "openai.com",
-    "bing.com", "yahoo.com", "pinterest.com", "tumblr.com", "tiktok.com",
-    "quora.com", "medium.com", "nytimes.com", "cnn.com", "bbc.com", "foxnews.com",
-    "ebay.com", "craigslist.org", "walmart.com", "target.com", "bestbuy.com",
-    "apple.com", "microsoft.com", "spotify.com", "soundcloud.com", "hulu.com",
-    "disneyplus.com", "hbomax.com", "primevideo.com", "paypal.com", "chase.com",
-    "bankofamerica.com", "wellsfargo.com", "capitalone.com", "zillow.com",
-    "realtor.com", "booking.com", "expedia.com", "airbnb.com", "tripadvisor.com",
-    "yelp.com", "imdb.com", "ign.com", "gamespot.com", "pcgamer.com", "polygon.com",
-    "kotaku.com", "theverge.com", "engadget.com", "wired.com", "techcrunch.com"
+    "google", "youtube", "facebook", "twitter", "instagram", "baidu", "wikipedia",
+    "yandex", "yahoo", "xvideos", "whatsapp", "pornhub", "amazon", "xhamster",
+    "live", "netflix", "tiktok", "docomo", "bing", "reddit", "office", "linkedin",
+    "dzen", "vk", "samsung", "turbopages", "mail", "naver", "discord", "twitch",
+    "bilibili", "weather", "yahoo.co.jp", "qq", "yandex.ru", "pinterest", "zoom",
+    "duckduckgo", "quora", "globo", "ebay", "msn", "stripchat", "roblox", "aliexpress",
+    "canva", "bbc", "nytimes", "cnn", "foxnews", "espn", "imdb", "apple", "microsoft",
+    "spotify", "github", "stackoverflow", "chatgpt", "openai", "craigslist", "walmart",
+    "target", "bestbuy", "hulu", "disneyplus", "hbomax", "primevideo", "paypal",
+    "chase", "bankofamerica", "wellsfargo", "capitalone", "zillow", "realtor",
+    "booking", "expedia", "airbnb", "tripadvisor", "yelp", "ign", "gamespot",
+    "pcgamer", "polygon", "kotaku", "theverge", "engadget", "wired", "techcrunch",
+    "medium", "vimeo", "dailymotion", "soundcloud", "bandcamp", "patreon", "kickstarter",
+    "indiegogo", "gofundme", "etsy", "shopify", "wordpress", "wix", "squarespace",
+    "weebly", "blogger", "tumblr", "flickr", "imgur", "giphy", "deviantart",
+    "artstation", "behance", "dribbble", "fiverr", "upwork", "freelancer", "toptal",
+    "guru", "peopleperhour", "99designs", "udemy", "coursera", "edx", "khanacademy",
+    "skillshare", "masterclass", "pluralsight", "codecademy", "freecodecamp",
+    "datacamp", "leetcode", "hackerrank", "codewars", "projecteuler", "spoj"
 ]
 
 for site in websites:
-    clean_name = site.replace(".com", "").replace(".org", "").replace(".tv", "")
-    skills.append({
-        "intent": f"open {clean_name}",
-        "actions": [
-            {"type": "key", "key": "win"},
-            {"type": "sleep", "ms": 800},
-            {"type": "type", "text": site},
-            {"type": "sleep", "ms": 800},
-            {"type": "key", "key": "enter"}
-        ]
-    })
+    skills.append(generate_open_macro(f"open {site}", f"{site}.com"))
 
+# 4. GAMES & GAMING PLATFORMS
+gaming = [
+    "steam", "epic games", "battlenet", "origin", "ubisoft connect", "gog galaxy",
+    "riot client", "league of legends", "csgo", "dota 2", "apex legends", "fortnite",
+    "roblox", "genshin impact", "overwatch", "world of warcraft", "final fantasy xiv",
+    "cyberpunk 2077", "gta v", "red dead redemption 2", "witcher 3", "skyrim",
+    "fallout 4", "valorant", "minecraft", "terraria", "stardew valley", "among us",
+    "fall guys", "rocket league", "hades", "hollow knight", "celeste", "dead cells",
+    "slay the spire", "binding of isaac", "enter the gungeon", "spelunky", "risk of rain 2",
+    "factorio", "rimworld", "dyson sphere program", "satisfactory", "subnautica"
+]
+
+for game in gaming:
+    skills.append(generate_open_macro(f"open {game}", game))
+
+# 5. DEV TOOLS & PRODUCTIVITY
+dev_tools = [
+    "vscode", "visual studio", "intellij", "pycharm", "webstorm", "eclipse",
+    "sublime text", "android studio", "xcode", "vim", "emacs", "nano", "gedit",
+    "notepad++", "atom", "brackets", "postman", "insomnia", "docker", "kubernetes",
+    "virtualbox", "vmware", "hyper-v", "putty", "mobaxterm", "teraterm", "winscp",
+    "filezilla", "cyberduck", "wireshark", "fiddler", "charles", "burp suite",
+    "git bash", "github desktop", "sourcetree", "gitkraken", "tortoisegit",
+    "notion", "evernote", "obsidian", "todoist", "ticktick", "anydesk", "teamviewer",
+    "winrar", "7zip", "rufus", "blender", "premiere", "photoshop", "illustrator",
+    "after effects", "figma", "word", "excel", "powerpoint", "access", "publisher"
+]
+
+for tool in dev_tools:
+    skills.append(generate_open_macro(f"open {tool}", tool))
+
+# 6. SYSTEM SETTINGS (ms-settings URIs)
 settings = [
     ("display settings", "ms-settings:display"),
     ("sound settings", "ms-settings:sound"),
@@ -113,183 +154,7 @@ for name, uri in settings:
         ]
     })
 
-specialized_skills = [
-    {
-        "intent": "mute discord",
-        "actions": [{"type": "key", "key": "ctrl+shift+m"}]
-    },
-    {
-        "intent": "deafen discord",
-        "actions": [{"type": "key", "key": "ctrl+shift+d"}]
-    },
-    {
-        "intent": "lock pc",
-        "actions": [{"type": "key", "key": "win+l"}]
-    },
-    {
-        "intent": "open task manager",
-        "actions": [{"type": "key", "key": "ctrl+shift+esc"}]
-    },
-    {
-        "intent": "take screenshot",
-        "actions": [{"type": "key", "key": "win+shift+s"}]
-    },
-    {
-        "intent": "open clipboard",
-        "actions": [{"type": "key", "key": "win+v"}]
-    },
-    {
-        "intent": "show desktop",
-        "actions": [{"type": "key", "key": "win+d"}]
-    },
-    {
-        "intent": "new virtual desktop",
-        "actions": [{"type": "key", "key": "win+ctrl+d"}]
-    },
-    {
-        "intent": "close virtual desktop",
-        "actions": [{"type": "key", "key": "win+ctrl+f4"}]
-    },
-    {
-        "intent": "switch virtual desktop right",
-        "actions": [{"type": "key", "key": "win+ctrl+right"}]
-    },
-    {
-        "intent": "switch virtual desktop left",
-        "actions": [{"type": "key", "key": "win+ctrl+left"}]
-    },
-    {
-        "intent": "open action center",
-        "actions": [{"type": "key", "key": "win+a"}]
-    },
-    {
-        "intent": "open emoji panel",
-        "actions": [{"type": "key", "key": "win+."}]
-    },
-    {
-        "intent": "open run",
-        "actions": [{"type": "key", "key": "win+r"}]
-    },
-    {
-        "intent": "open file explorer",
-        "actions": [{"type": "key", "key": "win+e"}]
-    },
-    {
-        "intent": "minimize all",
-        "actions": [{"type": "key", "key": "win+m"}]
-    },
-    {
-        "intent": "restore all",
-        "actions": [{"type": "key", "key": "win+shift+m"}]
-    },
-    {
-        "intent": "project screen",
-        "actions": [{"type": "key", "key": "win+p"}]
-    },
-    {
-        "intent": "open dictation",
-        "actions": [{"type": "key", "key": "win+h"}]
-    },
-    {
-        "intent": "open quick link",
-        "actions": [{"type": "key", "key": "win+x"}]
-    },
-    {
-        "intent": "close app",
-        "actions": [{"type": "key", "key": "alt+f4"}]
-    },
-    {
-        "intent": "switch app",
-        "actions": [{"type": "key", "key": "alt+tab"}]
-    },
-    {
-        "intent": "copy",
-        "actions": [{"type": "key", "key": "ctrl+c"}]
-    },
-    {
-        "intent": "paste",
-        "actions": [{"type": "key", "key": "ctrl+v"}]
-    },
-    {
-        "intent": "cut",
-        "actions": [{"type": "key", "key": "ctrl+x"}]
-    },
-    {
-        "intent": "undo",
-        "actions": [{"type": "key", "key": "ctrl+z"}]
-    },
-    {
-        "intent": "redo",
-        "actions": [{"type": "key", "key": "ctrl+y"}]
-    },
-    {
-        "intent": "select all",
-        "actions": [{"type": "key", "key": "ctrl+a"}]
-    },
-    {
-        "intent": "save",
-        "actions": [{"type": "key", "key": "ctrl+s"}]
-    },
-    {
-        "intent": "print",
-        "actions": [{"type": "key", "key": "ctrl+p"}]
-    },
-    {
-        "intent": "find",
-        "actions": [{"type": "key", "key": "ctrl+f"}]
-    },
-    {
-        "intent": "new window",
-        "actions": [{"type": "key", "key": "ctrl+n"}]
-    },
-    {
-        "intent": "new tab",
-        "actions": [{"type": "key", "key": "ctrl+t"}]
-    },
-    {
-        "intent": "close tab",
-        "actions": [{"type": "key", "key": "ctrl+w"}]
-    },
-    {
-        "intent": "reopen closed tab",
-        "actions": [{"type": "key", "key": "ctrl+shift+t"}]
-    },
-    {
-        "intent": "refresh",
-        "actions": [{"type": "key", "key": "f5"}]
-    },
-    {
-        "intent": "hard refresh",
-        "actions": [{"type": "key", "key": "ctrl+f5"}]
-    },
-    {
-        "intent": "fullscreen",
-        "actions": [{"type": "key", "key": "f11"}]
-    },
-    {
-        "intent": "open dev tools",
-        "actions": [{"type": "key", "key": "f12"}]
-    },
-    {
-        "intent": "open history",
-        "actions": [{"type": "key", "key": "ctrl+h"}]
-    },
-    {
-        "intent": "open downloads",
-        "actions": [{"type": "key", "key": "ctrl+j"}]
-    },
-    {
-        "intent": "open bookmarks",
-        "actions": [{"type": "key", "key": "ctrl+b"}]
-    },
-    {
-        "intent": "bookmark this page",
-        "actions": [{"type": "key", "key": "ctrl+d"}]
-    }
-]
-
-skills.extend(specialized_skills)
-
+# Write to disk
 for skill in skills:
     safe_name = skill["intent"].replace(" ", "_")
     data = {

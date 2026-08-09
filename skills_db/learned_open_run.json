@@ -3,7 +3,23 @@
   "actions": [
     {
       "type": "key",
-      "key": "win+r"
+      "key": "win"
+    },
+    {
+      "type": "sleep",
+      "ms": 800
+    },
+    {
+      "type": "type",
+      "text": "run"
+    },
+    {
+      "type": "sleep",
+      "ms": 800
+    },
+    {
+      "type": "key",
+      "key": "enter"
     }
   ]
 }
