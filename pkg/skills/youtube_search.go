@@ -17,6 +17,12 @@ func (s *YouTubeSearchSkill) Name() string {
 }
 
 func (s *YouTubeSearchSkill) Match(intent string) bool {
+	// If the user refers to the current screen, fall back to the Dynamic AI Planner (Moondream)
+	if strings.Contains(intent, "opened") || strings.Contains(intent, "this") || 
+	   strings.Contains(intent, "click") || strings.Contains(intent, "screen") {
+		return false
+	}
+	
 	return ContainsAllKeywords(intent, "youtube", "search") || 
 	       ContainsAllKeywords(intent, "play", "youtube")
 }
