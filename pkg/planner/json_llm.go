@@ -50,7 +50,7 @@ Available Actions MUST follow this exact JSON format:
 	cmd := exec.Command(llamaExe,
 		"-m", modelPath,
 		"-f", "temp_prompt.txt",
-		"-c", "4096",
+		"-c", "8192",
 		"-n", "1024",
 		"--temp", "0.1",
 		"--repeat-penalty", "1.2",
