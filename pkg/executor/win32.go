@@ -13,6 +13,7 @@ var (
 
 type Action struct {
 	Type string `json:"type"`
+	Name string `json:"name,omitempty"` // Added for click_element
 	X    int    `json:"x,omitempty"`
 	Y    int    `json:"y,omitempty"`
 	Text string `json:"text,omitempty"`
@@ -27,6 +28,9 @@ func ExecutePlan(actions []Action) {
 			moveMouse(act.X, act.Y)
 		case "click":
 			clickMouse()
+		case "click_element":
+			// In the future, this will call uia.go to search for act.Name and get its coordinates
+			// For now, it's just a placeholder to let the AI plan abstractly
 		case "type":
 			typeText(act.Text)
 		case "key":

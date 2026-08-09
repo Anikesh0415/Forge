@@ -11,6 +11,7 @@ import (
 
 	"forge/pkg/executor"
 	"forge/pkg/planner"
+	"forge/pkg/skills"
 	"forge/pkg/uia"
 	"forge/pkg/vision"
 )
@@ -45,7 +46,15 @@ func handleSummon() {
 	intent = strings.TrimSpace(strings.ToLower(intent))
 	fmt.Printf("User Intent: %s\n\n", intent)
 
-	// Rule-based fallback for simple "open X" commands (max 3 words, no commas)
+	// HYBRID ORCHESTRATOR: Check if intent matches any advanced Skills
+	matchedSkill := skills.MatchIntent(intent)
+	if matchedSkill != nil {
+		fmt.Printf("Orchestrator: Routing to Advanced Skill '%s'\n", matchedSkill.Name())
+		matchedSkill.Execute(intent)
+		return
+	}
+
+	// Legacy simple fallback for "open X" (under 3 words, no commas)
 	words := strings.Fields(intent)
 	if strings.HasPrefix(intent, "open ") && len(words) <= 3 && !strings.Contains(intent, ",") {
 		appName := strings.TrimPrefix(intent, "open ")
@@ -64,11 +73,10 @@ func handleSummon() {
 	history := "[]"
 	var allActions []executor.Action
 
-	// Self-Correction Loop (Max 3 steps to prevent runaway loops)
+	// DYNAMIC AI ORCHESTRATOR (Fallback)
 	for step := 1; step <= 3; step++ {
 		fmt.Printf("\n--- Step %d ---\n", step)
 		
-		// 1. Capture Contexts
 		fmt.Println("Capturing screen and analyzing via Moondream...")
 		visionContext, err := vision.CaptureAndAnalyze()
 		if err != nil {
@@ -83,7 +91,6 @@ func handleSummon() {
 			uiaContext = "[]"
 		}
 
-		// 2. Plan Actions
 		fmt.Println("Planning actions...")
 		actions, err := planner.PlanActions(intent, visionContext, uiaContext, history)
 		if err != nil {
@@ -93,7 +100,12 @@ func handleSummon() {
 		
 		fmt.Printf("Generated Plan: %+v\n", actions)
 
-		// 3. Execute
+		// SAFEGUARD CHECK
+		if !checkSafeguards(actions) {
+			fmt.Println("Safeguard triggered: User denied permission for high-risk action. Aborting.")
+			return
+		}
+
 		isDone := false
 		var executedThisStep []executor.Action
 		for _, act := range actions {
@@ -109,7 +121,6 @@ func handleSummon() {
 			executor.ExecutePlan(executedThisStep)
 			allActions = append(allActions, executedThisStep...)
 			
-			// Update history for next iteration
 			historyBytes, _ := json.Marshal(allActions)
 			history = string(historyBytes)
 		}
@@ -119,9 +130,57 @@ func handleSummon() {
 			break
 		}
 
-		// Wait for UI to settle before next step
 		time.Sleep(1 * time.Second)
 	}
 	
 	fmt.Println("Done!")
+}
+
+// checkSafeguards scans for high-risk words and prompts the user natively via VBS.
+func checkSafeguards(actions []executor.Action) bool {
+	dangerousKeywords := []string{"delete", "remove", "pay", "buy", "transfer"}
+	
+	for _, act := range actions {
+		if act.Type == "type" {
+			lowerText := strings.ToLower(act.Text)
+			for _, kw := range dangerousKeywords {
+				if strings.Contains(lowerText, kw) {
+					return askUserPermission(fmt.Sprintf("Forge is about to type a high-risk phrase containing '%s'. Proceed?", kw))
+				}
+			}
+		} else if act.Type == "click_element" {
+			lowerName := strings.ToLower(act.Name)
+			for _, kw := range dangerousKeywords {
+				if strings.Contains(lowerName, kw) {
+					return askUserPermission(fmt.Sprintf("Forge is about to click a high-risk button: '%s'. Proceed?", act.Name))
+				}
+			}
+		}
+	}
+	return true
+}
+
+func askUserPermission(msg string) bool {
+	vbsScript := fmt.Sprintf(`
+Dim result
+result = MsgBox("%s", vbYesNo + vbExclamation + vbSystemModal, "Forge Safeguard")
+If result = vbYes Then
+    WScript.Quit 0
+Else
+    WScript.Quit 1
+End If
+`, msg)
+
+	os.WriteFile("safeguard.vbs", []byte(vbsScript), 0644)
+	defer os.Remove("safeguard.vbs")
+
+	cmd := exec.Command("wscript", "//nologo", "safeguard.vbs")
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	err := cmd.Run()
+	
+	// Exit code 0 means Yes, 1 means No
+	if exitErr, ok := err.(*exec.ExitError); ok {
+		return exitErr.ExitCode() == 0
+	}
+	return err == nil
 }
