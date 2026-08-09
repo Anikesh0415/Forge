@@ -38,6 +38,14 @@ Available Actions MUST follow this exact JSON format:
   {"type": "sleep", "ms": 500},
   {"type": "done"}
 ]
+
+Example Task:
+User Intent: open notepad
+UIA Elements: [{"name": "Notepad", "type": "Button"}]
+Assistant:
+[
+  {"type": "click_element", "name": "Notepad"}
+]
 <|im_end|>
 <|im_start|>assistant
 `, visionContext, uiaContext, history, intent)
