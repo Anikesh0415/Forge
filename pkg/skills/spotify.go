@@ -45,22 +45,29 @@ func (s *SpotifySearchSkill) Execute(intent string) error {
 		searchTerm = strings.TrimSpace(part)
 	}
 
+	safeSearch := strings.ReplaceAll(searchTerm, " ", "%20")
+	targetUrl := "https://open.spotify.com/search/" + safeSearch
+	
 	actions := []executor.Action{
-		// 1. Open Spotify via Start Menu
-		{Type: "key", Key: "win"},
+		{Type: "key", Key: "win+r"},
 		{Type: "sleep", Ms: 1000},
-		{Type: "type", Text: "spotify"},
+		{Type: "type", Text: "brave " + targetUrl},
 		{Type: "sleep", Ms: 1000},
 		{Type: "key", Key: "enter"},
+		
+		// The user explicitly requested a 3 second delay for loading apps
 		{Type: "sleep", Ms: 3000},
 		
-		// 2. Focus Spotify Search Bar (Ctrl+L or Ctrl+K)
-		{Type: "key", Key: "ctrl+k"},
-		{Type: "sleep", Ms: 1000},
-		
-		// 3. Type search term and hit enter
-		{Type: "type", Text: searchTerm},
-		{Type: "sleep", Ms: 1000},
+		// To play the top result in Spotify search:
+		// Usually we can press Tab a few times to focus "Top result" and hit enter.
+		{Type: "key", Key: "tab"},
+		{Type: "sleep", Ms: 200},
+		{Type: "key", Key: "tab"},
+		{Type: "sleep", Ms: 200},
+		{Type: "key", Key: "tab"},
+		{Type: "sleep", Ms: 200},
+		{Type: "key", Key: "tab"},
+		{Type: "sleep", Ms: 200},
 		{Type: "key", Key: "enter"},
 	}
 	
