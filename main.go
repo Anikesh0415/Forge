@@ -24,6 +24,8 @@ func main() {
 		defer logFile.Close()
 	}
 	
+	skills.LoadLearnedSkills()
+
 	for {
 		handleSummon()
 	}
@@ -90,30 +92,42 @@ $win.ShowDialog() | Out-Null
 	if intent == "exit" || intent == "quit" {
 		os.Exit(0)
 	}
+	
+	isLearningMode := false
+	if strings.HasPrefix(intent, "learn ") {
+		isLearningMode = true
+		intent = strings.TrimSpace(strings.TrimPrefix(intent, "learn "))
+		if strings.HasPrefix(intent, "how to ") {
+			intent = strings.TrimSpace(strings.TrimPrefix(intent, "how to "))
+		}
+		fmt.Printf("Learning Mode activated for: '%s'\n", intent)
+	}
 	fmt.Printf("User Intent: %s\n\n", intent)
 
-	// HYBRID ORCHESTRATOR: Check if intent matches any advanced Skills
-	matchedSkill := skills.MatchIntent(intent)
-	if matchedSkill != nil {
-		fmt.Printf("Orchestrator: Routing to Advanced Skill '%s'\n", matchedSkill.Name())
-		matchedSkill.Execute(intent)
-		return
-	}
-
-	// Legacy simple fallback for "open X" (under 3 words, no commas)
-	words := strings.Fields(intent)
-	if strings.HasPrefix(intent, "open ") && len(words) <= 3 && !strings.Contains(intent, ",") {
-		appName := strings.TrimPrefix(intent, "open ")
-		fmt.Printf("Rule-based fallback: opening '%s'\n", appName)
-		actions := []executor.Action{
-			{Type: "key", Key: "win"},
-			{Type: "sleep", Ms: 800},
-			{Type: "type", Text: appName},
-			{Type: "sleep", Ms: 800},
-			{Type: "key", Key: "enter"},
+	if !isLearningMode {
+		// HYBRID ORCHESTRATOR: Check if intent matches any advanced Skills
+		matchedSkill := skills.MatchIntent(intent)
+		if matchedSkill != nil {
+			fmt.Printf("Orchestrator: Routing to Advanced Skill '%s'\n", matchedSkill.Name())
+			matchedSkill.Execute(intent)
+			return
 		}
-		executor.ExecutePlan(actions)
-		return
+
+		// Legacy simple fallback for "open X" (under 3 words, no commas)
+		words := strings.Fields(intent)
+		if strings.HasPrefix(intent, "open ") && len(words) <= 3 && !strings.Contains(intent, ",") {
+			appName := strings.TrimPrefix(intent, "open ")
+			fmt.Printf("Rule-based fallback: opening '%s'\n", appName)
+			actions := []executor.Action{
+				{Type: "key", Key: "win"},
+				{Type: "sleep", Ms: 800},
+				{Type: "type", Text: appName},
+				{Type: "sleep", Ms: 800},
+				{Type: "key", Key: "enter"},
+			}
+			executor.ExecutePlan(actions)
+			return
+		}
 	}
 
 	history := "[]"
@@ -186,6 +200,9 @@ $win.ShowDialog() | Out-Null
 		if isDone {
 			fmt.Println("Intent fully achieved. Exiting loop.")
 			notifyUser("Forge Complete", "Task achieved successfully!")
+			if isLearningMode {
+				saveLearnedSkill(intent, allActions)
+			}
 			break
 		}
 
@@ -261,4 +278,19 @@ $balloon.Dispose()
 	cmd := exec.Command("powershell", "-ExecutionPolicy", "Bypass", "-File", "notify.ps1")
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	cmd.Start() // run asynchronously
+}
+
+func saveLearnedSkill(intent string, actions []executor.Action) {
+	os.Mkdir("skills_db", 0755)
+	safeName := strings.ReplaceAll(intent, " ", "_")
+	
+	skill := skills.DynamicSkill{
+		SkillName: intent,
+		Actions:   actions,
+	}
+	
+	data, _ := json.MarshalIndent(skill, "", "  ")
+	os.WriteFile(fmt.Sprintf("skills_db/learned_%s.json", safeName), data, 0644)
+	fmt.Printf("Successfully learned and saved skill: %s\n", intent)
+	notifyUser("Forge Learn", fmt.Sprintf("Learned new skill: %s", intent))
 }
