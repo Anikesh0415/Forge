@@ -57,7 +57,6 @@ Available Actions MUST follow this exact JSON format:
 		"--no-conversation",
 		"--simple-io",
 		"--no-display-prompt",
-		"-jf", "schema.json",
 	)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 
@@ -80,6 +79,10 @@ Available Actions MUST follow this exact JSON format:
 		}
 		return nil, fmt.Errorf("no valid JSON array found in output:\n%s", response)
 	}
+
+	// Sanitize common 0.5B model hallucinations (unquoted keys)
+	match = regexp.MustCompile(`(?i)([{,]\s*)x\s*:`).ReplaceAllString(match, `$1"x":`)
+	match = regexp.MustCompile(`(?i)([{,]\s*)y\s*:`).ReplaceAllString(match, `$1"y":`)
 
 	var actions []executor.Action
 	if err := json.Unmarshal([]byte(match), &actions); err != nil {
