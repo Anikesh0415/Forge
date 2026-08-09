@@ -148,25 +148,55 @@ func pressSpecialKey(keyName string) {
 		Pad  [8]byte
 	}
 
-	var vk uint16
-	switch keyName {
-	case "win":
-		vk = 0x5B // VK_LWIN
-	case "enter":
-		vk = 0x0D // VK_RETURN
-	default:
-		return
+	var inputs []INPUT
+
+	addKey := func(vk uint16) {
+		var down, up INPUT
+		down.Type, up.Type = 1, 1
+		down.Ki.WVk, up.Ki.WVk = vk, vk
+		up.Ki.DwFlags = 0x0002 // KEYEVENTF_KEYUP
+		inputs = append(inputs, down, up)
 	}
 
-	var down INPUT
-	down.Type = 1
-	down.Ki.WVk = vk
+	addCombo := func(mods []uint16, key uint16) {
+		for _, m := range mods {
+			var down INPUT
+			down.Type = 1
+			down.Ki.WVk = m
+			inputs = append(inputs, down)
+		}
+		addKey(key)
+		for i := len(mods) - 1; i >= 0; i-- {
+			var up INPUT
+			up.Type = 1
+			up.Ki.WVk = mods[i]
+			up.Ki.DwFlags = 0x0002
+			inputs = append(inputs, up)
+		}
+	}
 
-	var up INPUT
-	up.Type = 1
-	up.Ki.WVk = vk
-	up.Ki.DwFlags = 0x0002 // KEYEVENTF_KEYUP
+	switch keyName {
+	case "win": addKey(0x5B)
+	case "enter": addKey(0x0D)
+	case "tab": addKey(0x09)
+	case "playpause": addKey(0xB3) // VK_MEDIA_PLAY_PAUSE
+	case "audio_next": addKey(0xB0) // VK_MEDIA_NEXT_TRACK
+	case "audio_prev": addKey(0xB1) // VK_MEDIA_PREV_TRACK
+	case "audio_vol_up": addKey(0xAF) // VK_VOLUME_UP
+	case "audio_vol_down": addKey(0xAE) // VK_VOLUME_DOWN
+	case "audio_mute": addKey(0xAD) // VK_VOLUME_MUTE
+	case "win+r": addCombo([]uint16{0x5B}, 0x52) // VK_LWIN + R
+	case "ctrl+n": addCombo([]uint16{0x11}, 0x4E) // VK_CONTROL + N
+	case "ctrl+p": addCombo([]uint16{0x11}, 0x50) // VK_CONTROL + P
+	case "ctrl+s": addCombo([]uint16{0x11}, 0x53) // VK_CONTROL + S
+	case "ctrl+shift+s": addCombo([]uint16{0x11, 0x10}, 0x53) // VK_CONTROL + VK_SHIFT + S
+	case "ctrl+f": addCombo([]uint16{0x11}, 0x46) // VK_CONTROL + F
+	case "ctrl+h": addCombo([]uint16{0x11}, 0x48) // VK_CONTROL + H
+	case "ctrl+k": addCombo([]uint16{0x11}, 0x4B) // VK_CONTROL + K
+	default: return
+	}
 
-	inputs := []INPUT{down, up}
-	procSendInput.Call(2, uintptr(unsafe.Pointer(&inputs[0])), uintptr(unsafe.Sizeof(down)))
+	if len(inputs) > 0 {
+		procSendInput.Call(uintptr(len(inputs)), uintptr(unsafe.Pointer(&inputs[0])), uintptr(unsafe.Sizeof(inputs[0])))
+	}
 }
