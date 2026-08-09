@@ -38,10 +38,10 @@ func (s *BrowserSearchSkill) Execute(intent string) error {
 	}
 	
 	actions := []executor.Action{
-		// 1. Open Edge/Chrome (Default browser via run prompt)
+		// 1. Open Brave (Default browser via run prompt)
 		{Type: "key", Key: "win"},
 		{Type: "sleep", Ms: 1000},
-		{Type: "type", Text: "edge"},
+		{Type: "type", Text: "brave"},
 		{Type: "sleep", Ms: 1000},
 		{Type: "key", Key: "enter"},
 		{Type: "sleep", Ms: 3000},

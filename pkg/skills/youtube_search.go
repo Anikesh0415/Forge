@@ -43,10 +43,10 @@ func (s *YouTubeSearchSkill) Execute(intent string) error {
 	}
 	
 	actions := []executor.Action{
-		// 1. Open Edge/Chrome (Default browser via run prompt)
+		// 1. Open Brave (Default browser via run prompt)
 		{Type: "key", Key: "win"},
 		{Type: "sleep", Ms: 1000},
-		{Type: "type", Text: "edge"},
+		{Type: "type", Text: "brave"},
 		{Type: "sleep", Ms: 1000},
 		{Type: "key", Key: "enter"},
 		{Type: "sleep", Ms: 3000},
@@ -54,6 +54,18 @@ func (s *YouTubeSearchSkill) Execute(intent string) error {
 		// 2. Focus address bar and navigate to youtube search directly
 		{Type: "type", Text: "https://www.youtube.com/results?search_query=" + strings.ReplaceAll(searchTerm, " ", "+")},
 		{Type: "sleep", Ms: 500},
+		{Type: "key", Key: "enter"},
+		{Type: "sleep", Ms: 3000},
+		
+		// 3. Tab to the first video and press enter to play it
+		{Type: "key", Key: "tab"},
+		{Type: "sleep", Ms: 200},
+		{Type: "key", Key: "tab"},
+		{Type: "sleep", Ms: 200},
+		{Type: "key", Key: "tab"},
+		{Type: "sleep", Ms: 200},
+		{Type: "key", Key: "tab"},
+		{Type: "sleep", Ms: 200},
 		{Type: "key", Key: "enter"},
 	}
 	

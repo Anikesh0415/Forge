@@ -55,7 +55,7 @@ websites = [
     "bilibili", "weather", "yahoo.co.jp", "qq", "yandex.ru", "pinterest", "zoom",
     "duckduckgo", "quora", "globo", "ebay", "msn", "stripchat", "roblox", "aliexpress",
     "canva", "bbc", "nytimes", "cnn", "foxnews", "espn", "imdb", "apple", "microsoft",
-    "spotify", "github", "stackoverflow", "chatgpt", "openai", "craigslist", "walmart",
+    "github", "stackoverflow", "chatgpt", "openai", "craigslist", "walmart",
     "target", "bestbuy", "hulu", "disneyplus", "hbomax", "primevideo", "paypal",
     "chase", "bankofamerica", "wellsfargo", "capitalone", "zillow", "realtor",
     "booking", "expedia", "airbnb", "tripadvisor", "yelp", "ign", "gamespot",
@@ -168,14 +168,14 @@ advanced_skills = [
     {"intent": "open gmail", "actions": [
         {"type": "key", "key": "win+r"},
         {"type": "sleep", "ms": 800},
-        {"type": "type", "text": "chrome https://mail.google.com"},
+        {"type": "type", "text": "brave https://mail.google.com"},
         {"type": "sleep", "ms": 800},
         {"type": "key", "key": "enter"}
     ]},
     {"intent": "compose email", "actions": [
         {"type": "key", "key": "win+r"},
         {"type": "sleep", "ms": 800},
-        {"type": "type", "text": "chrome https://mail.google.com/mail/u/0/#inbox?compose=new"},
+        {"type": "type", "text": "brave https://mail.google.com/mail/u/0/#inbox?compose=new"},
         {"type": "sleep", "ms": 800},
         {"type": "key", "key": "enter"}
     ]},
@@ -184,7 +184,7 @@ advanced_skills = [
     {"intent": "search google", "actions": [
         {"type": "key", "key": "win+r"},
         {"type": "sleep", "ms": 800},
-        {"type": "type", "text": "chrome https://google.com"},
+        {"type": "type", "text": "brave https://google.com"},
         {"type": "sleep", "ms": 800},
         {"type": "key", "key": "enter"}
     ]},
@@ -193,7 +193,7 @@ advanced_skills = [
     {"intent": "search reddit", "actions": [
         {"type": "key", "key": "win+r"},
         {"type": "sleep", "ms": 800},
-        {"type": "type", "text": "chrome https://reddit.com"},
+        {"type": "type", "text": "brave https://reddit.com"},
         {"type": "sleep", "ms": 800},
         {"type": "key", "key": "enter"}
     ]},
@@ -202,14 +202,14 @@ advanced_skills = [
     {"intent": "open instagram", "actions": [
         {"type": "key", "key": "win+r"},
         {"type": "sleep", "ms": 800},
-        {"type": "type", "text": "chrome https://instagram.com"},
+        {"type": "type", "text": "brave https://instagram.com"},
         {"type": "sleep", "ms": 800},
         {"type": "key", "key": "enter"}
     ]},
     {"intent": "instagram messages", "actions": [
         {"type": "key", "key": "win+r"},
         {"type": "sleep", "ms": 800},
-        {"type": "type", "text": "chrome https://instagram.com/direct"},
+        {"type": "type", "text": "brave https://instagram.com/direct"},
         {"type": "sleep", "ms": 800},
         {"type": "key", "key": "enter"}
     ]},
@@ -218,7 +218,7 @@ advanced_skills = [
     {"intent": "whatsapp web", "actions": [
         {"type": "key", "key": "win+r"},
         {"type": "sleep", "ms": 800},
-        {"type": "type", "text": "chrome https://web.whatsapp.com"},
+        {"type": "type", "text": "brave https://web.whatsapp.com"},
         {"type": "sleep", "ms": 800},
         {"type": "key", "key": "enter"}
     ]},
@@ -268,7 +268,7 @@ advanced_skills = [
     {"intent": "open gemini", "actions": [
         {"type": "key", "key": "win+r"},
         {"type": "sleep", "ms": 800},
-        {"type": "type", "text": "chrome https://gemini.google.com"},
+        {"type": "type", "text": "brave https://gemini.google.com"},
         {"type": "sleep", "ms": 800},
         {"type": "key", "key": "enter"}
     ]},
