@@ -17,7 +17,8 @@ func (s *BrowserSearchSkill) Name() string {
 }
 
 func (s *BrowserSearchSkill) Match(intent string) bool {
-	if strings.Contains(intent, "youtube") {
+	// Do not intercept if it's meant for youtube, spotify, or an already opened specific app
+	if strings.Contains(intent, "youtube") || strings.Contains(intent, "spotify") || strings.Contains(intent, "opened") {
 		return false
 	}
 	return ContainsAllKeywords(intent, "search", "for") || 
