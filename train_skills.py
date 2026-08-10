@@ -299,9 +299,36 @@ advanced_skills = [
 
 skills.extend(advanced_skills)
 
+# 7. UNIVERSAL PARAMETERIZED MACROS
+universal_skills = [
+    {"intent": "open {app}", "actions": [
+        {"type": "key", "key": "win"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "{app}"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]},
+    {"intent": "search {site}", "actions": [
+        {"type": "key", "key": "win+r"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "brave https://{site}"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]},
+    {"intent": "browse {site}", "actions": [
+        {"type": "key", "key": "win+r"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "brave https://{site}"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"}
+    ]}
+]
+
+skills.extend(universal_skills)
+
 # Write to disk
 for skill in skills:
-    safe_name = skill["intent"].replace(" ", "_")
+    safe_name = skill["intent"].replace(" ", "_").replace("{", "").replace("}", "")
     data = {
         "name": skill["intent"],
         "actions": skill["actions"]
