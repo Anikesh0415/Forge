@@ -65,8 +65,9 @@ websites = [
     "weebly", "blogger", "tumblr", "flickr", "imgur", "giphy", "deviantart",
     "artstation", "behance", "dribbble", "fiverr", "upwork", "freelancer", "toptal",
     "guru", "peopleperhour", "99designs", "udemy", "coursera", "edx", "khanacademy",
-    "skillshare", "masterclass", "pluralsight", "codecademy", "freecodecamp",
-    "datacamp", "leetcode", "hackerrank", "codewars", "projecteuler", "spoj"
+    "datacamp", "leetcode", "hackerrank", "codewars", "projecteuler", "spoj",
+    "claude", "perplexity", "anthropic", "midjourney", "huggingface", "replit",
+    "poe", "civitai"
 ]
 
 for site in websites:
@@ -97,7 +98,8 @@ dev_tools = [
     "git bash", "github desktop", "sourcetree", "gitkraken", "tortoisegit",
     "notion", "evernote", "obsidian", "todoist", "ticktick", "anydesk", "teamviewer",
     "winrar", "7zip", "rufus", "blender", "premiere", "photoshop", "illustrator",
-    "after effects", "figma", "word", "excel", "powerpoint", "access", "publisher"
+    "after effects", "figma", "word", "excel", "powerpoint", "access", "publisher",
+    "cursor", "zed", "warp", "fleet", "datagrip", "rubymine", "clion"
 ]
 
 for tool in dev_tools:
@@ -274,6 +276,24 @@ advanced_skills = [
     ]},
     {"intent": "ask antigravity", "actions": [
         {"type": "key", "key": "ctrl+k"}
+    ]},
+    {"intent": "lock computer", "actions": [
+        {"type": "key", "key": "win+l"}
+    ]},
+    {"intent": "open task manager", "actions": [
+        {"type": "key", "key": "ctrl+shift+esc"}
+    ]},
+    {"intent": "show desktop", "actions": [
+        {"type": "key", "key": "win+d"}
+    ]},
+    {"intent": "open clipboard history", "actions": [
+        {"type": "key", "key": "win+v"}
+    ]},
+    {"intent": "take screenshot", "actions": [
+        {"type": "key", "key": "win+shift+s"}
+    ]},
+    {"intent": "open emoji keyboard", "actions": [
+        {"type": "key", "key": "win+."}
     ]}
 ]
 

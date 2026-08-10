@@ -3,23 +3,7 @@
   "actions": [
     {
       "type": "key",
-      "key": "win"
-    },
-    {
-      "type": "sleep",
-      "ms": 800
-    },
-    {
-      "type": "type",
-      "text": "task manager"
-    },
-    {
-      "type": "sleep",
-      "ms": 800
-    },
-    {
-      "type": "key",
-      "key": "enter"
+      "key": "ctrl+shift+esc"
     }
   ]
 }
