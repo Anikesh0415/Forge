@@ -28,6 +28,7 @@ func main() {
 	
 	db.InitBrain()
 	recorder.StartHooks()
+	skills.InitBuiltinSkills()
 	skills.LoadLearnedSkills()
 
 	for {
