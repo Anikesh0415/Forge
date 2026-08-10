@@ -28,6 +28,14 @@ Originally built as a simple Python wrapper, **Forge has been entirely rewritten
 
 ---
 
+## What's New in Version 2.62 🌟
+
+- 🎯 **Smart Parameterized Skills (Macro Variables):** Learned macros now support dynamic placeholders (e.g. `play {song} on spotify`). Variable values are automatically extracted from user commands and injected into execution steps at runtime.
+- 👁️ **Native OCR & Text-Match Fallback (`click_text`):** Added `click_text` action powered by Microsoft UI Automation (UIA) text coordinates. Allows Forge to click elements on screen based on visible text labels with zero extra RAM or external dependencies.
+- 🌐 **Chrome DevTools Protocol (CDP) Integration:** Introduced `pkg/browser/cdp.go` utilizing pure-Go `chromedp` (`ws://127.0.0.1:9222`). Enables background web navigation (`browser_navigate`), DOM element clicks (`browser_click_dom`), and typing (`browser_type_dom`) without taking physical mouse control.
+
+---
+
 ## Architecture 🏗️
 
 ```
