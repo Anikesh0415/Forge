@@ -2,48 +2,39 @@
 
 Forge OS is an incredibly fast, ultra-lightweight, zero-RAM GUI Agent for Windows that acts as the physical brain and hands for your PC.
 
-Written entirely in **pure Go**, Forge achieves a true **Zero-RAM footprint** when idle. It combines real-time event-driven UI Automation (UIA), native Windows Hooks, local SQLite long-term memory, localized AI Planning, remote Telegram control, offline voice input, and a live glassmorphism HUD — all with zero cloud dependencies.
+Written entirely in **pure Go**, Forge achieves a true **Zero-RAM footprint** when idle. It combines real-time event-driven UI Automation (UIA), native Windows Hooks, local SQLite long-term memory, localized AI Planning, remote Telegram control, offline voice input, GBNF-constrained JSON parsing, an FSA state-machine safeguard engine, and a live glassmorphism HUD — all with zero cloud dependencies.
 
 ---
 
 ## Key Features ✨
 
 - ⚡ **Zero-RAM Idle Footprint:** Pure Go binary — consumes effectively 0 MB of RAM while sleeping. Wakes instantly when summoned.
-- 📡 **Telegram Remote Control:** Send natural language commands to Forge from anywhere in the world via your Telegram bot. Forge authenticates by Chat ID and sends back a reply with the result.
-- 🎙️ **Offline Voice Push-to-Talk (`Ctrl+Shift+V`):** Speak and Forge listens — entirely offline using Windows SAPI (Speech Recognition). Zero network calls, zero cloud APIs, fully private.
-- 🖥️ **Live Glassmorphism HUD Overlay:** A sleek bottom-right progress panel appears during every multi-step orchestration run — showing step number, progress bar fill, and action label with smooth fade-in/out animations.
-- 🔴 **Watch-and-Learn Macro Recorder (`Ctrl+Shift+R`):** Record any workflow by performing it once. Forge captures mouse clicks and keystrokes via native Win32 hooks (`user32.dll`) and compiles it into a zero-hallucination `.json` skill.
-- 🧠 **Embedded Local SQLite Brain (`brain.db`):** Uses `modernc.org/sqlite` (pure Go, zero-CGO). Stores long-term user preferences, macro mappings, and execution history.
-- 👁️ **Closed-Loop UIA Perception (`WaitForElement`):** Powered by Windows `UIAutomationCore.dll`. Replaces fragile `Sleep()` delays with event-driven UIA element watchers and direct bounding-box coordinate clicking.
-- 🔍 **Pure-Go Fuzzy Matcher Engine:** Tokenized Levenshtein distance algorithm with typo scoring and penalty safeguards. Handles typos gracefully (e.g. `"play spotfy"` → `"play spotify"`).
-- 🛡️ **Targeted Safeguards:** Forge actively scans generated execution plans. If it detects a high-risk action (like `delete`, `pay`, `remove`, or `transfer`), it pauses and prompts for native user confirmation.
+- 👁️ **Dual-Stage Vision Pipeline:** Uses SmolVLM-256M as a sub-second fast pass, seamlessly falling back to Moondream2 for complex GUI spatial analysis.
+- 📐 **GBNF Grammar JSON Locking:** Enforces GGML Backus-Naur Form (`action.gbnf`) at the sampling layer, guaranteeing 100% syntactically valid JSON output from local LLMs.
+- 🛡️ **Finite State Automata (FSA) Safeguards:** Tracks execution risk across action sequences over time (`Safe` → `Suspicious` → `Elevated` → `HighRisk`) to prevent malicious or accidental system actions.
+- 📡 **Telegram Remote Control:** Send natural language commands to Forge from anywhere via your Telegram bot. Authenticates by Chat ID and replies with execution status.
+- 🎙️ **Offline Voice Push-to-Talk (`Ctrl+Shift+V`):** Speak and Forge listens — 100% offline via Windows SAPI (Speech Recognition). Zero cloud calls, fully private.
+- 🖥️ **Live Glassmorphism HUD Overlay:** A sleek bottom-right progress panel appears during multi-step runs — showing step numbers, teal progress fill, and live action status.
+- 🔴 **Watch-and-Learn Macro Recorder (`Ctrl+Shift+R`):** Record workflows by performing them physically. Forge captures mouse clicks and keystrokes via Win32 hooks (`user32.dll`) and saves them as zero-hallucination `.json` skills.
+- 🧠 **Embedded Local SQLite Brain (`brain.db`):** Pure Go SQLite engine (`modernc.org/sqlite`). Stores user preferences, macro mappings, and execution history.
+- 🔍 **Pure-Go Fuzzy Matcher Engine:** Tokenized Levenshtein distance algorithm for instant (0ms) matching of 600+ built-in app shortcuts and macros.
 - 🌐 **100% Local & Private:** No cloud subscriptions, no telemetry, no data harvesting.
 
 ---
 
-## What's New in Version 2.80 🚀
+## What's New in Version 2.81 🚀
 
-### 📡 Telegram Remote Control
-A background Goroutine connects to the Telegram Bot API using long-polling. Set two environment variables and your phone becomes a remote control for your entire PC:
-```bash
-$env:TELEGRAM_BOT_TOKEN = "your-bot-token"
-$env:TELEGRAM_CHAT_ID   = "your-chat-id"
-.\forge.exe
-```
-Send any natural language command (e.g. *"open spotify and play lo-fi"*) and Forge executes it and replies with the result. Authentication is enforced by Chat ID — only you can control your machine.
+### 👁️ Dual-Stage Vision Pipeline (`pkg/vision/vision.go`)
+- Integrated **SmolVLM-256M** as a hyper-fast first-pass vision model with a tight 10s execution timeout.
+- Automatic fallback to **Moondream2** if SmolVLM returns an empty response or encounters complex GUI element layouts.
 
-### 🎙️ Offline Voice Push-to-Talk
-Forge now listens for voice commands using Windows SAPI — completely offline, no Whisper, no OpenAI, no internet. The `pkg/voice` package handles:
-- A mock-injection interface for unit testing (zero microphone needed in CI)
-- A PowerShell SAPI fallback for maximum Windows compatibility
-- `SetIntentHandler` wire-up so voice → planner → executor is a seamless pipeline
+### 📐 GBNF Grammar Schema Enforcement (`pkg/planner/action.gbnf`)
+- Created GGML Backus-Naur Form grammar rules that mathematically force Qwen 0.5B to output *only* valid `executor.Action` JSON objects.
+- Eliminated regex string cleanup and trailing-comma parsing failures.
 
-### 🖥️ Live Glassmorphism HUD Overlay
-The old balloon tooltip notification has been replaced with a full WPF overlay window featuring:
-- **Dark glassmorphism panel** (`#E0111111` background) pinned to the bottom-right corner
-- **Teal progress bar** (`#00D4AA`) that fills step-by-step (e.g. `[3/15]`)
-- **Animated status dot** in teal next to the current step label
-- **Smooth fade-in / fade-out** — 250ms in, 300ms out, auto-dismisses after 2.5 seconds
+### 🛡️ Context-Aware FSA Safeguard Engine (`main.go`)
+- Replaced static keyword array checks with a pure-Go **Finite State Automaton (`SafeguardFSA`)**.
+- Tracks state progression over time: opening terminal/browser transitions to `StateSuspicious`, typing elevates risk to `StateElevated`, and high-risk actions (e.g., `delete`, `pay`, `transfer`) escalate to `StateHighRisk`, prompting a native VBS user modal.
 
 ---
 
@@ -70,12 +61,18 @@ The old balloon tooltip notification has been replaced with a full WPF overlay w
                │                             │
                v                             v
    +───────────────────+         +──────────────────────+
-   │  Native Skill /   │         │  Qwen 0.5B Dynamic   │
-   │  Learned Macro    │         │  AI Planner           │
-   │  (.json)          │         +──────────┬───────────+
+   │ Pure-Go Fuzzy     │         │ GBNF-Locked Qwen     │
+   │ Macro Engine      │         │ 0.5B Planner         │
+   │ (.json / 0ms)     │         +──────────┬───────────+
    +─────────┬─────────+                    │
              │                              │
              └──────────────┬───────────────┘
+                            │
+                            v
+               +────────────────────────+
+               │  FSA Safeguard Engine  │
+               │  (Safe -> HighRisk)    │
+               +────────────┬───────────+
                             │
                             v
                +────────────────────────+
@@ -85,8 +82,8 @@ The old balloon tooltip notification has been replaced with a full WPF overlay w
                             │
                             v
                +────────────────────────+
-               │  Event-Driven UIA      │
-               │  Closed-Loop Perception│
+               │  Dual Vision Pipeline  │
+               │ (SmolVLM -> Moondream) │
                +────────────┬───────────+
                             │
                             v
@@ -97,21 +94,6 @@ The old balloon tooltip notification has been replaced with a full WPF overlay w
 
 ---
 
-## The Skills Library 🛠️
-
-Forge includes built-in skills and supports infinitely extendable dynamic skills:
-
-- 📡 **Telegram Remote:** Control your PC from anywhere via Telegram bot messages.
-- 🎙️ **Voice Commands:** Speak to Forge offline via `Ctrl+Shift+V` — no internet required.
-- 🎵 **Spotify Web Player:** Auto-navigates, waits for UIA element load, and executes direct bounding-box clicks on track play buttons.
-- 📖 **Study Mode:** Automatically opens Notion, creates a page, launches the Windows Clock, and starts a Focus Session.
-- 💬 **AI Messenger:** Prompts local/web AI, waits for the response, copies it, and sends it to a contact via WhatsApp.
-- 💻 **System Monitor:** Hooks into OS telemetry to provide instant native popups about CPU and RAM usage.
-- 🌐 **600+ Dynamic Search Macros:** Native support across 200+ platforms (YouTube, Amazon, Reddit, GitHub, ChatGPT, etc.).
-- 🔴 **Watch-and-Learn:** Any task you demonstrate with `Ctrl+Shift+R` is saved to `skills_db/` as a permanent skill.
-
----
-
 ## Getting Started 📥
 
 ### 1. Requirements
@@ -119,9 +101,10 @@ Forge includes built-in skills and supports infinitely extendable dynamic skills
 - Go 1.20+ (if building from source)
 
 ### 2. Required Models
-Download the following `.gguf` files into the `models/` directory for dynamic fallback planning:
+Download the following `.gguf` files into the `models/` directory for dynamic fallback planning & vision:
 - **Qwen 2.5 (0.5B):** `qwen2.5-0.5b-instruct-q4_k_m.gguf`
-- **Moondream2 (Optional Vision):** `moondream2-text-model-f16_ct-vicuna.gguf` & `mmproj`
+- **SmolVLM (Fast Vision):** `smolvlm-256m-instruct.gguf`
+- **Moondream2 (Deep Vision):** `moondream2-text-model-f16.gguf` & `moondream2-mmproj-f16.gguf`
 
 ### 3. Build & Run
 ```bash
@@ -133,14 +116,6 @@ cd Forge
 go build -ldflags="-H windowsgui" -o forge.exe main.go
 
 # Launch Forge
-.\forge.exe
-```
-
-### 4. Enable Telegram Remote (Optional)
-```powershell
-# Set your Telegram bot credentials (get a bot token from @BotFather)
-$env:TELEGRAM_BOT_TOKEN = "123456:ABC-DEF..."
-$env:TELEGRAM_CHAT_ID   = "987654321"
 .\forge.exe
 ```
 
@@ -160,4 +135,4 @@ $env:TELEGRAM_CHAT_ID   = "987654321"
 
 ## Disclaimer ⚠️
 
-Forge has direct access to your physical mouse and keyboard. While targeted safeguards protect against high-risk keywords, always supervise the agent during dynamic AI execution.
+Forge has direct access to your physical mouse and keyboard. While targeted safeguards and FSA state monitoring protect against high-risk actions, always supervise the agent during dynamic AI execution.

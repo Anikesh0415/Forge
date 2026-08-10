@@ -110,6 +110,9 @@ func DispatchIntent(intent string) (string, error) {
 	var allActions []executor.Action
 	var lastUiaContext string
 
+	// Initialize the Finite State Automaton (FSA) for tracking risk across steps
+	fsa := NewSafeguardFSA()
+
 	for step := 1; step <= 15; step++ {
 		fmt.Printf("\n--- Step %d ---\n", step)
 
@@ -144,8 +147,8 @@ func DispatchIntent(intent string) (string, error) {
 
 		fmt.Printf("Generated Plan: %+v\n", actions)
 
-		if !checkSafeguards(actions) {
-			fmt.Println("Safeguard triggered: User denied permission for high-risk action. Aborting.")
+		if !fsa.Evaluate(actions, intent) {
+			fmt.Println("FSA Safeguard triggered: User denied permission for high-risk action. Aborting.")
 			notifyUser("Forge Security", "Action aborted by user.", step, 15)
 			return "Action aborted by user due to safeguard", nil
 		}
@@ -268,23 +271,53 @@ $win.ShowDialog() | Out-Null
 	}
 }
 
-// checkSafeguards scans for high-risk words and prompts the user natively via VBS.
-func checkSafeguards(actions []executor.Action) bool {
+type SecurityState int
+
+const (
+	StateSafe SecurityState = iota
+	StateSuspicious
+	StateElevated
+	StateHighRisk
+)
+
+type SafeguardFSA struct {
+	CurrentState SecurityState
+}
+
+func NewSafeguardFSA() *SafeguardFSA {
+	return &SafeguardFSA{CurrentState: StateSafe}
+}
+
+// Evaluate runs the FSA across the current step's actions and tracks state over time.
+func (fsa *SafeguardFSA) Evaluate(actions []executor.Action, intent string) bool {
 	dangerousKeywords := []string{"delete", "remove", "pay", "buy", "transfer"}
-	
+	suspiciousApps := []string{"browser", "chrome", "edge", "powershell", "cmd", "terminal"}
+
+	// Analyze intent to set baseline state
+	lowerIntent := strings.ToLower(intent)
+	for _, app := range suspiciousApps {
+		if strings.Contains(lowerIntent, app) && fsa.CurrentState < StateSuspicious {
+			fsa.CurrentState = StateSuspicious
+		}
+	}
+
 	for _, act := range actions {
-		if act.Type == "type" {
-			lowerText := strings.ToLower(act.Text)
-			for _, kw := range dangerousKeywords {
-				if strings.Contains(lowerText, kw) {
-					return askUserPermission(fmt.Sprintf("Forge is about to type a high-risk phrase containing '%s'. Proceed?", kw))
-				}
+		if act.Type == "type" || act.Type == "click_element" {
+			target := strings.ToLower(act.Text)
+			if act.Type == "click_element" {
+				target = strings.ToLower(act.Name)
 			}
-		} else if act.Type == "click_element" {
-			lowerName := strings.ToLower(act.Name)
+			
+			// Typing into a suspicious app elevates the risk state
+			if act.Type == "type" && fsa.CurrentState == StateSuspicious {
+				fsa.CurrentState = StateElevated
+			}
+
+			// Check for explicitly dangerous keywords
 			for _, kw := range dangerousKeywords {
-				if strings.Contains(lowerName, kw) {
-					return askUserPermission(fmt.Sprintf("Forge is about to click a high-risk button: '%s'. Proceed?", act.Name))
+				if strings.Contains(target, kw) {
+					fsa.CurrentState = StateHighRisk
+					return askUserPermission(fmt.Sprintf("FSA Triggered (High-Risk sequence detected): '%s'. Proceed?", kw))
 				}
 			}
 		}

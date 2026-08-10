@@ -67,6 +67,7 @@ Assistant:
 	cmd := exec.Command(llamaExe,
 		"-m", modelPath,
 		"-f", "temp_prompt.txt",
+		"--grammar-file", `pkg\planner\action.gbnf`,
 		"-c", "16384",
 		"-n", "512",
 		"--temp", "0.1",
@@ -80,31 +81,30 @@ Assistant:
 	out, err := cmd.CombinedOutput()
 	response := string(out)
 
+	if err != nil {
+		return nil, fmt.Errorf("llama execution failed: %v\nOutput: %s", err, response)
+	}
+
+	// Because of GBNF, the response should be exactly the valid JSON action.
+	// We just need to extract everything after <|im_start|>assistant if present,
+	// though GBNF on completion might just return the raw JSON.
 	parts := strings.Split(response, "<|im_start|>assistant")
-	assistantResp := response
-	if len(parts) > 1 {
-		assistantResp = parts[len(parts)-1]
-	}
-
-	// Extract ONE JSON object
-	re := regexp.MustCompile(`(?s)\{.*?\}`)
-	match := re.FindString(assistantResp)
-	if match == "" {
-		if err != nil {
-			return nil, fmt.Errorf("llama execution failed: %v\nOutput: %s", err, response)
-		}
-		return nil, fmt.Errorf("no valid JSON object found in output:\n%s", response)
-	}
-
-	match = regexp.MustCompile(`(?i)([{,]\s*)x\s*:`).ReplaceAllString(match, `$1"x":`)
-	match = regexp.MustCompile(`(?i)([{,]\s*)y\s*:`).ReplaceAllString(match, `$1"y":`)
+	assistantResp := strings.TrimSpace(parts[len(parts)-1])
 
 	var action executor.Action
-	if err := json.Unmarshal([]byte(match), &action); err != nil {
-		return nil, fmt.Errorf("JSON parse error: %v\nJSON:\n%s", err, match)
+	if err := json.Unmarshal([]byte(assistantResp), &action); err != nil {
+		// Fallback clean if there are minor artifacts (though GBNF should prevent this)
+		re := regexp.MustCompile(`(?s)\{.*?\}`)
+		match := re.FindString(assistantResp)
+		if match != "" {
+			if parseErr := json.Unmarshal([]byte(match), &action); parseErr == nil {
+				return []executor.Action{action}, nil
+			}
+		}
+		return nil, fmt.Errorf("JSON parse error: %v\nResponse:\n%s", err, assistantResp)
 	}
 
-	// We return it as an array of 1 to keep compatibility with existing code
 	return []executor.Action{action}, nil
 }
+
 
