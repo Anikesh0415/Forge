@@ -28,6 +28,10 @@ Originally built as a simple Python wrapper, **Forge has been entirely rewritten
 
 ---
 
+## What's New in Version 2.63 ✨
+
+- 🪟 **Draggable & Minimizable Overlay:** The main Forge floating input window is now fully draggable across the screen and includes a dedicated minimize button. This allows you to smoothly record macros (`Ctrl+Shift+R`) or read text without the bar blocking the center of your screen!
+
 ## What's New in Version 2.62 🌟
 
 - 🎯 **Smart Parameterized Skills (Macro Variables):** Learned macros now support dynamic placeholders (e.g. `play {song} on spotify`). Variable values are automatically extracted from user commands and injected into execution steps at runtime.
