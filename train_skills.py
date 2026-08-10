@@ -321,6 +321,53 @@ universal_skills = [
         {"type": "type", "text": "brave https://{site}"},
         {"type": "sleep", "ms": 800},
         {"type": "key", "key": "enter"}
+    ]},
+    {"intent": "send {message} to {contact} on whatsapp", "actions": [
+        {"type": "key", "key": "win"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "whatsapp"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"},
+        {"type": "sleep", "ms": 4000},
+        {"type": "key", "key": "ctrl+f"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "{contact}"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "{message}"},
+        {"type": "sleep", "ms": 500},
+        {"type": "key", "key": "enter"}
+    ]},
+    {"intent": "play {song} on spotify", "actions": [
+        {"type": "key", "key": "win"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "spotify"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"},
+        {"type": "sleep", "ms": 4000},
+        {"type": "key", "key": "ctrl+l"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "{song}"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"},
+        {"type": "sleep", "ms": 1000},
+        {"type": "key", "key": "tab"},
+        {"type": "sleep", "ms": 100},
+        {"type": "key", "key": "enter"}
+    ]},
+    {"intent": "google {query}", "actions": [
+        {"type": "key", "key": "win"},
+        {"type": "sleep", "ms": 800},
+        {"type": "type", "text": "brave"},
+        {"type": "sleep", "ms": 800},
+        {"type": "key", "key": "enter"},
+        {"type": "sleep", "ms": 2000},
+        {"type": "key", "key": "ctrl+l"},
+        {"type": "sleep", "ms": 500},
+        {"type": "type", "text": "{query}"},
+        {"type": "sleep", "ms": 500},
+        {"type": "key", "key": "enter"}
     ]}
 ]
 

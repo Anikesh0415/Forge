@@ -35,7 +35,21 @@ Available Actions format:
 {"type": "sleep", "ms": 500}
 {"type": "done"}
 
-Example 1:
+Example 1 (Opening an app):
+User Intent: open notepad
+History: 
+UIA Elements: [{"name": "Start", "type": "Button"}]
+Assistant:
+{"type": "key", "key": "win"}
+
+Example 2 (Typing an app name):
+User Intent: open notepad
+History: pressed win
+UIA Elements: [{"name": "Search Box", "type": "Edit"}]
+Assistant:
+{"type": "type", "text": "notepad"}
+
+Example 3 (Clicking a web element):
 User Intent: search for cats
 History: opened browser
 UIA Elements: [{"name": "Search Box", "type": "Edit"}]

@@ -26,7 +26,10 @@ public class UIADumper {
         foreach (AutomationElement e in elements) {
             try {
                 if (e.Current.BoundingRectangle.Width > 0 && e.Current.BoundingRectangle.Height > 0) {
-                    if (!string.IsNullOrEmpty(e.Current.Name) || e.Current.ControlType != ControlType.Pane) {
+                    if (e.Current.ControlType == ControlType.Text || e.Current.ControlType == ControlType.Image || e.Current.ControlType == ControlType.Pane) {
+                        continue;
+                    }
+                    if (!string.IsNullOrEmpty(e.Current.Name)) {
                         if (!first) sb.Append(",");
                         first = false;
                         
