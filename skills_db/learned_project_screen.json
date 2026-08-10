@@ -1,9 +1,0 @@
-{
-  "name": "project screen",
-  "actions": [
-    {
-      "type": "key",
-      "key": "win+p"
-    }
-  ]
-}

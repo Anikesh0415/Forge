@@ -1,9 +1,0 @@
-{
-  "name": "pause spotify",
-  "actions": [
-    {
-      "type": "key",
-      "key": "playpause"
-    }
-  ]
-}

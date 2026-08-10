@@ -88,3 +88,55 @@ func DumpUI() (string, error) {
 
 	return jsonStr, nil
 }
+
+const csPointSource = `
+using System;
+using System.Windows.Automation;
+
+public class UIAPoint {
+    public static void Main(string[] args) {
+        if(args.Length < 2) return;
+        int x = int.Parse(args[0]);
+        int y = int.Parse(args[1]);
+        try {
+            var el = AutomationElement.FromPoint(new System.Windows.Point(x, y));
+            if(el != null && !string.IsNullOrEmpty(el.Current.Name)) {
+                string name = el.Current.Name.Replace("\n", " ").Replace("\r", "").Trim();
+                Console.WriteLine(name);
+            }
+        } catch {}
+    }
+}
+`
+
+// GetElementAtPoint queries Windows UIA for the element at (x,y)
+func GetElementAtPoint(x, y int) (string, error) {
+	exePath := "uia_point.exe"
+
+	if _, err := os.Stat(exePath); os.IsNotExist(err) {
+		csPath := "uia_point.cs"
+		if err := os.WriteFile(csPath, []byte(csPointSource), 0644); err != nil {
+			return "", err
+		}
+		defer os.Remove(csPath)
+
+		cscPath := filepath.Join(os.Getenv("WINDIR"), `Microsoft.NET\Framework64\v4.0.30319\csc.exe`)
+		wpfPath := filepath.Join(os.Getenv("WINDIR"), `Microsoft.NET\Framework64\v4.0.30319\WPF`)
+		refStr := fmt.Sprintf("/reference:%s,%s,%s", filepath.Join(wpfPath, "UIAutomationClient.dll"), filepath.Join(wpfPath, "UIAutomationTypes.dll"), filepath.Join(wpfPath, "WindowsBase.dll"))
+		cmd := exec.Command(cscPath, "/target:exe", "/out:"+exePath, refStr, csPath)
+		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+		if out, err := cmd.CombinedOutput(); err != nil {
+			return "", fmt.Errorf("compile error: %v, output: %s", err, string(out))
+		}
+	}
+
+	cmd := exec.Command("cmd", "/c", fmt.Sprintf("%s %d %d", exePath, x, y))
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
+	out, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("uia point execution failed: %v", err)
+	}
+	
+	// Trim newlines from console output
+	return string(out), nil
+}

@@ -1,9 +1,0 @@
-{
-  "name": "undo",
-  "actions": [
-    {
-      "type": "key",
-      "key": "ctrl+z"
-    }
-  ]
-}

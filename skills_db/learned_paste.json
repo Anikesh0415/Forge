@@ -1,9 +1,0 @@
-{
-  "name": "paste",
-  "actions": [
-    {
-      "type": "key",
-      "key": "ctrl+v"
-    }
-  ]
-}

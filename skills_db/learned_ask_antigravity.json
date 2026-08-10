@@ -1,9 +1,0 @@
-{
-  "name": "ask antigravity",
-  "actions": [
-    {
-      "type": "key",
-      "key": "ctrl+k"
-    }
-  ]
-}

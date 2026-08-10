@@ -1,9 +1,0 @@
-{
-  "name": "close app",
-  "actions": [
-    {
-      "type": "key",
-      "key": "alt+f4"
-    }
-  ]
-}

@@ -1,9 +1,0 @@
-{
-  "name": "bookmark this page",
-  "actions": [
-    {
-      "type": "key",
-      "key": "ctrl+d"
-    }
-  ]
-}

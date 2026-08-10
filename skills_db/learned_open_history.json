@@ -1,9 +1,0 @@
-{
-  "name": "open history",
-  "actions": [
-    {
-      "type": "key",
-      "key": "ctrl+h"
-    }
-  ]
-}

@@ -1,9 +1,0 @@
-{
-  "name": "open clipboard",
-  "actions": [
-    {
-      "type": "key",
-      "key": "win+v"
-    }
-  ]
-}

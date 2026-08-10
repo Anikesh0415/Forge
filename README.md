@@ -28,6 +28,10 @@ Originally built as a simple Python wrapper, **Forge has been entirely rewritten
 
 ---
 
+## What's New in Version 2.64 🔥
+
+- 🧠 **Smart Semantic Macro Recorder:** The `Ctrl+Shift+R` recorder is no longer blind! When you click, Forge instantly and asynchronously queries Windows UIA to find the *semantic name* of the element you clicked on (e.g., "Send Button") instead of just saving exact `(X,Y)` coordinates. This means your recorded macros will now work flawlessly even if you resize, minimize, or move your app windows around!
+
 ## What's New in Version 2.63 ✨
 
 - 🪟 **Draggable & Minimizable Overlay:** The main Forge floating input window is now fully draggable across the screen and includes a dedicated minimize button. This allows you to smoothly record macros (`Ctrl+Shift+R`) or read text without the bar blocking the center of your screen!

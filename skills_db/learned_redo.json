@@ -1,9 +1,0 @@
-{
-  "name": "redo",
-  "actions": [
-    {
-      "type": "key",
-      "key": "ctrl+y"
-    }
-  ]
-}

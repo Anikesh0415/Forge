@@ -1,9 +1,0 @@
-{
-  "name": "minimize all",
-  "actions": [
-    {
-      "type": "key",
-      "key": "win+m"
-    }
-  ]
-}

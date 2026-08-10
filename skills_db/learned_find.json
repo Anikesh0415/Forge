@@ -1,9 +1,0 @@
-{
-  "name": "find",
-  "actions": [
-    {
-      "type": "key",
-      "key": "ctrl+f"
-    }
-  ]
-}

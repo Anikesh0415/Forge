@@ -3,15 +3,40 @@ You are a precise PC automation agent.
 Output ONLY ONE VALID JSON action object for the NEXT step. No arrays. No explanations.
 <|im_end|>
 <|im_start|>user
-Vision Context: A browser window showing a login screen.
+Vision Context: 0.00.160.733 W load: missing pre-tokenizer type, using: 'default'
+0.00.160.744 W load:                                             
+0.00.160.744 W load: ************************************        
+0.00.160.745 W load: GENERATION QUALITY WILL BE DEGRADED!        
+0.00.160.745 W load: CONSIDER REGENERATING THE MODEL             
+0.00.160.745 W load: ************************************        
+0.00.160.745 W load:                                             
+0.00.902.804 W llama_context: n_ctx_seq (4096) > n_ctx_train (2048) -- possible training context overflow
+0.02.030.562 W load_tensors: ffn up/down are swapped
+0.03.656.089 I mtmd_cli_context: chat template example:
+<|im_start|>system
+You are a helpful assistant<|im_end|>
+<|im_start|>user
+Hello<|im_end|>
+<|im_start|>assistant
+Hi there<|im_end|>
+<|im_start|>user
+How are you?<|im_end|>
+<|im_start|>assistant
+
+0.03.656.096 I main: loading model: E:\AIF_Project\models\moondream2-text-model-f16.gguf
+0.03.656.114 W WARN: This is an experimental CLI for testing multimodal capability.
+0.03.656.114 W       For normal use cases, please use the standard llama-cli
+0.03.802.944 I encoding mtmd batch, n_chunks = 1 (done = 1, total = 3)
+0.06.237.561 I mtmd batch encoding done in 2434 ms
 
 UIA Elements:
-[{"name": "login button", "type": "button", "x": 500, "y": 600}, {"name": "password field", "type": "edit", "x": 500, "y": 500}]
+[{"name":"Anikesh0415/Forge: Automates work-Hands free - Brave","type":"Window","x":960,"y":600},{"name":"Anikesh0415/Forge: Automates work-Hands free - Brave","type":"Pane","x":960,"y":599},{"name":"Minimize","type":"Button","x":1749,"y":30},{"name":"Restore","type":"Button","x":1816,"y":30},{"name":"Close","type":"Button","x":1885,"y":30},{"name":"","type":"ToolBar","x":960,"y":90},{"name":"Back","type":"Button","x":25,"y":90},{"name":"Forward","type":"Button","x":75,"y":90},{"name":"Reload","type":"Button","x":120,"y":90},{"name":"Home","type":"Button","x":165,"y":90},{"name":"Open tab in split view","type":"Button","x":210,"y":90},{"name":"Bookmark this tab","type":"Button","x":255,"y":90},{"name":"","type":"Group","x":983,"y":90},{"name":"View site information","type":"Button","x":314,"y":90},{"name":"Address and search bar","type":"Edit","x":903,"y":90},{"name":"Install GitHub","type":"Button","x":1489,"y":90},{"name":"Turn on Speedreader","type":"Button","x":1540,"y":90},{"name":"Separator","type":"Separator","x":1565,"y":90},{"name":"Brave Shields","type":"Button","x":1597,"y":90},{"name":"Brave Rewards","type":"Button","x":1648,"y":90},{"name":"Extensions","type":"Button","x":1710,"y":90},{"name":"Control your music, videos, and more","type":"Button","x":1755,"y":90},{"name":"Show sidebar","type":"Button","x":1800,"y":90},{"name":"Leo AI","type":"Button","x":1845,"y":90},{"name":"Brave","type":"Button","x":1894,"y":90},{"name":"Tab search","type":"Button","x":1694,"y":30},{"name":"","type":"Tab","x":186,"y":30},{"name":"Anikesh0415/Forge: Automates work-Hands free","type":"TabItem","x":186,"y":30},{"name":"Close","type":"Button","x":344,"y":30},{"name":"New Tab","type":"Button","x":399,"y":30},{"name":"","type":"Button","x":-31971,"y":-31975},{"name":"Minimize","type":"Button","x":-32161,"y":-31974},{"name":"Maximize","type":"Button","x":-32092,"y":-31974},{"name":"Close","type":"Button","x":-32023,"y":-31974},{"name":"Back","type":"Button","x":-31920,"y":-31978},{"name":"Reload","type":"Button","x":-31876,"y":-31978},{"name":"Brave Shields","type":"Button","x":-30436,"y":-31978},{"name":"Extensions","type":"Button","x":-30376,"y":-31978},{"name":"Customize and control YouTube","type":"Button","x":-30316,"y":-31978},{"name":"YouTube - ADITYA GADHVI | CONCERT SURAT | FOLK NIGHT | - YouTube","type":"Text","x":-31163,"y":-31978},{"name":"Minimize","type":"Button","x":-32173,"y":-31976},{"name":"Maximize","type":"Button","x":-32104,"y":-31976},{"name":"Close","type":"Button","x":-32035,"y":-31976},{"name":"Program Manager","type":"Pane","x":960,"y":600},{"name":"Desktop","type":"List","x":960,"y":600},{"name":"Anikesh","type":"ListItem","x":56,"y":45},{"name":"Command Prompt","type":"ListItem","x":56,"y":186},{"name":"Recycle Bin","type":"ListItem","x":56,"y":303},{"name":"Spotify","type":"ListItem","x":56,"y":432},{"name":"Wise Memory Optimizer","type":"ListItem","x":56,"y":573},{"name":"Microsoft Edge","type":"ListItem","x":56,"y":702},{"name":"Free Download Manager","type":"ListItem","x":56,"y":831},{"name":"LM Studio","type":"ListItem","x":56,"y":948},{"name":"ms.txt","type":"ListItem","x":56,"y":1077},{"name":"Antigravity","type":"ListItem","x":168,"y":45},{"name":"Claude","type":"ListItem","x":168,"y":174},{"name":"YouTube","type":"ListItem","x":168,"y":303},{"name":"Riot Client","type":"ListItem","x":168,"y":432},{"name":"Brave","type":"ListItem","x":168,"y":561},{"name":"VALORANT","type":"ListItem","x":168,"y":690},{"name":"NotebookLM","type":"ListItem","x":168,"y":819},{"name":"Physics Wallah","type":"ListItem","x":168,"y":960},{"name":"NoLlama-main","type":"ListItem","x":168,"y":1077},{"name":"LM Studio","type":"ListItem","x":280,"y":45},{"name":"Forge 2.0","type":"ListItem","x":280,"y":174},{"name":"Counter-Strike 2","type":"ListItem","x":280,"y":315}]
+
 
 History:
 []
 
-User Intent: click the login button (iteration 0)
+User Intent: search how organiod intellegence works
 
 Available Actions format:
 {"type": "click_element", "name": "exact name from UIA Elements"}

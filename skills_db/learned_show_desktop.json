@@ -1,9 +1,0 @@
-{
-  "name": "show desktop",
-  "actions": [
-    {
-      "type": "key",
-      "key": "win+d"
-    }
-  ]
-}

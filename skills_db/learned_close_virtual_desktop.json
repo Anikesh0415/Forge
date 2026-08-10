@@ -1,9 +1,0 @@
-{
-  "name": "close virtual desktop",
-  "actions": [
-    {
-      "type": "key",
-      "key": "win+ctrl+f4"
-    }
-  ]
-}

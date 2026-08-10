@@ -7,12 +7,14 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 	"unsafe"
 
 	"forge/pkg/executor"
 	"forge/pkg/skills"
+	"forge/pkg/uia"
 )
 
 func notifyUser(title, message string) {
@@ -46,6 +48,9 @@ var (
 
 	isRecording     bool
 	recordedActions []executor.Action
+	recorderMutex   sync.Mutex
+
+	clickProcessingChan = make(chan POINT, 100)
 )
 
 const (
@@ -97,6 +102,7 @@ func keyboardCallback(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		}
 		
 		if isRecording {
+			recorderMutex.Lock()
 			// Extremely naive key capture for demo purposes
 			keyName := fmt.Sprintf("%c", kbd.VkCode)
 			// Handle space specifically
@@ -107,6 +113,7 @@ func keyboardCallback(nCode int, wParam uintptr, lParam uintptr) uintptr {
 				Type: "type",
 				Text: strings.ToLower(keyName),
 			})
+			recorderMutex.Unlock()
 		}
 	}
 	ret, _, _ := procCallNextHookEx.Call(keyboardHook, uintptr(nCode), wParam, lParam)
@@ -118,18 +125,11 @@ func mouseCallback(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		ms := (*MSLLHOOKSTRUCT)(unsafe.Pointer(lParam))
 		
 		if isRecording {
-			recordedActions = append(recordedActions, executor.Action{
-				Type: "move",
-				X:    int(ms.Pt.X),
-				Y:    int(ms.Pt.Y),
-			})
-			recordedActions = append(recordedActions, executor.Action{
-				Type: "sleep",
-				Ms:   200,
-			})
-			recordedActions = append(recordedActions, executor.Action{
-				Type: "click",
-			})
+			// Send click to background worker to prevent freezing the global mouse hook
+			select {
+			case clickProcessingChan <- ms.Pt:
+			default:
+			}
 		}
 	}
 	ret, _, _ := procCallNextHookEx.Call(mouseHook, uintptr(nCode), wParam, lParam)
@@ -137,6 +137,9 @@ func mouseCallback(nCode int, wParam uintptr, lParam uintptr) uintptr {
 }
 
 func toggleRecording() {
+	recorderMutex.Lock()
+	defer recorderMutex.Unlock()
+
 	if !isRecording {
 		fmt.Println("\n[REC] Started recording macro... Press Ctrl+Shift+R again to stop.")
 		notifyUser("Forge Recorder", "🔴 Started recording macro... Press Ctrl+Shift+R to stop.")
@@ -146,6 +149,9 @@ func toggleRecording() {
 		isRecording = false
 		fmt.Println("[REC] Stopped recording.")
 		notifyUser("Forge Recorder", "⏹️ Stopped recording.")
+		
+		// Allow any pending background UI queries to finish
+		time.Sleep(500 * time.Millisecond)
 		
 		if len(recordedActions) > 0 {
 			saveMacro()
@@ -174,6 +180,38 @@ func saveMacro() {
 }
 
 func StartHooks() {
+	// Background worker for processing semantic clicks
+	go func() {
+		for pt := range clickProcessingChan {
+			elName, err := uia.GetElementAtPoint(int(pt.X), int(pt.Y))
+			elName = strings.TrimSpace(elName)
+			
+			recorderMutex.Lock()
+			if isRecording {
+				if err == nil && elName != "" {
+					fmt.Printf("[REC] Semantic Click: '%s'\n", elName)
+					recordedActions = append(recordedActions, executor.Action{
+						Type: "click_element",
+						Name: elName,
+					})
+				} else {
+					fmt.Printf("[REC] Raw Click: %d, %d\n", pt.X, pt.Y)
+					recordedActions = append(recordedActions, executor.Action{
+						Type: "move",
+						X:    int(pt.X),
+						Y:    int(pt.Y),
+					}, executor.Action{
+						Type: "sleep",
+						Ms:   200,
+					}, executor.Action{
+						Type: "click",
+					})
+				}
+			}
+			recorderMutex.Unlock()
+		}
+	}()
+
 	go func() {
 		cbKeyboard := syscall.NewCallback(keyboardCallback)
 		hKbd, _, _ := procSetWindowsHookEx.Call(

@@ -1,9 +1,0 @@
-{
-  "name": "volume down",
-  "actions": [
-    {
-      "type": "key",
-      "key": "audio_vol_down"
-    }
-  ]
-}
