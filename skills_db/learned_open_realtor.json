@@ -3,7 +3,7 @@
   "actions": [
     {
       "type": "key",
-      "key": "win"
+      "key": "win+r"
     },
     {
       "type": "sleep",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "realtor.com"
+      "text": "brave https://www.realtor.com/realestateandhomes-search/"
     },
     {
       "type": "sleep",

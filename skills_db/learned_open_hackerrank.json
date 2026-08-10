@@ -3,7 +3,7 @@
   "actions": [
     {
       "type": "key",
-      "key": "win"
+      "key": "win+r"
     },
     {
       "type": "sleep",
@@ -11,7 +11,7 @@
     },
     {
       "type": "type",
-      "text": "hackerrank.com"
+      "text": "brave https://www.hackerrank.com/"
     },
     {
       "type": "sleep",
