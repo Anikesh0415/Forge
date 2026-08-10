@@ -28,11 +28,12 @@ Originally built as a simple Python wrapper, **Forge has been entirely rewritten
 
 ---
 
-## What's New in Version 2.70 🚀
+## What's New in Version 2.71 🚀
 
-- 🌐 **Universal Parameterized Macros:** Added ultra-powerful dynamic fallbacks like `open {app}` and `browse {site}`. If you ask Forge to open an app it doesn't explicitly know, it will dynamically extract the app name and launch it using these universal templates!
-- 🧠 **Smart Semantic Macro Recorder:** The `Ctrl+Shift+R` recorder is no longer blind. It intercepts physical mouse clicks and asynchronously queries Windows UIA in the background to record the *semantic name* of the element (e.g., "Send Button") instead of fragile `(X,Y)` coordinates.
-- 🧹 **Macro Database Expansion:** Wiped out unnecessary clutter and expanded the built-in database to **401** hyper-optimized skills, including support for modern AI tools (Claude, Midjourney, Cursor) and core Windows shortcuts.
+- 🚀 **100% Native Go Skill Infrastructure (`pkg/skills/builtin.go`):** Migrated all skill initialization and dynamic search macro matching directly into pure Go, completely removing external Python dependencies!
+- ⚡ **5x UIA Scanner Optimization:** Optimized the `uia.go` engine to filter non-interactive background elements (like background text/images), shrinking UIA payloads by up to 80% for lightning-fast AI planner decisions.
+- 💬 **WhatsApp & Spotify Parameterized Macros:** Added ultra-fast parameterized macros for WhatsApp messaging (`send {message} to {contact} on whatsapp`) and Spotify playback (`play {song} on spotify`).
+- 🌐 **600+ Built-in Universal Search & App Macros:** Native dynamic search support across 200+ top platforms (YouTube, Amazon, Reddit, StackOverflow, GitHub, ChatGPT, Claude, etc.).
 
 ---
 
