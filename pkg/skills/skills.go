@@ -22,19 +22,48 @@ func Register(s Skill) {
 }
 
 func MatchIntent(intent string) Skill {
+	var bestSkill Skill
+	bestScore := 9999
+
 	for _, s := range Registry {
-		if s.Match(intent) {
-			return s
+		if ds, ok := s.(*DynamicSkill); ok {
+			match, score := FuzzyMatchWithScore(intent, ds.SkillName)
+			if match && score < bestScore {
+				bestScore = score
+				bestSkill = s
+			}
+		} else {
+			// Advanced skill
+			if s.Match(intent) {
+				return s // Advanced skills always win if they match
+			}
 		}
 	}
-	return nil
+	return bestSkill
 }
 
 // Helper to check if a string contains all keywords
 func ContainsAllKeywords(intent string, keywords ...string) bool {
-	lower := strings.ToLower(intent)
+	inputTokens := strings.Fields(strings.ToLower(intent))
+	
 	for _, kw := range keywords {
-		if !strings.Contains(lower, kw) {
+		kw = strings.ToLower(kw)
+		found := false
+		
+		for _, iToken := range inputTokens {
+			dist := levenshtein(iToken, kw)
+			// Much stricter typos for exact keyword constraints in advanced skills
+			allowedTypos := 0
+			if len(kw) >= 5 {
+				allowedTypos = 1
+			}
+			if dist <= allowedTypos {
+				found = true
+				break
+			}
+		}
+		
+		if !found && !strings.Contains(strings.ToLower(intent), kw) {
 			return false
 		}
 	}
@@ -50,8 +79,127 @@ func (s *DynamicSkill) Name() string {
 	return s.SkillName
 }
 
+// levenshtein computes the Levenshtein distance between two strings
+func levenshtein(s1, s2 string) int {
+	lenS1 := len(s1)
+	lenS2 := len(s2)
+	
+	if lenS1 == 0 {
+		return lenS2
+	}
+	if lenS2 == 0 {
+		return lenS1
+	}
+
+	matrix := make([][]int, lenS1+1)
+	for i := range matrix {
+		matrix[i] = make([]int, lenS2+1)
+	}
+
+	for i := 0; i <= lenS1; i++ {
+		matrix[i][0] = i
+	}
+	for j := 0; j <= lenS2; j++ {
+		matrix[0][j] = j
+	}
+
+	for i := 1; i <= lenS1; i++ {
+		for j := 1; j <= lenS2; j++ {
+			cost := 1
+			if s1[i-1] == s2[j-1] {
+				cost = 0
+			}
+			matrix[i][j] = min(
+				matrix[i-1][j]+1,      // deletion
+				matrix[i][j-1]+1,      // insertion
+				matrix[i-1][j-1]+cost, // substitution
+			)
+		}
+	}
+	return matrix[lenS1][lenS2]
+}
+
+func min(a, b, c int) int {
+	m := a
+	if b < m {
+		m = b
+	}
+	if c < m {
+		m = c
+	}
+	return m
+}
+
+func FuzzyMatchWithScore(input, target string) (bool, int) {
+	input = strings.ToLower(input)
+	target = strings.ToLower(target)
+	
+	if input == target {
+		return true, 0
+	}
+	if strings.Contains(input, target) && len(input) == len(target) {
+		return true, 0
+	}
+
+	inputTokens := strings.Fields(input)
+	targetTokens := strings.Fields(target)
+
+	matchCount := 0
+	totalScore := 0
+	
+	for _, tToken := range targetTokens {
+		bestDist := 999
+		for _, iToken := range inputTokens {
+			dist := levenshtein(iToken, tToken)
+			if dist < bestDist {
+				bestDist = dist
+			}
+		}
+		
+		allowedTypos := 0
+		if len(tToken) >= 5 {
+			allowedTypos = 1
+		}
+		if len(tToken) >= 8 {
+			allowedTypos = 2
+		}
+		
+		if bestDist <= allowedTypos {
+			matchCount++
+			totalScore += bestDist
+		} else {
+			totalScore += 100 // penalty for missing word
+		}
+	}
+
+	// Calculate a penalty for extra words in the input that didn't match anything
+	extraWords := len(inputTokens) - matchCount
+	if extraWords > 0 {
+		totalScore += extraWords * 10 
+	}
+
+	// Must match all target tokens to be considered a match
+	isMatch := (matchCount == len(targetTokens) && len(targetTokens) > 0)
+	
+	// Ensure that extra words don't allow a 1-word target to greedily consume a multi-word input
+	// unless the score is exceptionally good. 
+	if isMatch && extraWords > 0 && len(targetTokens) == 1 {
+		// If input is "open spotify" (2 tokens) and target is "openai" (1 token)
+		// totalScore = distance("open", "openai") + 1*10 = 2 + 10 = 12.
+		// We can add a strict check: if it's a 1-word target but input has >1 word, it shouldn't match
+		// unless it's explicitly containing the target.
+		if !strings.Contains(input, target) {
+			isMatch = false
+		}
+	}
+	
+	return isMatch, totalScore
+}
+
 func (s *DynamicSkill) Match(intent string) bool {
-	return intent == strings.ToLower(s.SkillName)
+	// We no longer use this directly in MatchIntent, but keep it for interface satisfaction
+	match, _ := FuzzyMatchWithScore(intent, s.SkillName)
+	return match
 }
 
 func (s *DynamicSkill) Execute(intent string) error {

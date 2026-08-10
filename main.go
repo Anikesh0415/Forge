@@ -9,8 +9,10 @@ import (
 	"syscall"
 	"time"
 
+	"forge/pkg/db"
 	"forge/pkg/executor"
 	"forge/pkg/planner"
+	"forge/pkg/recorder"
 	"forge/pkg/skills"
 	"forge/pkg/uia"
 	"forge/pkg/vision"
@@ -24,6 +26,8 @@ func main() {
 		defer logFile.Close()
 	}
 	
+	db.InitBrain()
+	recorder.StartHooks()
 	skills.LoadLearnedSkills()
 
 	for {

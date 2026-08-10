@@ -1,0 +1,25 @@
+{
+  "name": "macro 20260810_185156",
+  "actions": [
+    {
+      "type": "move",
+      "x": 1374,
+      "y": 1153
+    },
+    {
+      "type": "sleep",
+      "ms": 200
+    },
+    {
+      "type": "click"
+    },
+    {
+      "type": "type",
+      "text": "¢"
+    },
+    {
+      "type": "type",
+      "text": " "
+    }
+  ]
+}

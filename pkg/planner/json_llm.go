@@ -53,7 +53,7 @@ Assistant:
 	cmd := exec.Command(llamaExe,
 		"-m", modelPath,
 		"-f", "temp_prompt.txt",
-		"-c", "16384",
+		"-c", "4096",
 		"-n", "512",
 		"--temp", "0.1",
 		"--repeat-penalty", "1.2",

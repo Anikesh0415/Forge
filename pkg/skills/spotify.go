@@ -3,6 +3,7 @@ package skills
 import (
 	"fmt"
 	"forge/pkg/executor"
+	"forge/pkg/uia"
 	"strings"
 )
 
@@ -54,23 +55,29 @@ func (s *SpotifySearchSkill) Execute(intent string) error {
 		{Type: "type", Text: "brave " + targetUrl},
 		{Type: "sleep", Ms: 1000},
 		{Type: "key", Key: "enter"},
-		
-		// The user explicitly requested a 3 second delay for loading apps
-		{Type: "sleep", Ms: 3000},
-		
-		// To play the top result in Spotify search:
-		// Usually we can press Tab a few times to focus "Top result" and hit enter.
-		{Type: "key", Key: "tab"},
-		{Type: "sleep", Ms: 200},
-		{Type: "key", Key: "tab"},
-		{Type: "sleep", Ms: 200},
-		{Type: "key", Key: "tab"},
-		{Type: "sleep", Ms: 200},
-		{Type: "key", Key: "tab"},
-		{Type: "sleep", Ms: 200},
-		{Type: "key", Key: "enter"},
 	}
 	
 	executor.ExecutePlan(actions)
+	
+	// Use closed-loop UIA watcher to wait for the page to load, instead of blind sleep
+	fmt.Println("Waiting for Spotify Play button via UIA...")
+	
+	// In Spotify Web Player, the play button usually has an aria-label like "Play Judas" or just "Play"
+	el, err := uia.WaitForElement("Play " + searchTerm, 10000)
+	if err != nil {
+		el, err = uia.WaitForElement("Play", 5000)
+	}
+	
+	if err == nil && el != nil {
+		fmt.Printf("Found Play button at %d, %d\n", el.X, el.Y)
+		executor.ExecutePlan([]executor.Action{
+			{Type: "move", X: el.X, Y: el.Y},
+			{Type: "sleep", Ms: 200},
+			{Type: "click"},
+		})
+	} else {
+		fmt.Println("Could not find Play button, playback failed.")
+	}
+	
 	return nil
 }

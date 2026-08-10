@@ -61,3 +61,10 @@ forge.exe
 
 uia_dumper.exe
 uia_dumper.cs
+
+# Local DB & Temp Files
+brain.db
+temp_prompt.txt
+notify.ps1
+input.ps1
+*.exe~

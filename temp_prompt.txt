@@ -11,7 +11,7 @@ UIA Elements:
 History:
 []
 
-User Intent: scroll down (iteration 36)
+User Intent: click the login button (iteration 0)
 
 Available Actions format:
 {"type": "click_element", "name": "exact name from UIA Elements"}
