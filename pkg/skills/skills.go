@@ -27,10 +27,19 @@ func MatchIntent(intent string) Skill {
 
 	for _, s := range Registry {
 		if ds, ok := s.(*DynamicSkill); ok {
-			match, score := FuzzyMatchWithScore(intent, ds.SkillName)
-			if match && score < bestScore {
-				bestScore = score
-				bestSkill = s
+			// First try variable extraction
+			vars, match := ExtractVariables(intent, ds.SkillName)
+			if match {
+				// We can prioritize perfect matches with 0 penalty,
+				// but for now if extraction succeeds, it's a very strong match.
+				score := 0
+				if len(vars) == 0 { // no variables extracted, fall back to pure fuzzy match score
+					_, score = FuzzyMatchWithScore(intent, ds.SkillName)
+				}
+				if score < bestScore {
+					bestScore = score
+					bestSkill = s
+				}
 			}
 		} else {
 			// Advanced skill
@@ -196,15 +205,124 @@ func FuzzyMatchWithScore(input, target string) (bool, int) {
 	return isMatch, totalScore
 }
 
+func ExtractVariables(input, template string) (map[string]string, bool) {
+	vars := make(map[string]string)
+	input = strings.ToLower(input)
+	template = strings.ToLower(template)
+	
+	// A basic regex-free extraction:
+	// If template is "play {song} on {app}" and input is "play blinding lights on spotify"
+	// We split template by "{", then "}" to find the constants and variables.
+	
+	if !strings.Contains(template, "{") {
+		match, _ := FuzzyMatchWithScore(input, template)
+		return vars, match
+	}
+
+	// This is a naive heuristic extractor. For a robust approach, we parse the template:
+	// Find all static parts of the template.
+	staticParts := []string{}
+	varNames := []string{}
+	
+	remainingTemplate := template
+	for {
+		startIdx := strings.Index(remainingTemplate, "{")
+		if startIdx == -1 {
+			if remainingTemplate != "" {
+				staticParts = append(staticParts, remainingTemplate)
+			}
+			break
+		}
+		
+		staticParts = append(staticParts, remainingTemplate[:startIdx])
+		remainingTemplate = remainingTemplate[startIdx+1:]
+		
+		endIdx := strings.Index(remainingTemplate, "}")
+		if endIdx == -1 {
+			break
+		}
+		varNames = append(varNames, remainingTemplate[:endIdx])
+		remainingTemplate = remainingTemplate[endIdx+1:]
+	}
+	
+	// Now try to extract from input
+	remainingInput := input
+	for i, staticPart := range staticParts {
+		// Fuzzy search for the static part to handle typos
+		// For simplicity, we just use strings.Index for exact bounds right now,
+		// but since input might have typos, a robust extractor might need Levenshtein alignment.
+		// For now, exact bounds.
+		
+		staticPart = strings.TrimSpace(staticPart)
+		if staticPart == "" {
+			continue
+		}
+		
+		idx := strings.Index(remainingInput, staticPart)
+		if idx == -1 {
+			return nil, false
+		}
+		
+		// If this isn't the first static part, the text before this part belongs to the previous variable
+		if i > 0 && len(varNames) >= i {
+			varValue := strings.TrimSpace(remainingInput[:idx])
+			vars[varNames[i-1]] = varValue
+		} else if i == 0 && idx > 0 {
+			// If first static part doesn't start at 0, we can't extract (unless template starts with var)
+			if len(varNames) > 0 && template[0] == '{' {
+				vars[varNames[0]] = strings.TrimSpace(remainingInput[:idx])
+			} else {
+				return nil, false
+			}
+		}
+		
+		remainingInput = remainingInput[idx+len(staticPart):]
+	}
+	
+	// If there's a trailing variable
+	if len(varNames) > len(staticParts)-1 {
+		if template[0] != '{' || len(varNames) > 1 {
+			vars[varNames[len(varNames)-1]] = strings.TrimSpace(remainingInput)
+		}
+	} else if len(remainingInput) > 0 {
+		// If there's trailing input but no trailing variable, it's not a perfect match
+		// However, we can be forgiving.
+	}
+
+	return vars, true
+}
+
 func (s *DynamicSkill) Match(intent string) bool {
 	// We no longer use this directly in MatchIntent, but keep it for interface satisfaction
-	match, _ := FuzzyMatchWithScore(intent, s.SkillName)
+	_, match := ExtractVariables(intent, s.SkillName)
 	return match
 }
 
 func (s *DynamicSkill) Execute(intent string) error {
 	fmt.Printf("Executing Learned Skill: %s\n", s.SkillName)
-	executor.ExecutePlan(s.Actions)
+	
+	vars, match := ExtractVariables(intent, s.SkillName)
+	
+	// Duplicate the actions to inject variables safely
+	var injectedActions []executor.Action
+	for _, act := range s.Actions {
+		injectedAct := act
+		if match && len(vars) > 0 {
+			if injectedAct.Type == "type" {
+				for k, v := range vars {
+					injectedAct.Text = strings.ReplaceAll(injectedAct.Text, "{"+k+"}", v)
+				}
+			}
+			if injectedAct.Name != "" {
+				for k, v := range vars {
+					injectedAct.Name = strings.ReplaceAll(injectedAct.Name, "{"+k+"}", v)
+				}
+			}
+		}
+		injectedActions = append(injectedActions, injectedAct)
+	}
+	
+	executor.ExecutePlan(injectedActions)
 	return nil
 }
 

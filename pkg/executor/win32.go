@@ -1,6 +1,9 @@
 package executor
 
 import (
+	"fmt"
+	"forge/pkg/browser"
+	"forge/pkg/uia"
 	"syscall"
 	"time"
 	"unsafe"
@@ -28,15 +31,32 @@ func ExecutePlan(actions []Action) {
 			moveMouse(act.X, act.Y)
 		case "click":
 			clickMouse()
-		case "click_element":
-			// In the future, this will call uia.go to search for act.Name and get its coordinates
-			// For now, it's just a placeholder to let the AI plan abstractly
+		case "click_element", "click_text":
+			target := act.Name
+			if act.Type == "click_text" {
+				target = act.Text
+			}
+			el, err := uia.WaitForElement(target, 5000)
+			if err == nil && el != nil {
+				fmt.Printf("Found %s at (%d, %d), clicking...\n", target, el.X, el.Y)
+				moveMouse(el.X, el.Y)
+				time.Sleep(100 * time.Millisecond)
+				clickMouse()
+			} else {
+				fmt.Printf("Failed to find %s on screen: %v\n", target, err)
+			}
 		case "type":
 			typeText(act.Text)
 		case "key":
 			pressSpecialKey(act.Key)
 		case "sleep":
 			time.Sleep(time.Duration(act.Ms) * time.Millisecond)
+		case "browser_navigate":
+			browser.Navigate(act.Text)
+		case "browser_click_dom":
+			browser.Click(act.Name) // Using Name as the CSS selector
+		case "browser_type_dom":
+			browser.Type(act.Name, act.Text) // Using Name as CSS selector, Text as text to type
 		}
 		time.Sleep(100 * time.Millisecond) // small delay between actions
 	}
