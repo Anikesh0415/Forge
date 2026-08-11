@@ -22,7 +22,15 @@ Written entirely in **pure Go**, Forge achieves a true **Zero-RAM footprint** wh
 
 ---
 
-## What's New in Version 2.81 🚀
+## What's New in Version 2.83 🚀
+
+### 🏝️ Dynamic Island UI (`main.go`)
+- Completely redesigned the Forge summon overlay into a sleek, 46px tall macOS-style "Dynamic Island".
+- Renders via native WPF/XAML injected via PowerShell, avoiding extra RAM consumption while maintaining a modern glassy aesthetic.
+
+### 🧠 Specialized AI Fine-Tuning Pipeline (`finetune.ipynb` & `json_llm.go`)
+- Added a seamless Unsloth-powered fine-tuning pipeline tailored for Google Colab to train `Qwen2.5-0.5B-Instruct` on user-recorded UI interactions.
+- Hardcoded `forge_specialized.gguf` as the default model directly into the Go source, eliminating the need to set manual environment variables.
 
 ### 👁️ Dual-Stage Vision Pipeline (`pkg/vision/vision.go`)
 - Integrated **SmolVLM-256M** as a hyper-fast first-pass vision model with a tight 10s execution timeout.

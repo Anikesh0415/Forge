@@ -1,55 +1,30 @@
 <|im_start|>system
-You are a precise PC automation agent.
-Output ONLY ONE VALID JSON action object for the NEXT step. No arrays. No explanations.
+You are a Windows PC automation agent. You output ONE JSON action for the next step. No text, just JSON.
+Available action types: click_element, type, key, sleep, done.
 <|im_end|>
 <|im_start|>user
-Vision Context: 0.00.131.876 W load: missing pre-tokenizer type, using: 'default'
-0.00.131.887 W load:                                             
-0.00.131.887 W load: ************************************        
-0.00.131.888 W load: GENERATION QUALITY WILL BE DEGRADED!        
-0.00.131.888 W load: CONSIDER REGENERATING THE MODEL             
-0.00.131.888 W load: ************************************        
-0.00.131.888 W load:                                             
-0.00.362.307 W llama_context: n_ctx_seq (4096) > n_ctx_train (2048) -- possible training context overflow
-0.01.289.610 W load_tensors: ffn up/down are swapped
-0.02.012.040 I mtmd_cli_context: chat template example:
-<|im_start|>system
-You are a helpful assistant<|im_end|>
-<|im_start|>user
-Hello<|im_end|>
-<|im_start|>assistant
-Hi there<|im_end|>
-<|im_start|>user
-How are you?<|im_end|>
-<|im_start|>assistant
+TASK: set a 10 minute timer on clock app
 
-0.02.012.048 I main: loading model: E:\AIF_Project\models\moondream2-text-model-f16.gguf
-0.02.012.068 W WARN: This is an experimental CLI for testing multimodal capability.
-0.02.012.068 W       For normal use cases, please use the standard llama-cli
-0.02.146.515 I encoding mtmd batch, n_chunks = 1 (done = 1, total = 3)
-0.04.503.677 I mtmd batch encoding done in 2357 ms
+DONE SO FAR:
+None yet
 
-UIA Elements:
-[{"name":"Task Manager","type":"Window","x":1431,"y":604},{"name":"DesktopWindowXamlSource","type":"Pane","x":1431,"y":599},{"name":"Filter Control Glass Window","type":"Pane","x":1428,"y":39},{"name":"Glass Window","type":"Pane","x":1610,"y":39},{"name":"Glass Window","type":"Pane","x":1163,"y":39},{"name":"DesktopWindowXamlSource","type":"Pane","x":1345,"y":39},{"name":"DesktopWindowXamlSource","type":"Pane","x":1431,"y":116},{"name":"TaskManagerMain","type":"Pane","x":1432,"y":677},{"name":"DesktopWindowXamlSource","type":"Pane","x":1431,"y":677},{"name":"Analyze Gemma-4 Model Int...","type":"Window","x":960,"y":600},{"name":"Analyze Gemma-4 Model Int...","type":"Pane","x":960,"y":599},{"name":"Minimize","type":"Button","x":1749,"y":22},{"name":"Restore","type":"Button","x":1816,"y":22},{"name":"Close","type":"Button","x":1885,"y":22},{"name":"Analyze Gemma-4 Model Integration","type":"Document","x":960,"y":599},{"name":"","type":"Group","x":960,"y":599},{"name":"","type":"Group","x":960,"y":599},{"name":"Antigravity","type":"Button","x":80,"y":26},{"name":"File","type":"Button","x":184,"y":26},{"name":"View","type":"Button","x":259,"y":26},{"name":"Window","type":"Button","x":358,"y":26},{"name":"","type":"Group","x":210,"y":83},{"name":"AIF_Project","type":"Text","x":210,"y":83},{"name":"/","type":"Text","x":278,"y":82},{"name":"","type":"Group","x":466,"y":83},{"name":"Analyze Gemma-4 Model Integration","type":"Text","x":466,"y":83},{"name":"","type":"Button","x":1696,"y":83},{"name":"","type":"Image","x":1697,"y":83},{"name":"Open IDE","type":"Button","x":1793,"y":83},{"name":"","type":"Image","x":1747,"y":83},{"name":"","type":"Group","x":960,"y":656},{"name":"Load older messages, showing 174 of 14195","type":"Button","x":376,"y":114},{"name":"User message","type":"Group","x":952,"y":198},{"name":"","type":"Group","x":952,"y":210},{"name":"","type":"Group","x":439,"y":202},{"name":"User uploaded media 1","type":"Image","x":439,"y":202},{"name":"","type":"Group","x":549,"y":202},{"name":"User uploaded media 2","type":"Image","x":549,"y":202},{"name":"failed","type":"Text","x":415,"y":278},{"name":"8:05 PM","type":"Text","x":1401,"y":252},{"name":"Copy","type":"Button","x":1464,"y":252},{"name":"","type":"Image","x":1464,"y":252},{"name":"Undo changes up to this point","type":"Button","x":1500,"y":252},{"name":"","type":"Image","x":1500,"y":252},{"name":"Agent response","type":"Group","x":952,"y":392},{"name":"Worked for 1m","type":"Button","x":952,"y":331},{"name":"","type":"Image","x":544,"y":332},{"name":"I'm standing by whenever you are ready! Did the fix work on your end after you restarted Forge?","type":"Text","x":834,"y":378},{"name":"","type":"Group","x":952,"y":439},{"name":"1 file changed","type":"Text","x":460,"y":439},{"name":"+","type":"Text","x":542,"y":439},{"name":"1","type":"Text","x":555,"y":439},{"name":"-","type":"Text","x":568,"y":439},{"name":"1","type":"Text","x":578,"y":439},{"name":"","type":"Image","x":603,"y":440},{"name":"Review","type":"Button","x":1460,"y":439},{"name":"","type":"Image","x":1425,"y":440},{"name":"8:05 PM","type":"Text","x":420,"y":513},{"name":"Copy","type":"Button","x":1432,"y":516},{"name":"","type":"Image","x":1432,"y":516},{"name":"Good response","type":"Button","x":1468,"y":516},{"name":"","type":"Image","x":1468,"y":516},{"name":"Bad response","type":"Button","x":1504,"y":516},{"name":"","type":"Image","x":1504,"y":516},{"name":"","type":"Group","x":422,"y":1039},{"name":"Image attachment","type":"Image","x":422,"y":1039},{"name":"","type":"Button","x":440,"y":1021},{"name":"","type":"Image","x":440,"y":1021},{"name":"Message input","type":"ComboBox","x":960,"y":1101},{"name":"Ask anything, @ to mention, / for actions","type":"Text","x":593,"y":1101},{"name":"Add context","type":"Button","x":415,"y":1155},{"name":"","type":"Image","x":415,"y":1155},{"name":"Select model, current: Gemini 3.1 Pro Low","type":"Button","x":537,"y":1155},{"name":"Gemini 3.1 Pro","type":"Text","x":508,"y":1155},{"name":" ","type":"Text","x":569,"y":1155},{"name":"Low","type":"Text","x":587,"y":1155},{"name":"","type":"Image","x":620,"y":1155},{"name":"Record voice memo","type":"Button","x":1456,"y":1155},{"name":"","type":"Image","x":1456,"y":1155},{"name":"Send message","type":"Button","x":1504,"y":1155},{"name":"","type":"Image","x":1504,"y":1155},{"name":"Toggle Sidebar","type":"Button","x":30,"y":82},{"name":"","type":"Image","x":30,"y":82},{"name":"Go Back","type":"Button","x":78,"y":82},{"name":"","type":"Image","x":78,"y":82},{"name":"Go Forward","type":"Button","x":120,"y":82},{"name":"","type":"Image","x":120,"y":82},{"name":"Toggle Auxiliary Pane","type":"Button","x":1890,"y":82},{"name":"","type":"Image","x":1890,"y":82},{"name":"Minimize","type":"Button","x":-32161,"y":-31968},{"name":"Maximize","type":"Button","x":-32092,"y":-31968},{"name":"Close","type":"Button","x":-32023,"y":-31968},{"name":"","type":"ToolBar","x":-31029,"y":-31909},{"name":"Back","type":"Button","x":-31963,"y":-31909},{"name":"Forward","type":"Button","x":-31914,"y":-31909},{"name":"Reload","type":"Button","x":-31869,"y":-31909},{"name":"Home","type":"Button","x":-31824,"y":-31909},{"name":"Open tab in split view","type":"Button","x":-31779,"y":-31909},{"name":"Bookmark this tab","type":"Button","x":-31734,"y":-31909},{"name":"","type":"Group","x":-31006,"y":-31909},{"name":"View site information","type":"Button","x":-31675,"y":-31909},{"name":"Address and search bar","type":"Edit","x":-31087,"y":-31909},{"name":"Install GitHub","type":"Button","x":-30499,"y":-31909},{"name":"Turn on Speedreader","type":"Button","x":-30448,"y":-31909},{"name":"Separator","type":"Separator","x":-30423,"y":-31909},{"name":"Brave Shields","type":"Button","x":-30393,"y":-31909},{"name":"Brave Rewards","type":"Button","x":-30342,"y":-31909},{"name":"Extensions","type":"Button","x":-30279,"y":-31909},{"name":"Show sidebar","type":"Button","x":-30189,"y":-31909},{"name":"Leo AI","type":"Button","x":-30144,"y":-31909},{"name":"Brave","type":"Button","x":-30094,"y":-31909},{"name":"Anikesh0415/Forge: Automates work-Hands free","type":"Document","x":960,"y":660},{"name":"","type":"Group","x":948,"y":-311},{"name":"","type":"Group","x":948,"y":-321},{"name":"","type":"Group","x":948,"y":-321},{"name":"","type":"Group","x":948,"y":-321},{"name":"","type":"Group","x":948,"y":-321},{"name":"Name","type":"DataItem","x":750,"y":-5851},{"name":"Last commit message","type":"DataItem","x":1016,"y":-5851},{"name":"Repository files navigation","type":"Text","x":48,"y":157},{"name":"Repository files","type":"Group","x":656,"y":158},{"name":"","type":"List","x":656,"y":164},{"name":"README","type":"ListItem","x":115,"y":164},{"name":"README","type":"Hyperlink","x":115,"y":158},{"name":"Edit file","type":"Button","x":1285,"y":157},{"name":"Outline","type":"Button","x":1343,"y":157},{"name":"","type":"Group","x":714,"y":665},{"name":"","type":"Group","x":714,"y":665},{"name":"                         +-------------------+                          |  User Prompt /    |                          |  Ctrl+Shift+R Rec |                          +---------+---------+                                    |                                    v                       +-------------------------+                       | Pure-Go Fuzzy Matcher   |                       +----+---------------+----+                            |               |            [Skill Matched] |               | [No Skill Match]                            v               v                +---------------+       +------------------+                | Native Skill  |       | Qwen 0.5B        |                | / Learned     |       | Dynamic AI       |                | Macro (.json) |       | Planner          |                +-------+-------+       +--------+---------+                        |                        |                        +-----------+------------+                                    |                                    v                       +-------------------------+                       | Event-Driven UIA        |                       | Closed-Loop Perception  |                       +------------+------------+                                    |                                    v                       +-------------------------+                       | Native Win32 Executor   |                       +-------------------------+ ","type":"Text","x":463,"y":557},{"name":"Copy code to clipboard","type":"Button","x":1299,"y":123},{"name":"","type":"Separator","x":714,"y":1064},{"name":"The Skills Library ???","type":"Text","x":714,"y":1132},{"name":"Permalink: The Skills Library ???","type":"Hyperlink","x":76,"y":1124},{"name":"Forge includes built-in skills and supports infinitely extendable dynamic skills:","type":"Text","x":505,"y":1202},{"name":"Tab search","type":"Button","x":-30295,"y":-31969},{"name":"","type":"Tab","x":-31803,"y":-31969},{"name":"Anikesh0415/Forge: Automates work-Hands free","type":"TabItem","x":-31803,"y":-31969},{"name":"Close","type":"Button","x":-31645,"y":-31969},{"name":"New Tab","type":"Button","x":-31590,"y":-31969},{"name":"Program Manager","type":"Pane","x":960,"y":600},{"name":"Desktop","type":"List","x":960,"y":600},{"name":"Anikesh","type":"ListItem","x":56,"y":45},{"name":"Command Prompt","type":"ListItem","x":56,"y":186},{"name":"Recycle Bin","type":"ListItem","x":56,"y":303},{"name":"Spotify","type":"ListItem","x":56,"y":432},{"name":"Wise Memory Optimizer","type":"ListItem","x":56,"y":573},{"name":"Microsoft Edge","type":"ListItem","x":56,"y":702},{"name":"Free Download Manager","type":"ListItem","x":56,"y":831},{"name":"LM Studio","type":"ListItem","x":56,"y":948},{"name":"ms.txt","type":"ListItem","x":56,"y":1077},{"name":"Antigravity","type":"ListItem","x":168,"y":45},{"name":"Claude","type":"ListItem","x":168,"y":174},{"name":"YouTube","type":"ListItem","x":168,"y":303},{"name":"Riot Client","type":"ListItem","x":168,"y":432},{"name":"Brave","type":"ListItem","x":168,"y":561},{"name":"VALORANT","type":"ListItem","x":168,"y":690},{"name":"NotebookLM","type":"ListItem","x":168,"y":819},{"name":"Physics Wallah","type":"ListItem","x":168,"y":960},{"name":"NoLlama-main","type":"ListItem","x":168,"y":1077},{"name":"LM Studio","type":"ListItem","x":280,"y":45},{"name":"Forge 2.0","type":"ListItem","x":280,"y":174},{"name":"Counter-Strike 2","type":"ListItem","x":280,"y":315}]
+SCREEN ELEMENTS:
+[{"name":"Analyze Gemma-4 Model Int...","type":"Window","x":960,"y":600},{"name":"Analyze Gemma-4 Model Int...","type":"Pane","x":960,"y":599},{"name":"Minimize","type":"Button","x":1749,"y":22},{"name":"Restore","type":"Button","x":1816,"y":22},{"name":"Close","type":"Button","x":1885,"y":22},{"name":"github - Brave Search - Brave","type":"Window","x":960,"y":600},{"name":"github - Brave Search - Brave","type":"Pane","x":960,"y":599},{"name":"Minimize","type":"Button","x":1749,"y":30},{"name":"Restore","type":"Button","x":1816,"y":30},{"name":"Close","type":"Button","x":1885,"y":30},{"name":"Back","type":"Button","x":25,"y":90},{"name":"Forward","type":"Button","x":75,"y":90},{"name":"Reload","type":"Button","x":120,"y":90},{"name":"Home","type":"Button","x":165,"y":90},{"name":"Open tab in split view","type":"Button","x":210,"y":90}]
 
+SCREEN DESCRIPTION: 
 
-History:
-[{"type":"key","key":"search"},{"type":"key","key":"enter"},{"type":"key","key":"enter"},{"type":"key","key":"enter"},{"type":"key","key":"enter"}]
+INSTRUCTIONS:
+- STRONGLY PREFER KEYBOARD OVER MOUSE! It is much more reliable.
+- To open ANY app (like clock, browser, etc): You MUST output {"type":"key", "key":"win"}.
+- If you already pressed win, output {"type":"type", "text":"app name"} next. Do NOT press win again.
+- After typing the app name, output {"type":"key", "key":"enter"}.
+- DO NOT click taskbar items (like Start, Search, or Clock) to open apps! It will fail.
+- Output {"type":"done"} when the task is fully complete.
 
-User Intent: send hi to balram on whatsapp
-
-Available Actions format:
-{"type": "click_element", "name": "exact name from UIA Elements"}
-{"type": "type", "text": "text to type"}
-{"type": "key", "key": "enter"}
-{"type": "sleep", "ms": 500}
-{"type": "done"}
-
-Example 1:
-User Intent: search for cats
-History: opened browser
-UIA Elements: [{"name": "Search Box", "type": "Edit"}]
-Assistant:
-{"type": "click_element", "name": "Search Box"}
+EXAMPLE OF OPENING AN APP:
+Task: open notepad
+Step 1 Output: {"type":"key", "key":"win"}
+Step 2 Output: {"type":"type", "text":"notepad"}
+Step 3 Output: {"type":"key", "key":"enter"}
 <|im_end|>
 <|im_start|>assistant

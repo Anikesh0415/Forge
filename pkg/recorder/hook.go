@@ -15,6 +15,7 @@ import (
 	"forge/pkg/executor"
 	"forge/pkg/skills"
 	"forge/pkg/uia"
+	"forge/pkg/voice"
 )
 
 func notifyUser(title, message string) {
@@ -47,6 +48,7 @@ var (
 	mouseHook    uintptr
 
 	isRecording     bool
+	lastUIAContext  string
 	recordedActions []executor.Action
 	recorderMutex   sync.Mutex
 
@@ -59,6 +61,7 @@ const (
 	WM_KEYDOWN     = 0x0100
 	WM_LBUTTONDOWN = 0x0201
 	VK_R         = 0x52
+	VK_V         = 0x56
 	VK_CONTROL   = 0x11
 	VK_SHIFT     = 0x10
 )
@@ -99,6 +102,12 @@ func keyboardCallback(nCode int, wParam uintptr, lParam uintptr) uintptr {
 		if kbd.VkCode == VK_R && isKeyDown(VK_CONTROL) && isKeyDown(VK_SHIFT) {
 			toggleRecording()
 			return 1 // block the R key from reaching other apps to prevent typing 'r'
+		}
+		
+		// Trigger on Ctrl + Shift + V (Voice Push-to-Talk)
+		if kbd.VkCode == VK_V && isKeyDown(VK_CONTROL) && isKeyDown(VK_SHIFT) {
+			go handleVoicePushToTalk()
+			return 1 // block the V key from reaching other apps
 		}
 		
 		if isRecording {
@@ -144,7 +153,16 @@ func toggleRecording() {
 		fmt.Println("\n[REC] Started recording macro... Press Ctrl+Shift+R again to stop.")
 		notifyUser("Forge Recorder", "🔴 Started recording macro... Press Ctrl+Shift+R to stop.")
 		recordedActions = []executor.Action{}
+		lastUIAContext = ""
 		isRecording = true
+		
+		go func() {
+			time.Sleep(500 * time.Millisecond)
+			dump, _ := uia.DumpUI()
+			recorderMutex.Lock()
+			lastUIAContext = dump
+			recorderMutex.Unlock()
+		}()
 	} else {
 		isRecording = false
 		fmt.Println("[REC] Stopped recording.")
@@ -159,9 +177,27 @@ func toggleRecording() {
 	}
 }
 
+func promptForIntent(defaultName string) string {
+	ps1 := `
+Add-Type -AssemblyName Microsoft.VisualBasic
+$intent = [Microsoft.VisualBasic.Interaction]::InputBox("What did you just do? (This will be used as the AI training prompt)", "Forge Macro Recorder", "")
+Write-Output $intent
+`
+	os.WriteFile("prompt.ps1", []byte(ps1), 0644)
+	out, err := exec.Command("powershell", "-ExecutionPolicy", "Bypass", "-File", "prompt.ps1").Output()
+	if err != nil {
+		return defaultName
+	}
+	res := strings.TrimSpace(string(out))
+	if res == "" {
+		return defaultName
+	}
+	return res
+}
+
 func saveMacro() {
 	timestamp := time.Now().Format("20060102_150405")
-	skillName := fmt.Sprintf("macro %s", timestamp)
+	skillName := promptForIntent(fmt.Sprintf("macro %s", timestamp))
 	
 	skill := skills.DynamicSkill{
 		SkillName: skillName,
@@ -170,12 +206,29 @@ func saveMacro() {
 	
 	data, _ := json.MarshalIndent(skill, "", "  ")
 	filename := filepath.Join("skills_db", fmt.Sprintf("learned_%s.json", timestamp))
-	
 	os.WriteFile(filename, data, 0644)
+	
+	// Write to training_data.jsonl
+	if lastUIAContext != "" && skillName != fmt.Sprintf("macro %s", timestamp) {
+		type TrainingData struct {
+			Prompt     string            `json:"prompt"`
+			Completion []executor.Action `json:"completion"`
+			UIA        string            `json:"uia"`
+		}
+		td := TrainingData{
+			Prompt:     skillName,
+			Completion: recordedActions,
+			UIA:        lastUIAContext,
+		}
+		tdJSON, _ := json.Marshal(td)
+		f, _ := os.OpenFile("training_data.jsonl", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		f.WriteString(string(tdJSON) + "\n")
+		f.Close()
+	}
+
 	fmt.Printf("[REC] Saved macro as '%s' to %s\n", skillName, filename)
 	notifyUser("Forge Recorder", fmt.Sprintf("✅ Saved macro: %s", skillName))
 	
-	// Load it immediately
 	skills.Register(&skill)
 }
 
@@ -251,3 +304,18 @@ func StartHooks() {
 		}
 	}()
 }
+
+func handleVoicePushToTalk() {
+	fmt.Println("\n[VOICE] Push-to-Talk activated (Ctrl+Shift+V). Listening for speech...")
+	notifyUser("Forge Voice", "🎙️ Listening... Speak your command.")
+
+	resp, err := voice.TriggerVoiceCaptureAndDispatch(5)
+	if err != nil {
+		fmt.Printf("[VOICE] Error: %v\n", err)
+		notifyUser("Forge Voice", fmt.Sprintf("⚠️ Voice: %v", err))
+	} else {
+		fmt.Printf("[VOICE] Executed intent successfully: %s\n", resp)
+		notifyUser("Forge Voice", fmt.Sprintf("✅ Executed: %s", resp))
+	}
+}
+

@@ -72,7 +72,7 @@ func ContainsAllKeywords(intent string, keywords ...string) bool {
 			}
 		}
 		
-		if !found && !strings.Contains(strings.ToLower(intent), kw) {
+		if !found {
 			return false
 		}
 	}

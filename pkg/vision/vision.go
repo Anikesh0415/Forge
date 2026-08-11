@@ -1,6 +1,7 @@
 package vision
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"image/png"
@@ -36,14 +37,14 @@ func CaptureAndAnalyze() (string, error) {
 	// 2. Try SmolVLM-256M first (Fastest)
 	fmt.Println("Trying SmolVLM-256M vision pass...")
 	smolResult, err := analyzeWithSmolVLM(screenshotFile)
-	
+
 	// Consider it a failure if there's an error, or if output is extremely short/meaningless
 	if err == nil && len(strings.TrimSpace(smolResult)) > 10 {
 		return smolResult, nil
 	}
 
 	fmt.Println("SmolVLM failed or gave empty output. Falling back to Moondream2...")
-	
+
 	// 3. Fallback to Moondream2 (More robust for complex UI layout)
 	return analyzeWithMoondream(screenshotFile)
 }
@@ -69,12 +70,17 @@ func analyzeWithSmolVLM(imagePath string) (string, error) {
 	)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 
-	out, err := cmd.CombinedOutput()
+	// Separate stdout (actual vision output) from stderr (llama warnings/banner)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
 	if err != nil {
 		return "", fmt.Errorf("SmolVLM execution failed: %v", err)
 	}
 
-	return strings.TrimSpace(string(out)), nil
+	return strings.TrimSpace(stdout.String()), nil
 }
 
 func analyzeWithMoondream(imagePath string) (string, error) {
@@ -97,10 +103,15 @@ func analyzeWithMoondream(imagePath string) (string, error) {
 	)
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 
-	out, err := cmd.CombinedOutput()
+	// Separate stdout (actual vision output) from stderr (llama warnings/banner)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
 	if err != nil {
-		return "", fmt.Errorf("Moondream execution failed: %v\noutput: %s", err, string(out))
+		return "", fmt.Errorf("Moondream execution failed: %v\nstderr: %s", err, stderr.String())
 	}
 
-	return strings.TrimSpace(string(out)), nil
+	return strings.TrimSpace(stdout.String()), nil
 }

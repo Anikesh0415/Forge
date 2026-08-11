@@ -10,8 +10,9 @@ import (
 )
 
 var (
-	user32        = syscall.MustLoadDLL("user32.dll")
-	procSendInput = user32.MustFindProc("SendInput")
+	user32               = syscall.MustLoadDLL("user32.dll")
+	procSendInput        = user32.MustFindProc("SendInput")
+	procGetSystemMetrics = user32.MustFindProc("GetSystemMetrics")
 )
 
 type Action struct {
@@ -77,8 +78,14 @@ func moveMouse(x, y int) {
 		Pad  [8]byte
 	}
 
-	screenW := int32(1920) // TODO: GetSystemMetrics
-	screenH := int32(1080)
+	w, _, _ := procGetSystemMetrics.Call(0) // SM_CXSCREEN
+	h, _, _ := procGetSystemMetrics.Call(1) // SM_CYSCREEN
+	screenW := int32(w)
+	screenH := int32(h)
+	
+	if screenW == 0 { screenW = 1920 }
+	if screenH == 0 { screenH = 1080 }
+
 	absX := int32(x) * 65535 / screenW
 	absY := int32(y) * 65535 / screenH
 

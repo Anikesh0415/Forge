@@ -30,7 +30,12 @@ public class UIADumper {
                         if (!first) sb.Append(",");
                         first = false;
                         
-                        string name = e.Current.Name.Replace("\"", "\\\"").Replace("\n", " ");
+                        string name = e.Current.Name
+                            .Replace("\\", "\\\\")
+                            .Replace("\"", "\\\"")
+                            .Replace("\n", " ")
+                            .Replace("\r", " ")
+                            .Replace("\t", " ");
                         string ctype = e.Current.ControlType.ProgrammaticName.Replace("ControlType.", "");
                         var rect = e.Current.BoundingRectangle;
                         int centerX = (int)(rect.Left + (rect.Width / 2));
